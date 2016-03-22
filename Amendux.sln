@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Amendux", "Amendux\Amendux.vcxproj", "{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		DebugDLL|x64 = DebugDLL|x64
+		DebugDLL|x86 = DebugDLL|x86
+		DebugLIB|x64 = DebugLIB|x64
+		DebugLIB|x86 = DebugLIB|x86
+		DebugLTCG|x64 = DebugLTCG|x64
+		DebugLTCG|x86 = DebugLTCG|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		ReleaseDLL|x64 = ReleaseDLL|x64
+		ReleaseDLL|x86 = ReleaseDLL|x86
+		ReleaseLIB|x64 = ReleaseLIB|x64
+		ReleaseLIB|x86 = ReleaseLIB|x86
+		ReleaseLTCG|x64 = ReleaseLTCG|x64
+		ReleaseLTCG|x86 = ReleaseLTCG|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x64.ActiveCfg = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x64.Build.0 = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x86.ActiveCfg = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x86.Build.0 = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugDLL|x64.ActiveCfg = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugDLL|x64.Build.0 = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugDLL|x86.ActiveCfg = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugDLL|x86.Build.0 = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLIB|x64.ActiveCfg = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLIB|x64.Build.0 = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLIB|x86.ActiveCfg = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLIB|x86.Build.0 = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLTCG|x64.ActiveCfg = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLTCG|x64.Build.0 = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLTCG|x86.ActiveCfg = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugLTCG|x86.Build.0 = Debug|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Release|x64.ActiveCfg = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Release|x64.Build.0 = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Release|x86.ActiveCfg = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Release|x86.Build.0 = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseDLL|x64.ActiveCfg = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseDLL|x64.Build.0 = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseDLL|x86.ActiveCfg = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseDLL|x86.Build.0 = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLIB|x64.ActiveCfg = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLIB|x64.Build.0 = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLIB|x86.ActiveCfg = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLIB|x86.Build.0 = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLTCG|x64.ActiveCfg = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLTCG|x64.Build.0 = Release|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLTCG|x86.ActiveCfg = Release|Win32
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.ReleaseLTCG|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
