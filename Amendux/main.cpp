@@ -3,15 +3,18 @@
 
 #include "stdafx.h"
 #include "Encrypt.h"
+#include "RegDB.h"
 #include "Resource.h"
 
 #define MAX_LOADSTRING 100
 
+// Global modules
+Amendux::Encrypt FileCrypt;						// File encryptor module
+
 // Global Variables:
-Encrypt FileCrypt;
-HINSTANCE hInst;                                // current instance
+HINSTANCE hInst;                                // Current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -25,7 +28,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Place code here.
+	Amendux::RegDB regKeys;
+	regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
+	regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Common");
+	HKEY hRoot = regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Startup");
+	regKeys.setValue(hRoot, L"InitProcedure", 1);
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);

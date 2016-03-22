@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Encrypt.h"
 
+using namespace Amendux;
+
 Encrypt::Encrypt()
 {
 	log.open("debug.log");
