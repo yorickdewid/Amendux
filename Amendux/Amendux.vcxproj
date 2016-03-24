@@ -152,6 +152,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="RegDB.h" />
     <ClInclude Include="Encrypt.h" />
     <ClInclude Include="Resource.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="stdafx.cpp">

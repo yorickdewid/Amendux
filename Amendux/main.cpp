@@ -1,9 +1,8 @@
 // main.cpp : Defines the entry point for the application.
-//
 
 #include "stdafx.h"
 #include "Encrypt.h"
-#include "RegDB.h"
+#include "Config.h"
 #include "Resource.h"
 
 #define MAX_LOADSTRING 100
@@ -23,30 +22,12 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
 
-	/* Config and initialisation */
-	{
-		
-		HKEY hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
-		DWORD dRsPubkey = Amendux::RegDB::getValue(hRoot, L"clientPubkey");
-		DWORD dRsPrivkey = Amendux::RegDB::getValue(hRoot, L"clientPrivkey");
-		if (!dRsPubkey || !dRsPrivkey) {
-			FileCrypt.genLocalKeypair();
-
-			Amendux::RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", FileCrypt.clientPublickey(), crypto_box_PUBLICKEYBYTES);
-			Amendux::RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", FileCrypt.clientPrivatekey(), crypto_box_SECRETKEYBYTES);
-		}
-
-		hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Common");
-		hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Startup");
-
-		DWORD procInit = 1;
-		Amendux::RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
-	}
+	// Initialize and configure instance
+	Amendux::Config::Init(FileCrypt);
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);

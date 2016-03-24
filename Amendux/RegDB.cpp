@@ -3,7 +3,6 @@
 
 using namespace Amendux;
 
-
 HKEY RegDB::createKey(HKEY kRoot, std::wstring location)
 {
 	std::wofstream log;
@@ -21,21 +20,4 @@ HKEY RegDB::createKey(HKEY kRoot, std::wstring location)
 		log << "Error: " << nError << " Could not find or create " << location.c_str() << std::endl;
 
 	return hKey;
-}
-
-
-DWORD RegDB::getValue(HKEY hKey, LPCTSTR lpValue)
-{
-	DWORD data;
-	DWORD size = sizeof(data);
-	DWORD type = REG_DWORD;
-	LONG nError = RegQueryValueEx(hKey, lpValue, NULL, &type, (LPBYTE)&data, &size);
-
-	if (nError == ERROR_FILE_NOT_FOUND) {
-		return 0;
-	} else if (nError) {
-		std::cout << "Error: " << nError << " Could not get registry value " << (char*)lpValue << std::endl;
-	}
-
-	return data;
 }

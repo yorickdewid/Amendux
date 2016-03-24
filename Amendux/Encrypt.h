@@ -34,6 +34,7 @@ namespace Amendux {
 
 		void Run();
 		void genLocalKeypair();
+		void setLocalKeypair(unsigned char *publickey, unsigned char *privatekey);
 	};
 
 }
