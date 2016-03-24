@@ -1,5 +1,5 @@
 ========================================================================
-    WIN32 APPLICATION : Win32Project1 Project Overview
+    WIN32 APPLICATION : Amendux Project Overview
 ========================================================================
 
 AppWizard has created this Win32Project1 application for you.

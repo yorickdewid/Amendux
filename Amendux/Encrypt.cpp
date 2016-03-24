@@ -147,6 +147,11 @@ bool Encrypt::boxUnseal()
 
 Encrypt::~Encrypt()
 {
+	ZeroMemory(serverPublicKey, crypto_box_PUBLICKEYBYTES);
+	ZeroMemory(serverSecretKey, crypto_box_SECRETKEYBYTES);
+	ZeroMemory(clientPublicKey, crypto_box_PUBLICKEYBYTES);
+	ZeroMemory(clientSecretKey, crypto_box_SECRETKEYBYTES);
+
 	log.close();
 }
 
@@ -176,6 +181,5 @@ void Encrypt::rot13(char str[])
 		else if (str[i] > 'M' && str[i] <= 'Z') {
 			str[i] -= 13;
 		}
-
 	}
 }
