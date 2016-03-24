@@ -8,7 +8,6 @@ namespace Amendux {
 	{
 	public:
 		static HKEY createKey(HKEY kRoot, std::wstring location);
-		// static DWORD getValue(HKEY hKey, LPCTSTR lpValue);
 
 		template <typename T>
 		static void setValue(HKEY hKey, DWORD type, LPCTSTR lpValue, T data, DWORD datalen = sizeof(T))

