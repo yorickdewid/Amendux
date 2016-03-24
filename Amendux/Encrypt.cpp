@@ -10,9 +10,24 @@ Encrypt::Encrypt()
 
 	/* PK Send to us */
 	crypto_box_keypair(serverPublicKey, serverSecretKey);
+}
 
+
+void Encrypt::genLocalKeypair()
+{
 	/* We generate this once */
 	crypto_box_keypair(clientPublicKey, clientSecretKey);
+
+	std::string y = Amendux::Util::Hex<unsigned char *>(clientPublickey(), crypto_box_PUBLICKEYBYTES);
+	std::string x = Amendux::Util::Hex<unsigned char *>(clientPrivatekey(), crypto_box_SECRETKEYBYTES);
+
+	std::wstring wy;
+	std::wstring wx;
+	wy.assign(y.begin(), y.end());
+	wx.assign(x.begin(), x.end());
+
+	log << "pubkey: " << wy << "\n";
+	log << "privkey: " << wx << "\n";
 }
 
 

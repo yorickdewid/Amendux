@@ -28,11 +28,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-	Amendux::RegDB regKeys;
-	regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
-	regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Common");
-	HKEY hRoot = regKeys.createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Startup");
-	regKeys.setValue(hRoot, L"InitProcedure", 1);
+	/* Config and initialisation */
+	{
+		
+		HKEY hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
+		DWORD dRsPubkey = Amendux::RegDB::getValue(hRoot, L"clientPubkey");
+		DWORD dRsPrivkey = Amendux::RegDB::getValue(hRoot, L"clientPrivkey");
+		if (!dRsPubkey || !dRsPrivkey) {
+			FileCrypt.genLocalKeypair();
+
+			Amendux::RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", FileCrypt.clientPublickey(), crypto_box_PUBLICKEYBYTES);
+			Amendux::RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", FileCrypt.clientPrivatekey(), crypto_box_SECRETKEYBYTES);
+		}
+
+		hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Common");
+		hRoot = Amendux::RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Startup");
+
+		DWORD procInit = 1;
+		Amendux::RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
+	}
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);

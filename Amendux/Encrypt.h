@@ -24,7 +24,16 @@ namespace Amendux {
 		Encrypt();
 		~Encrypt();
 
+		unsigned char *clientPublickey() {
+			return clientPublicKey;
+		}
+
+		unsigned char *clientPrivatekey() {
+			return clientSecretKey;
+		}
+
 		void Run();
+		void genLocalKeypair();
 	};
 
 }

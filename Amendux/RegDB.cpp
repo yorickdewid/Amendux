@@ -3,10 +3,6 @@
 
 using namespace Amendux;
 
-RegDB::RegDB()
-{
-}
-
 
 HKEY RegDB::createKey(HKEY kRoot, std::wstring location)
 {
@@ -28,28 +24,18 @@ HKEY RegDB::createKey(HKEY kRoot, std::wstring location)
 }
 
 
-void RegDB::setValue(HKEY hKey, LPCTSTR lpValue, DWORD data)
-{
-	LONG nError = RegSetValueEx(hKey, lpValue, NULL, REG_DWORD, (LPBYTE)&data, sizeof(DWORD));
-
-	if (nError)
-		std::cout << "Error: " << nError << " Could not set registry value: " << (char*)lpValue << std::endl;
-}
-
 DWORD RegDB::getValue(HKEY hKey, LPCTSTR lpValue)
 {
-	DWORD data;		DWORD size = sizeof(data);	DWORD type = REG_DWORD;
+	DWORD data;
+	DWORD size = sizeof(data);
+	DWORD type = REG_DWORD;
 	LONG nError = RegQueryValueEx(hKey, lpValue, NULL, &type, (LPBYTE)&data, &size);
 
-	if (nError == ERROR_FILE_NOT_FOUND)
-		data = 0; // The value will be created and set to data next time SetVal() is called.
-	else if (nError)
+	if (nError == ERROR_FILE_NOT_FOUND) {
+		return 0;
+	} else if (nError) {
 		std::cout << "Error: " << nError << " Could not get registry value " << (char*)lpValue << std::endl;
+	}
 
 	return data;
-}
-
-
-RegDB::~RegDB()
-{
 }
