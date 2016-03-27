@@ -5,7 +5,19 @@ namespace Amendux {
 	class Util
 	{
 	public:
-		static PWCHAR getUserDocumentDirectory();
+		enum class Directory {
+			USER_DOCUMENTS,
+			USER_CONTACT,
+			USER_DESKTOP,
+			USER_DOWNLOAD,
+			USER_FAVORITE,
+			USER_APPDATA,
+			USER_PICTURES,
+			USER_MUSIC,
+			USER_VIDEOS,
+		};
+
+		static PWCHAR getDirectory(Util::Directory folderId);
 
 		template <typename T> static std::string Hex(T data, int len) {
 			constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };

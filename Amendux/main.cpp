@@ -58,8 +58,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     }
 
 	// Terminate all instances
-	Amendux::Config::Terminate();
-	Amendux::Log::Terminate();
+	//Amendux::Config::Terminate();
+	//Amendux::Log::Terminate();
 
     return (int) msg.wParam;
 }
