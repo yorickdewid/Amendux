@@ -4,7 +4,8 @@ namespace Amendux {
 
 	class Config
 	{
-		static void Environment();
+		static void ShowEnvironment();
+		static void InitDataDir();
 
 	public:
 		static void Init(Encrypt& encrypt);

