@@ -1,6 +1,7 @@
 // main.cpp : Defines the entry point for the application.
 
 #include "stdafx.h"
+#include "Log.h"
 #include "Encrypt.h"
 #include "Config.h"
 #include "Resource.h"
@@ -9,6 +10,7 @@
 
 // Global modules
 Amendux::Encrypt FileCrypt;						// File encryptor module
+Amendux::Config cfg;							// Common config
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
@@ -27,6 +29,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     UNREFERENCED_PARAMETER(hPrevInstance);
 
 	// Initialize and configure instance
+	Amendux::Log::Init();
 	Amendux::Config::Init(FileCrypt);
 
     // Initialize global strings
@@ -53,6 +56,10 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
             DispatchMessage(&msg);
         }
     }
+
+	// Terminate all instances
+	Amendux::Config::Terminate();
+	Amendux::Log::Terminate();
 
     return (int) msg.wParam;
 }

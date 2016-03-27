@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="AddrLookup.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="RegDB.h" />
     <ClInclude Include="Encrypt.h" />
     <ClInclude Include="Resource.h" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClCompile Include="AddrLookup.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="SelectSet.cpp" />

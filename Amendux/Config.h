@@ -4,8 +4,10 @@ namespace Amendux {
 
 	class Config
 	{
+
 	public:
-		static void Init(Amendux::Encrypt& encrypt);
+		static void Init(Encrypt& encrypt);
+		static void Terminate();
 	};
 
 }

@@ -69,6 +69,9 @@
     <ClInclude Include="WSASystemMgr.h">
       <Filter>Header Files\Socket</Filter>
     </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -112,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="WSASystemMgr.cpp">
       <Filter>Source Files\Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
