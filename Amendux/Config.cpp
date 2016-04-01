@@ -6,6 +6,8 @@
 
 using namespace Amendux;
 
+std::wstring Config::tempGUID = L"";
+
 void Config::Init(Encrypt& encrypt)
 {
 	Log::Instance()->write(L"Config", L"Initialize config module");
@@ -29,6 +31,19 @@ void Config::Init(Encrypt& encrypt)
 	}
 
 	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Collect");
+	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"TempPath", 40 * sizeof(wchar_t));
+	LPWSTR tempPath = new wchar_t[40];
+	mbtowc(tempPath, reinterpret_cast<const char *>(dRsTempPath), 40 * sizeof(wchar_t));
+	if (!dRsTempPath) {
+		std::wstring guid = Util::generateUUID();
+		tempGUID = guid;
+		LPCWSTR newTempPath = guid.c_str();
+		RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"TempPath", newTempPath, static_cast<DWORD>(Util::bytesInWCharStr(newTempPath)));
+	}
+	else {
+		tempGUID = std::wstring(tempPath);
+	}
+
 	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Policies");
 
 	DWORD procInit = 1;
@@ -42,6 +57,9 @@ void Config::Init(Encrypt& encrypt)
 void Config::ShowEnvironment()
 {
 	PWCHAR sUserDir;
+
+	std::wstring guid = Util::generateUUID();
+	Log::Instance()->write(L"Config", L"[Env] GUID: " + guid);
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 	Log::Instance()->write(L"Config", L"[Env] User document: " + std::wstring(sUserDir));

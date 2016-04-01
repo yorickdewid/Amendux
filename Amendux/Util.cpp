@@ -51,3 +51,13 @@ PWCHAR Util::getDirectory(Util::Directory folderId)
 
 	return localDocPath;
 }
+
+
+std::wstring Util::generateUUID()
+{
+	GUID gidReference;
+	wchar_t szGuidW[40];
+	HRESULT hCreateGuid = CoCreateGuid(&gidReference);
+	StringFromGUID2(gidReference, szGuidW, 40);
+	return std::wstring(szGuidW);
+}
