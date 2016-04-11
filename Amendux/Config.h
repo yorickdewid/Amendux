@@ -4,7 +4,7 @@ namespace Amendux {
 
 	class Config
 	{
-		static std::wstring tempGUID;
+		static std::wstring instanceGUID;
 
 		static void ShowEnvironment();
 		static void InitDataDir();
