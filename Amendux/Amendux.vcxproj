@@ -153,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddrLookup.h" />
+    <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="RegDB.h" />
@@ -167,10 +168,12 @@
     <ClInclude Include="TenativeSock.h" />
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="WebClient.h" />
     <ClInclude Include="WSASystemMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddrLookup.cpp" />
+    <ClCompile Include="Candcel.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="RegDB.cpp" />
@@ -189,6 +192,7 @@
     <ClCompile Include="TenativeSock.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="WebClient.cpp" />
     <ClCompile Include="WSASystemMgr.cpp" />
   </ItemGroup>
   <ItemGroup>

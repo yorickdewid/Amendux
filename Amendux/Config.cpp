@@ -59,6 +59,7 @@ void Config::ShowEnvironment()
 	PWCHAR sUserDir;
 
 	Log::Instance()->write(L"Config", L"[Env] GUID: " + Config::instanceGUID);
+	Log::Instance()->write(L"Config", L"[Env] User: " + Util::user());
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 	Log::Instance()->write(L"Config", L"[Env] User document: " + std::wstring(sUserDir));

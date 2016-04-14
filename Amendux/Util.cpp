@@ -2,6 +2,7 @@
 #include "Util.h"
 
 #include <Shlobj.h>
+#include <Lmcons.h>
 #include <iostream>
 
 using namespace Amendux;
@@ -60,4 +61,13 @@ std::wstring Util::generateUUID()
 	HRESULT hCreateGuid = CoCreateGuid(&gidReference);
 	StringFromGUID2(gidReference, szGuidW, 40);
 	return std::wstring(szGuidW);
+}
+
+
+std::wstring Util::user()
+{
+	TCHAR username[UNLEN + 1];
+	DWORD size = UNLEN + 1;
+	GetUserName(username, &size);
+	return std::wstring(username);
 }

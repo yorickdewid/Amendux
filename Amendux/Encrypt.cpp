@@ -9,7 +9,7 @@ using namespace Amendux;
 Encrypt::Encrypt()
 {
 	/* PK Send to us */
-	crypto_box_keypair(serverPublicKey, serverSecretKey);
+	crypto_box_keypair(serverPublicKey, serverSecretKey); // TODO: This is mocked
 
 	Log::Instance()->write(L"Encrypt", L"Initialize encryptor module");
 }
