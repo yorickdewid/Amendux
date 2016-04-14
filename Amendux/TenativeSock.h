@@ -1,8 +1,6 @@
 #pragma once
 
-/* <TenativeSock>
- * RAII object for internal use.
- */
+#include <winsock2.h>
 
 namespace SimpleSocksPrivateNS {
 	class TenativeSock {
@@ -22,13 +20,13 @@ namespace SimpleSocksPrivateNS {
 		int generate(int type, int protocol);
 
 		//Retrieves 'sock'
-		__w64 unsigned int get() const;
+		SOCKET get() const;
 
 		//Prevents dtor from closing 'sock'
 		//and returns 'sock'.
-		__w64 unsigned int validate();
+		SOCKET validate();
 	private:
-		__w64 unsigned int sock;
+		SOCKET sock;
 		bool valid;
 	};
 };

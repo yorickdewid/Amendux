@@ -39,7 +39,10 @@ void SimpleSocks::SelectSet::clear() {
 }
 
 int SimpleSocks::SelectSet::validate() {
-	if (pimpl.get() == NULL) { return 0; }
+	if (pimpl.get() == NULL) {
+		return 0;
+	}
+
 	//Basically we're creating a new pimpl here and then iterating
 	//through the maps in the existing pimpl and copying over all
 	//valid pairs. Once that's done we just replace the pimpl with
@@ -48,23 +51,25 @@ int SimpleSocks::SelectSet::validate() {
 	//and generally does not provide any kind of improvement.
 	std::auto_ptr<impl> timpl;
 
-	std::map<__w64 unsigned int, TCPSocket*>::iterator tcpIter, tcpLast;
+	std::map<SOCKET, TCPSocket*>::iterator tcpIter, tcpLast;
 	tcpLast = pimpl->tcps.end();
 	for (tcpIter = pimpl->tcps.begin(); tcpIter != tcpLast; ++tcpIter) {
-		TCPSocket* sock = tcpIter->second;
+		TCPSocket *sock = tcpIter->second;
 		if (sock->isConnected() && (sock->getBlocking() == false)) {
 			timpl->tcps[sock->pimpl->sock] = sock;
 		}
 	}
-	std::map<__w64 unsigned int, TCPServer*>::iterator srvIter, srvLast;
+
+	std::map<SOCKET, TCPServer*>::iterator srvIter, srvLast;
 	srvLast = pimpl->srvs.end();
 	for (srvIter = pimpl->srvs.begin(); srvIter != srvLast; ++srvIter) {
-		TCPServer* serv = srvIter->second;
+		TCPServer *serv = srvIter->second;
 		if (serv->isRunning() && (serv->getBlocking() == false)) {
 			timpl->srvs[serv->pimpl->serv] = serv;
 		}
 	}
-	std::map<__w64 unsigned int, UDPSocket*>::iterator udpIter, udpLast;
+
+	std::map<SOCKET, UDPSocket*>::iterator udpIter, udpLast;
 	udpLast = pimpl->udps.end();
 	for (udpIter = pimpl->udps.begin(); udpIter != udpLast; ++udpIter) {
 		UDPSocket* sock = udpIter->second;
@@ -120,7 +125,7 @@ int SimpleSocks::SelectSet::pushObject(SimpleSocks::UDPSocket* sock) {
 void SimpleSocks::SelectSet::removeObject(TCPSocket* sock) {
 	if (pimpl.get() == NULL) { return; }
 
-	std::map<__w64 unsigned int, TCPSocket*>::iterator iter, last;
+	std::map<SOCKET, TCPSocket*>::iterator iter, last;
 	last = pimpl->tcps.end();
 	//Wouldn't it be awesome if map::find() searched for an element
 	//instead of a key? Durrrrr....
@@ -135,7 +140,7 @@ void SimpleSocks::SelectSet::removeObject(TCPSocket* sock) {
 void SimpleSocks::SelectSet::removeObject(TCPServer* serv) {
 	if (pimpl.get() == NULL) { return; }
 
-	std::map<__w64 unsigned int, TCPServer*>::iterator iter, last;
+	std::map<SOCKET, TCPServer*>::iterator iter, last;
 	last = pimpl->srvs.end();
 	for (iter = pimpl->srvs.begin(); iter != last; ++iter) {
 		if (iter->second == serv) {
@@ -148,7 +153,7 @@ void SimpleSocks::SelectSet::removeObject(TCPServer* serv) {
 void SimpleSocks::SelectSet::removeObject(UDPSocket* sock) {
 	if (pimpl.get() == NULL) { return; }
 
-	std::map<__w64 unsigned int, UDPSocket*>::iterator iter, last;
+	std::map<SOCKET, UDPSocket*>::iterator iter, last;
 	last = pimpl->udps.end();
 	for (iter = pimpl->udps.begin(); iter != last; ++iter) {
 		if (iter->second == sock) {
@@ -161,7 +166,7 @@ void SimpleSocks::SelectSet::removeObject(UDPSocket* sock) {
 SimpleSocks::TCPSocket* SimpleSocks::SelectSet::popTCPSocket() {
 	if (pimpl.get() == NULL) { return NULL; }
 	if (pimpl->tcps.empty()) { return NULL; }
-	std::map<__w64 unsigned int, TCPSocket*>::iterator iter = pimpl->tcps.begin();
+	std::map<SOCKET, TCPSocket*>::iterator iter = pimpl->tcps.begin();
 	TCPSocket* retval = iter->second;
 	pimpl->tcps.erase(iter);
 	return retval;
@@ -170,7 +175,7 @@ SimpleSocks::TCPSocket* SimpleSocks::SelectSet::popTCPSocket() {
 SimpleSocks::TCPServer* SimpleSocks::SelectSet::popTCPServer() {
 	if (pimpl.get() == NULL) { return NULL; }
 	if (pimpl->srvs.empty()) { return NULL; }
-	std::map<__w64 unsigned int, TCPServer*>::iterator iter = pimpl->srvs.begin();
+	std::map<SOCKET, TCPServer*>::iterator iter = pimpl->srvs.begin();
 	TCPServer* retval = iter->second;
 	pimpl->srvs.erase(iter);
 	return retval;
@@ -179,7 +184,7 @@ SimpleSocks::TCPServer* SimpleSocks::SelectSet::popTCPServer() {
 SimpleSocks::UDPSocket* SimpleSocks::SelectSet::popUDPSocket() {
 	if (pimpl.get() == NULL) { return NULL; }
 	if (pimpl->udps.empty()) { return NULL; }
-	std::map<__w64 unsigned int, UDPSocket*>::iterator iter = pimpl->udps.begin();
+	std::map<SOCKET, UDPSocket*>::iterator iter = pimpl->udps.begin();
 	UDPSocket* retval = iter->second;
 	pimpl->udps.erase(iter);
 	return retval;
@@ -197,17 +202,17 @@ int SimpleSocks::select(SimpleSocks::SelectSet* set, unsigned int timeout) {
 	FD_ZERO(&testSet);
 
 	//Iterate through all 3 maps and add all socket handles to the sets.
-	std::map<__w64 unsigned int, TCPSocket*>::iterator tcpIter, tcpLast;
+	std::map<SOCKET, TCPSocket*>::iterator tcpIter, tcpLast;
 	tcpLast = set->pimpl->tcps.end();
 	for (tcpIter = set->pimpl->tcps.begin(); tcpIter != tcpLast; ++tcpIter) {
 		FD_SET(tcpIter->first, &testSet);
 	}
-	std::map<__w64 unsigned int, TCPServer*>::iterator srvIter, srvLast;
+	std::map<SOCKET, TCPServer*>::iterator srvIter, srvLast;
 	srvLast = set->pimpl->srvs.end();
 	for (srvIter = set->pimpl->srvs.begin(); srvIter != srvLast; ++srvIter) {
 		FD_SET(srvIter->first, &testSet);
 	}
-	std::map<__w64 unsigned int, UDPSocket*>::iterator udpIter, udpLast;
+	std::map<SOCKET, UDPSocket*>::iterator udpIter, udpLast;
 	udpLast = set->pimpl->udps.end();
 	for (udpIter = set->pimpl->udps.begin(); udpIter != udpLast; ++udpIter) {
 		FD_SET(udpIter->first, &testSet);
@@ -228,7 +233,7 @@ int SimpleSocks::select(SimpleSocks::SelectSet* set, unsigned int timeout) {
 	//that's not in the result set. This is horrible and gross but I'll
 	//rewrite it later after I've checked to ensure that the fd_set
 	//internals are not subject to change.
-	std::map<__w64 unsigned int, TCPSocket*> tcpReady;
+	std::map<SOCKET, TCPSocket*> tcpReady;
 	for (tcpIter = set->pimpl->tcps.begin(); tcpIter != tcpLast; ++tcpIter) {
 		if (FD_ISSET(tcpIter->first, &testSet)) {
 			tcpReady[tcpIter->first] = tcpIter->second;
@@ -236,7 +241,7 @@ int SimpleSocks::select(SimpleSocks::SelectSet* set, unsigned int timeout) {
 	}
 	set->pimpl->tcps.swap(tcpReady);
 
-	std::map<__w64 unsigned int, TCPServer*> srvReady;
+	std::map<SOCKET, TCPServer*> srvReady;
 	for (srvIter = set->pimpl->srvs.begin(); srvIter != srvLast; ++srvIter) {
 		if (FD_ISSET(srvIter->first, &testSet)) {
 			srvReady[srvIter->first] = srvIter->second;
@@ -244,7 +249,7 @@ int SimpleSocks::select(SimpleSocks::SelectSet* set, unsigned int timeout) {
 	}
 	set->pimpl->srvs.swap(srvReady);
 
-	std::map<__w64 unsigned int, UDPSocket*> udpReady;
+	std::map<SOCKET, UDPSocket*> udpReady;
 	for (udpIter = set->pimpl->udps.begin(); udpIter != udpLast; ++udpIter) {
 		if (FD_ISSET(udpIter->first, &testSet)) {
 			udpReady[udpIter->first] = udpIter->second;

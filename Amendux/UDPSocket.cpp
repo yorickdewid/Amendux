@@ -149,7 +149,7 @@ int UDPSocket::connect(const char *host, unsigned short port) {
 
 		timpl->mode = UDP_INACTIVE;
 		timpl->noblock = 0;
-		timpl->sock = (__w64 unsigned int)INVALID_SOCKET;
+		timpl->sock = INVALID_SOCKET;
 		retval = timpl->coreConnect(saddr);
 		if (retval == 0) {
 			pimpl.reset(timpl.release());
@@ -179,7 +179,7 @@ int UDPSocket::connect(IPv4Addr* ipaddr) {
 		catch (std::bad_alloc) { return -5; }
 		timpl->mode = UDP_INACTIVE;
 		timpl->noblock = 0;
-		timpl->sock = (__w64 unsigned int)INVALID_SOCKET;
+		timpl->sock = INVALID_SOCKET;
 		retval = timpl->coreConnect((sockaddr*)&sain);
 		if (retval == 0) {
 			pimpl.reset(timpl.release());

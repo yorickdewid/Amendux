@@ -28,9 +28,22 @@ namespace Amendux {
 #endif
 		}
 
+		void write(const std::wstring& mod, const std::string& s) {
+#ifdef DEBUG
+			std::wstring ws(s.begin(), s.end());
+			_log << "[" << mod << "] " << ws << std::endl;
+#endif
+		}
+
 		void write(const wchar_t *mod, const wchar_t *s) {
 #ifdef DEBUG
 			_log << "[" << mod << "] " << s << std::endl;
+#endif
+		}
+
+		void error(const std::wstring& mod, const std::wstring& s) {
+#ifdef DEBUG
+			_log << "[" << mod << "] " << L"Error: " << s << std::endl;
 #endif
 		}
 

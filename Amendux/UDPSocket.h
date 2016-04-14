@@ -43,11 +43,11 @@ namespace SimpleSocks {
 
 	private:
 		UDPSocket(UDPSocket&);
-		void operator=(UDPSocket&);
+		// void operator=(UDPSocket&);
 		struct impl {
 			int coreConnect(sockaddr* saddr);
 			UDPMode mode;
-			__w64 unsigned int sock;
+			SOCKET sock;
 			unsigned long noblock;
 		};
 		std::auto_ptr<impl> pimpl;

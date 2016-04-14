@@ -11,9 +11,13 @@
  */
 
 namespace SimpleSocks {
-	enum { SELECT_FOREVER = ~0 };
+	enum {
+		SELECT_FOREVER = ~0
+	};
+	
 	class SelectSet {
 		friend int select(SelectSet* set, unsigned int timeout);
+
 	public:
 		SelectSet();
 		~SelectSet();
@@ -33,16 +37,16 @@ namespace SimpleSocks {
 		UDPSocket* popUDPSocket();
 	private:
 		SelectSet(SelectSet&);
-		SelectSet& operator=(SelectSet&);
+		// SelectSet& operator=(SelectSet&);
 		struct impl {
 			impl();
 			impl(impl* src);
-			std::map<__w64 unsigned int, TCPSocket*> tcps;
-			std::map<__w64 unsigned int, TCPServer*> srvs;
-			std::map<__w64 unsigned int, UDPSocket*> udps;
+			std::map<SOCKET, TCPSocket*> tcps;
+			std::map<SOCKET, TCPServer*> srvs;
+			std::map<SOCKET, UDPSocket*> udps;
 		};
 		std::auto_ptr<impl> pimpl;
 	};
 
-	int select(SelectSet* set, unsigned int timeout);
+	int select(SelectSet *set, unsigned int timeout);
 };

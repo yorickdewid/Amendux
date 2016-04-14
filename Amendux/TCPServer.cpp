@@ -31,7 +31,7 @@ int TCPServer::start(unsigned short port, bool forceBind, const char* localHostA
 		return -5;
 	}
 
-	timpl->serv = (__w64 unsigned int)INVALID_SOCKET;
+	timpl->serv = INVALID_SOCKET;
 	timpl->noblock = 0;
 
 	sockaddr_in sain;
@@ -113,7 +113,7 @@ int TCPServer::accept(TCPSocket* sock) {
 	//This may not look thread-safe, but WSAGetLastError()
 	//works on a per-thread basis (using evil sorcery) so this
 	//is actually okay.
-	timpl->sock = (__w64 unsigned int)::accept(pimpl->serv, NULL, NULL);
+	timpl->sock = ::accept(pimpl->serv, NULL, NULL);
 	if (timpl->sock == INVALID_SOCKET) {
 		if (getBlocking() && (WSAGetLastError() == WSAEWOULDBLOCK)) {
 			return -2;

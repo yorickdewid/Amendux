@@ -2,6 +2,7 @@
 #include "TCPSocket.h"
 #include "TenativeSock.h"
 #include "AddrLookup.h"
+#include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <memory>
 #include <new>
@@ -19,14 +20,14 @@ TCPSocket::~TCPSocket() {
 	close();
 }
 
-int TCPSocket::connect(const char* host, unsigned short port) {
+int TCPSocket::connect(const char *host, unsigned short port) {
 	if (isConnected()) { return -1; }
 
 	std::auto_ptr<impl> timpl(NULL);
 	try { timpl.reset(new impl); }
 	catch (std::bad_alloc) { return -5; }
 	timpl->noblock = 0;
-	timpl->sock = (__w64 unsigned int)INVALID_SOCKET;
+	timpl->sock = INVALID_SOCKET;
 
 	AddrLookup addr;
 	if (addr.lookup(host, port, IPPROTO_TCP)) { return -1; }

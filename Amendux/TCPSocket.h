@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-//Documented in public header.
+#include <winsock2.h>
 
 namespace SimpleSocks {
 	class TCPSocket {
@@ -20,10 +20,10 @@ namespace SimpleSocks {
 		bool isConnected() const;
 	private:
 		TCPSocket(TCPSocket&);
-		void operator=(TCPSocket&);
+		// void operator=(TCPSocket&);
 		struct impl {
 			int coreRecv(char* buffer, int length, int flags);
-			__w64 unsigned int sock;
+			SOCKET sock;
 			unsigned long noblock;
 		};
 		std::auto_ptr<impl> pimpl;

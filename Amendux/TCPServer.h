@@ -11,7 +11,7 @@ namespace SimpleSocks {
 	public:
 		TCPServer();
 		~TCPServer();
-		int  start(unsigned short port, bool forceBind = false, const char* localHostAddr = NULL);
+		int  start(unsigned short port, bool forceBind = false, const char *localHostAddr = NULL);
 		void stop();
 		int  accept(TCPSocket& sock);
 		int  accept(TCPSocket* sock);
@@ -20,9 +20,9 @@ namespace SimpleSocks {
 		int  setBlocking(bool block);
 	private:
 		TCPServer(TCPServer&);
-		void operator=(TCPServer&);
+		// void operator=(TCPServer&);
 		struct impl {
-			__w64 unsigned int serv;
+			SOCKET serv;
 			unsigned long noblock;
 		};
 		std::auto_ptr<impl> pimpl;
