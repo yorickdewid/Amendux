@@ -20,6 +20,7 @@ namespace Amendux {
 		static PWCHAR getDirectory(Util::Directory folderId);
 		static std::wstring generateUUID();
 		static std::wstring Util::user();
+		static std::wstring Util::machine();
 
 		static size_t Util::bytesInWCharStr(const wchar_t *wstr) {
 			return wcslen(wstr) * sizeof(wchar_t);

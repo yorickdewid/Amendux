@@ -71,3 +71,12 @@ std::wstring Util::user()
 	GetUserName(username, &size);
 	return std::wstring(username);
 }
+
+
+std::wstring Util::machine()
+{
+	TCHAR name[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
+	GetComputerName(name, &size);
+	return std::wstring(name);
+}

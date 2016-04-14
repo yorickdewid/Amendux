@@ -60,6 +60,7 @@ void Config::ShowEnvironment()
 
 	Log::Instance()->write(L"Config", L"[Env] GUID: " + Config::instanceGUID);
 	Log::Instance()->write(L"Config", L"[Env] User: " + Util::user());
+	Log::Instance()->write(L"Config", L"[Env] Computer: " + Util::machine());
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 	Log::Instance()->write(L"Config", L"[Env] User document: " + std::wstring(sUserDir));
