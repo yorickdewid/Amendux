@@ -8,7 +8,7 @@ namespace Amendux {
 	class WebClient
 	{
 	public:
-		WebClient(const std::string& address);
+		WebClient(const std::string& host, const std::string& endpoint = "endpoint.php");
 		~WebClient();
 	};
 

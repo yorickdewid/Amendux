@@ -116,11 +116,17 @@ bool TCPSocket::isConnected() const {
 int TCPSocket::impl::coreRecv(char *buffer, int length, int flags) {
 	int sult = ::recv(sock, buffer, length, flags);
 	//If we're a blocking sock then an error is an error.
-	if (noblock == 0) { return sult; }
+	if (noblock == 0) {
+		return sult;
+	}
+	
 	//Otherwise there's a special case...
 	if (sult == SOCKET_ERROR) {
 		//WSAGetLastError() is thread-safe here. (see MSDN)
-		if (WSAGetLastError() == WSAEWOULDBLOCK) { return -2; }
+		if (WSAGetLastError() == WSAEWOULDBLOCK) {
+			return -2;
+		}
 	}
+
 	return sult;
 }

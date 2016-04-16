@@ -140,14 +140,14 @@
     <ClCompile Include="WebClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Candcel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Json.cpp">
       <Filter>Source Files\Json</Filter>
     </ClCompile>
     <ClCompile Include="JsonValue.cpp">
       <Filter>Source Files\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Candcel.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

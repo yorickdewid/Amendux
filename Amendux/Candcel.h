@@ -1,8 +1,14 @@
 #pragma once
-class Candcel
-{
-public:
-	Candcel();
-	~Candcel();
-};
 
+namespace Amendux {
+
+	class Candcel
+	{
+	public:
+		Candcel();
+		~Candcel();
+
+		void CheckIn();
+	};
+
+}

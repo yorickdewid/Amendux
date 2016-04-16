@@ -6,7 +6,7 @@
 
 using namespace Amendux;
 
-WebClient::WebClient(const std::string& address)
+WebClient::WebClient(const std::string& host, const std::string& endpoint)
 {
 	if (SimpleSocks::initSimpleSocks()) {
 		Log::Instance()->error(L"WebClient", L"Failed to initialize Simple Socks");
@@ -16,21 +16,21 @@ WebClient::WebClient(const std::string& address)
 	SimpleSocks::TCPSocket sock;
 
 	//Connect it to Google on port 80. (80 is the HTTP port.)
-	if (sock.connect(address.c_str(), 80)) {
+	if (sock.connect(host.c_str(), 80)) {
 		Log::Instance()->error(L"WebClient", L"Failed to connect to server");
 		return;
 	}
 
 	//Here's our HTTP request header:
-	char httpHeader[] =
-		"GET /headers HTTP/1.1\r\n"
-		"Host: httpbin.org\r\n"
+	std::string httpHeader =
+		"GET /" + endpoint + " HTTP/1.1\r\n"
+		"Host: " + host + "\r\n"
 		"Connection: close\r\n"
 		"X-Client: Amendux/0.1\r\n"
 		"\r\n";
 
 	//We send it through the socket
-	int retval = sock.send(httpHeader, static_cast<int>(strlen(httpHeader)));
+	int retval = sock.send(httpHeader.c_str(), static_cast<int>(httpHeader.length()));
 	if (retval < 1) {
 		Log::Instance()->error(L"WebClient", L"Connection was lost");
 		return;
@@ -72,16 +72,18 @@ WebClient::WebClient(const std::string& address)
 
 	//Now we can read all the data. The header contains the length
 	//of the data, so we can look there to see how long it is.
-	char* clen = strstr(buffer, "Content-Length:");
-	if (!clen) {
-		Log::Instance()->error(L"WebClient", L"Could not find data length");
-		return;
-	}
 	unsigned int dataLen = 0;
-	//Yeah, that's right. I'm using sscanf(). You got a problem?
-	if (sscanf_s(clen, "Content-Length: %u", &dataLen) == 0) {
-		Log::Instance()->error(L"WebClient", L"Could not read data length");
-		return;
+	char *clen = strstr(buffer, "Content-Length:");
+	if (clen) {
+		// Log::Instance()->error(L"WebClient", L"Could not find data length");
+
+		if (sscanf_s(clen, "Content-Length: %u", &dataLen) == 0) {
+			Log::Instance()->error(L"WebClient", L"Could not read data length");
+			return;
+		}
+	}
+	else {
+		dataLen = 1024;
 	}
 
 	//Now we just allocate a buffer for the data and read it.
@@ -92,7 +94,9 @@ WebClient::WebClient(const std::string& address)
 	unsigned int got = 0;
 	while (got < dataLen) {
 		retval = sock.recv(data.get() + got, dataLen - got);
-		if (retval < 1) {
+		if (retval == 0) {
+			break;
+		} else if (retval < 1) {
 			Log::Instance()->error(L"WebClient", L"Socket error");
 			return;
 		}

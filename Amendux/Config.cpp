@@ -29,16 +29,15 @@ void Config::Init(Encrypt& encrypt)
 
 	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Collect");
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"TempPath", 40 * sizeof(wchar_t));
-	LPWSTR tempPath = new wchar_t[40];
-	mbtowc(tempPath, reinterpret_cast<const char *>(dRsTempPath), 40 * sizeof(wchar_t));
 	if (!dRsTempPath) {
 		std::wstring guid = Util::generateUUID();
 		instanceGUID = guid;
+
 		LPCWSTR newTempPath = guid.c_str();
 		RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"TempPath", newTempPath, static_cast<DWORD>(Util::bytesInWCharStr(newTempPath)));
 	}
 	else {
-		instanceGUID = std::wstring(tempPath);
+		instanceGUID = std::wstring(reinterpret_cast<wchar_t*>(dRsTempPath), 76 / sizeof(wchar_t));
 	}
 
 	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Policies");
