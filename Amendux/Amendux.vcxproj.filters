@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Socket">
       <UniqueIdentifier>{0435afb5-3b4c-40e7-937c-37ae9e027b23}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Json">
+      <UniqueIdentifier>{debdffd9-8219-47e2-bbd6-2c0a92f691e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Json">
+      <UniqueIdentifier>{5b667a23-a15d-4901-a7f0-274ee1583508}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -78,6 +84,12 @@
     <ClInclude Include="Candcel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Json.h">
+      <Filter>Header Files\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonValue.h">
+      <Filter>Header Files\Json</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -130,6 +142,12 @@
     </ClCompile>
     <ClCompile Include="Candcel.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Json.cpp">
+      <Filter>Source Files\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonValue.cpp">
+      <Filter>Source Files\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
