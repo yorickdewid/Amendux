@@ -161,6 +161,7 @@
     <ClInclude Include="RegDB.h" />
     <ClInclude Include="Encrypt.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RestClient.h" />
     <ClInclude Include="SelectSet.h" />
     <ClInclude Include="SimpleSocksNS.h" />
     <ClInclude Include="stdafx.h" />
@@ -182,6 +183,7 @@
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />
+    <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="SelectSet.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
     <ClCompile Include="stdafx.cpp">

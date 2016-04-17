@@ -90,6 +90,9 @@
     <ClInclude Include="JsonValue.h">
       <Filter>Header Files\Json</Filter>
     </ClInclude>
+    <ClInclude Include="RestClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -147,6 +150,9 @@
       <Filter>Source Files\Json</Filter>
     </ClCompile>
     <ClCompile Include="Candcel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RestClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

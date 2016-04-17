@@ -15,14 +15,16 @@ namespace Amendux {
 	class WebClient
 	{
 		SimpleSocks::TCPSocket *sock = nullptr;
-		std::map<std::string, std::string> responseHeader;
-		std::string responseData;
 		std::string httpHeader;
 		std::string host;
 		std::string uri;
 		HttpType type;
 
 		void WebClient::buildHeader();
+
+	protected:
+		std::map<std::string, std::string> responseHeader;
+		std::string responseData;
 
 	public:
 		WebClient(const std::string& host, const std::string& uri = "");
@@ -61,6 +63,10 @@ namespace Amendux {
 
 		void Perform(const std::wstring& postData = L"");
 		void Perform(const std::string& postData = "");
+
+		virtual void *ParseResponse() {
+			return nullptr;
+		}
 	};
 
 }
