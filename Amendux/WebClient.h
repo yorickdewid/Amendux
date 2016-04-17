@@ -59,6 +59,7 @@ namespace Amendux {
 			httpHeader += header + "\r\n";
 		}
 
+		void Perform(const std::wstring& postData = L"");
 		void Perform(const std::string& postData = "");
 	};
 

@@ -45,6 +45,12 @@ void WebClient::buildHeader()
 }
 
 
+void WebClient::Perform(const std::wstring& postData)
+{
+	Perform(std::string(postData.begin(), postData.end()));
+}
+
+
 void WebClient::Perform(const std::string& postData)
 {
 	if (!isConnected()) {
