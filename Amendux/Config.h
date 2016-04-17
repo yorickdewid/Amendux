@@ -12,6 +12,10 @@ namespace Amendux {
 	public:
 		static void Init(Encrypt& encrypt);
 		static void Terminate();
+
+		static inline std::wstring Guid() {
+			return instanceGUID;
+		}
 	};
 
 }

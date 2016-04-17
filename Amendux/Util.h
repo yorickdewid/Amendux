@@ -1,10 +1,14 @@
 #pragma once
 
+#include <vector>
+#include <algorithm>
+
 namespace Amendux {
 
 	class Util
 	{
 	public:
+		// TODO move to config
 		enum class Directory {
 			USER_DOCUMENTS,
 			USER_CONTACT,
@@ -22,11 +26,21 @@ namespace Amendux {
 		static std::wstring Util::user();
 		static std::wstring Util::machine();
 
-		static size_t Util::bytesInWCharStr(const wchar_t *wstr) {
+		static std::string tolower(std::string& str) {
+			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+			return str;
+		}
+
+		static std::wstring tolower(std::wstring& str) {
+			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+			return str;
+		}
+
+		static size_t bytesInWCharStr(const wchar_t *wstr) {
 			return wcslen(wstr) * sizeof(wchar_t);
 		}
 
-		template <typename T> static std::string Hex(T data, int len) {
+		template <typename T> static std::string hex(T data, int len) {
 			constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
 			std::string hex(len * 2, ' ');
@@ -36,6 +50,17 @@ namespace Amendux {
 			}
 
 			return hex;
+		}
+
+		template <typename T> static void split(const T& str, const char *delim, std::vector<T>& list) {
+			char *dup = _strdup(str.c_str());
+			char *next_token = NULL;
+			char *token = strtok_s(dup, delim, &next_token);
+			while (token != NULL) {
+				list.push_back(T(token));
+				token = strtok_s(NULL, delim, &next_token);
+			}
+			free(dup);
 		}
 
 	};
