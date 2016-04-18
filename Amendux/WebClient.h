@@ -19,12 +19,12 @@ namespace Amendux {
 		std::string host;
 		std::string uri;
 		HttpType type;
+		unsigned int reponseSize;
 
 		void WebClient::buildHeader();
 
 	protected:
 		std::map<std::string, std::string> responseHeader;
-		std::string responseData;
 
 	public:
 		WebClient(const std::string& host, const std::string& uri = "");
@@ -49,8 +49,8 @@ namespace Amendux {
 			return "";
 		}
 
-		inline std::string getResponseData() const {
-			return responseData;
+		inline unsigned int getResponseSize() const {
+			return reponseSize;
 		}
 
 		inline void addHeader(std::string header) {
@@ -61,8 +61,12 @@ namespace Amendux {
 			httpHeader += header + "\r\n";
 		}
 
-		void Perform(const std::wstring& postData = L"");
-		void Perform(const std::string& postData = "");
+		char *Perform(const std::wstring& postData = L"");
+		char *Perform(const std::string& postData = "");
+
+		virtual void *Call(const std::wstring& postData = L"") {
+			return Perform(postData);
+		}
 
 		virtual void *ParseResponse() {
 			return nullptr;

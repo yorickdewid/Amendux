@@ -48,7 +48,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
 
 	// Establish communications with mothership
-	Commander.CheckIn();
+	Commander.isAlive();
 
 	// Main message loop
     MSG msg;

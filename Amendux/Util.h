@@ -40,6 +40,15 @@ namespace Amendux {
 			return wcslen(wstr) * sizeof(wchar_t);
 		}
 
+		static wchar_t *chartowchar(const char *str) {
+			size_t size = strlen((char *)str) + 1;
+			wchar_t *wa = new wchar_t[size];
+
+			size_t outSize;
+			mbstowcs_s(&outSize, wa, size, (char *)str, size-1);
+			return wa;
+		}
+
 		template <typename T> static std::string hex(T data, int len) {
 			constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -63,6 +72,11 @@ namespace Amendux {
 			free(dup);
 		}
 
+		template <typename T> static T trim(T& str) {
+			size_t first = str.find_first_not_of(' ');
+			size_t last = str.find_last_not_of(' ');
+			return str.substr(first, (last - first + 1));
+		}
 	};
 
 }

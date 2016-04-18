@@ -45,16 +45,16 @@ void WebClient::buildHeader()
 }
 
 
-void WebClient::Perform(const std::wstring& postData)
+char *WebClient::Perform(const std::wstring& postData)
 {
-	Perform(std::string(postData.begin(), postData.end()));
+	return Perform(std::string(postData.begin(), postData.end()));
 }
 
 
-void WebClient::Perform(const std::string& postData)
+char *WebClient::Perform(const std::string& postData)
 {
 	if (!isConnected()) {
-		return;
+		return nullptr;
 	}
 
 	if (!postData.empty()) {
@@ -76,14 +76,14 @@ void WebClient::Perform(const std::string& postData)
 	}
 	else {
 		httpHeader += "\r\n";
-	}
+	} Log::Instance()->write(L"WebClient", httpHeader);
 
 	// We send it through the socket
 	int retval = sock->send(httpHeader.c_str(), static_cast<int>(httpHeader.length()));
 	if (retval < 1) {
 		Log::Instance()->error(L"WebClient", L"Connection was lost");
 		sock = nullptr;
-		return;
+		return nullptr;
 	}
 
 	char buffer[1024];
@@ -91,14 +91,14 @@ void WebClient::Perform(const std::string& postData)
 	retval = sock->peek(buffer, 1023);
 	if (retval < 1) {
 		Log::Instance()->error(L"WebClient", L"Socket error");
-		return;
+		return nullptr;
 	}
 
 	// The response header will end with "\r\n\r\n", so let's look for that.
 	char *endHeaderPtr = strstr(buffer, "\r\n\r\n");
 	if (!endHeaderPtr) {
 		Log::Instance()->error(L"WebClient", L"Could not find end of HTTP header");
-		return;
+		return nullptr;
 	}
 
 	endHeaderPtr += 4;
@@ -108,7 +108,7 @@ void WebClient::Perform(const std::string& postData)
 	retval = sock->recv(buffer, static_cast<int>(headLen));
 	if (retval < 1) {
 		Log::Instance()->error(L"WebClient", L"Socket error");
-		return;
+		return nullptr;
 	}
 
 	std::vector<std::string> resp;
@@ -119,7 +119,7 @@ void WebClient::Perform(const std::string& postData)
 	for (auto const& value : resp) {
 		size_t pos = value.find_first_of(':');
 
-		responseHeader[Util::tolower(value.substr(0, pos))] = Util::tolower(value.substr(pos + 1));
+		responseHeader[Util::tolower(value.substr(0, pos))] = Util::trim<std::string>(Util::tolower(value.substr(pos + 1)));
 	}
 
 	//Now we can read all the data. The header contains the length
@@ -134,22 +134,24 @@ void WebClient::Perform(const std::string& postData)
 
 	//Now we just allocate a buffer for the data and read it.
 	//Remember the extra byte for the trailing zero.
-	std::auto_ptr<char> data(new char[dataLen + 1]);
-	memset(data.get(), 0, dataLen + 1);
+	char *data = new char[dataLen + 1];
+	memset(data, 0, dataLen + 1);
 
 	unsigned int got = 0;
 	while (got < dataLen) {
-		retval = sock->recv(data.get() + got, dataLen - got);
+		retval = sock->recv(data + got, dataLen - got);
 		if (retval == 0) {
 			break;
 		} else if (retval < 1) {
 			Log::Instance()->error(L"WebClient", L"Socket error");
-			return;
+			return nullptr;
 		}
 		got += retval;
 	}
 
-	responseData = data.get();
+	reponseSize = dataLen;
+
+	return data;
 }
 
 
