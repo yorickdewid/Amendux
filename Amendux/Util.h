@@ -25,6 +25,8 @@ namespace Amendux {
 		static std::wstring generateUUID();
 		static std::wstring Util::user();
 		static std::wstring Util::machine();
+		static std::wstring Util::winver();
+		static DWORD cpuCores();
 
 		static std::string tolower(std::string& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);

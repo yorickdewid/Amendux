@@ -10,6 +10,7 @@ namespace Amendux {
 
 		void isAlive();
 		void CheckIn();
+		void Solicit();
 	};
 
 }

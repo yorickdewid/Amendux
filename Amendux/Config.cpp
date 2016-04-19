@@ -58,6 +58,8 @@ void Config::ShowEnvironment()
 	PWCHAR sUserDir;
 
 	Log::Instance()->write(L"Config", L"[Env] GUID: " + Config::instanceGUID);
+	Log::Instance()->write(L"Config", L"[Env] Windows version: " + Util::winver());
+	Log::Instance()->write(L"Config", L"[Env] CPU cores: " + std::to_wstring(Util::cpuCores()));
 	Log::Instance()->write(L"Config", L"[Env] User: " + Util::user());
 	Log::Instance()->write(L"Config", L"[Env] Computer: " + Util::machine());
 

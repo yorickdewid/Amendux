@@ -76,7 +76,7 @@ char *WebClient::Perform(const std::string& postData)
 	}
 	else {
 		httpHeader += "\r\n";
-	} Log::Instance()->write(L"WebClient", httpHeader);
+	}
 
 	// We send it through the socket
 	int retval = sock->send(httpHeader.c_str(), static_cast<int>(httpHeader.length()));

