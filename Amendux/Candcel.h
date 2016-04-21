@@ -8,6 +8,8 @@ namespace Amendux {
 	{
 		bool serverSolicitAck = false;
 
+		DWORD CheckIn();
+
 	public:
 		Candcel() {}
 		~Candcel() {}
@@ -15,7 +17,6 @@ namespace Amendux {
 		void isAlive();
 		void Solicit();
 		void Update();
-		DWORD CheckIn();
 
 		static void SpawnInterval(Candcel *cc) {
 			Thread<Candcel> *thread = new Thread<Candcel>(cc, &Candcel::CheckIn);

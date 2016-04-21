@@ -148,3 +148,14 @@ DWORD Util::cpuCores()
 
 	return siSysInfo.dwNumberOfProcessors;
 }
+
+
+DWORD Util::maxmem()
+{
+	MEMORYSTATUSEX statex;
+	statex.dwLength = sizeof(statex);
+
+	GlobalMemoryStatusEx(&statex);
+
+	return static_cast<DWORD>(statex.ullTotalPhys / (1024 * 1024));
+}

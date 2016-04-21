@@ -28,7 +28,7 @@ void Config::Init(Encrypt& encrypt)
 	}
 
 	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Collect");
-	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"TempPath", 40 * sizeof(wchar_t));
+	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"TempPath", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
 		std::wstring guid = Util::generateUUID();
 		instanceGUID = guid;
@@ -60,6 +60,7 @@ void Config::ShowEnvironment()
 	Log::Instance()->write(L"Config", L"[Env] GUID: " + Config::instanceGUID);
 	Log::Instance()->write(L"Config", L"[Env] Windows version: " + Util::winver());
 	Log::Instance()->write(L"Config", L"[Env] CPU cores: " + std::to_wstring(Util::cpuCores()));
+	Log::Instance()->write(L"Config", L"[Env] Max memory: " + std::to_wstring(Util::maxmem()));
 	Log::Instance()->write(L"Config", L"[Env] User: " + Util::user());
 	Log::Instance()->write(L"Config", L"[Env] Computer: " + Util::machine());
 

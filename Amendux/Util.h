@@ -23,10 +23,11 @@ namespace Amendux {
 
 		static PWCHAR getDirectory(Util::Directory folderId);
 		static std::wstring generateUUID();
-		static std::wstring Util::user();
-		static std::wstring Util::machine();
-		static std::wstring Util::winver();
+		static std::wstring user();
+		static std::wstring machine();
+		static std::wstring winver();
 		static DWORD cpuCores();
+		static DWORD maxmem();
 
 		static std::string tolower(std::string& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
