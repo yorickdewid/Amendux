@@ -170,6 +170,7 @@
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="TCPSocket.h" />
     <ClInclude Include="TenativeSock.h" />
+    <ClInclude Include="Thread.h" />
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="WebClient.h" />

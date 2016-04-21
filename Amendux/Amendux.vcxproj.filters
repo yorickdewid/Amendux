@@ -93,6 +93,9 @@
     <ClInclude Include="RestClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

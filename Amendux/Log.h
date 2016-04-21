@@ -47,6 +47,12 @@ namespace Amendux {
 #endif
 		}
 
+		void warn(const std::wstring& mod, const std::wstring& s) {
+#ifdef DEBUG
+			_log << "[" << mod << "] " << L"Warn: " << s << std::endl;
+#endif
+		}
+
 		static void Init() {
 			if (!s_Log)
 				s_Log = new Log;

