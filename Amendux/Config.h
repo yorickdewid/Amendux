@@ -14,7 +14,7 @@ namespace Amendux {
 		static void InitDataDir();
 
 	public:
-		static void Init(Encrypt& encrypt);
+		static void Init(Encrypt& encrypt); // TODO should remove this
 		static void Terminate();
 
 		static inline std::wstring Guid() {

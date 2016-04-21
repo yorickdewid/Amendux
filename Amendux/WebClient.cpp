@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Log.h"
+#include "Encrypt.h"
+#include "Config.h"
 #include "WebClient.h"
 
 #include <iostream>
@@ -64,8 +66,13 @@ char *WebClient::Perform(const std::string& postData)
 	buildHeader();
 
 	addHeader("Connection: close");
-	addHeader("User-Agent: Amendux/0.1");
-	addHeader("X-Client: Amendux/0.1");
+
+#ifdef DEBUG
+	addHeader(L"User-Agent: Amendux/" + Config::getVersion());
+	addHeader(L"X-Client: Amendux/" + Config::getVersion());
+#else
+	addHeader("User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; FSL 7.0.5.01003)");
+#endif
 
 	if (!postData.empty()) {
 		addHeader("Content-Type: application/x-www-form-urlencoded");
@@ -113,6 +120,17 @@ char *WebClient::Perform(const std::string& postData)
 
 	std::vector<std::string> resp;
 	Util::split<std::string>(std::string(buffer), "\r\n", resp);
+
+	std::string httpProtocol = resp.at(0);
+	if (!(httpProtocol.substr(0, 8) == "HTTP/1.1" || httpProtocol.substr(0, 8) == "HTTP/1.0")) {
+		return nullptr;
+	}
+
+	std::string httpCode = resp.at(0).substr(9, 3);
+	reponseCode = atoi(httpCode.c_str());
+	if (reponseCode < 100 || reponseCode > 600) {
+		return nullptr;
+	}
 
 	resp.erase(resp.begin(), resp.begin() + 1);
 

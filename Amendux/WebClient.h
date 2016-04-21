@@ -19,6 +19,7 @@ namespace Amendux {
 		std::string host;
 		std::string uri;
 		HttpType type;
+		unsigned int reponseCode;
 		unsigned int reponseSize;
 
 		void WebClient::buildHeader();
@@ -51,6 +52,14 @@ namespace Amendux {
 
 		inline unsigned int getResponseSize() const {
 			return reponseSize;
+		}
+
+		inline unsigned int getResponseCode() const {
+			return reponseCode;
+		}
+
+		inline void addHeader(std::wstring header) {
+			addHeader(std::string(header.begin(), header.end()));
 		}
 
 		inline void addHeader(std::string header) {

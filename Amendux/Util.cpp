@@ -157,5 +157,6 @@ DWORD Util::maxmem()
 
 	GlobalMemoryStatusEx(&statex);
 
+	/* Return memory size in MB */
 	return static_cast<DWORD>(statex.ullTotalPhys / (1024 * 1024));
 }

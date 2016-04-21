@@ -52,7 +52,7 @@ void Config::Init(Encrypt& encrypt)
 	InitDataDir();
 }
 
-#include "Sha1.h"
+
 void Config::ShowEnvironment()
 {
 	PWCHAR sUserDir;
