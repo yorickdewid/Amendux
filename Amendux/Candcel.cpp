@@ -60,6 +60,7 @@ void Candcel::Solicit()
 
 	JSONObject obj;
 	obj[L"guid"] = new JSONValue(Config::Guid());
+	obj[L"cliver"] = new JSONValue(Config::getVersion());
 	obj[L"winver"] = new JSONValue(Util::winver());
 	obj[L"corenum"] = new JSONValue(std::to_wstring(Util::cpuCores()));
 	obj[L"maxmem"] = new JSONValue(std::to_wstring(Util::maxmem()));

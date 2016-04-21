@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddrLookup.h" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RestClient.h" />
     <ClInclude Include="SelectSet.h" />
+    <ClInclude Include="Sha1.h" />
     <ClInclude Include="SimpleSocksNS.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -188,6 +190,7 @@
     <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="SelectSet.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
+    <ClCompile Include="Sha1.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

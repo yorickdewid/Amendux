@@ -20,10 +20,9 @@ namespace Amendux {
 
 		static void SpawnInterval(Candcel *cc) {
 			Thread<Candcel> *thread = new Thread<Candcel>(cc, &Candcel::CheckIn);
-			if (thread->Start()) {
-				// std::cout << "Thread start()" << std::endl;
+			if (!thread->Start()) {
+				Log::Instance()->error(L"Candcel", L"Cannot spawn checkin process");
 			}
-			// thread.join(); // wait for thread
 		}
 	};
 

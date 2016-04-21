@@ -1,0 +1,25 @@
+========================================================================
+    AMENDUX PROJECT : Amendux Project TODO List
+========================================================================
+
+Update
+    Once every boot or after so many hours the bot sould send a update request to the CandC. The server either
+	responds with a can_update object including a location and checksum of the update.
+
+Spreading
+    We need a module capable of spreading the bot over the entire system. This includes named variants
+	but also register keys and startup folders. 
+
+Loading modules
+    There should be an interface that can load external DLL's that are version checked and can be executed
+	in separate threads. The interface must have a way of communicating back to a host or to the CandC.
+
+Encrypted communications
+    Traffic send to and from the CandC should be sealed with an encrypted box. This can only be done when the server side
+	supports libsodium.
+
+SSL
+    It be great if the WebClient can support SSL domains and traffic
+
+Optimize release
+    Should be compiled to the max, be also strip all debug code
