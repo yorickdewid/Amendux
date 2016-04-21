@@ -71,7 +71,8 @@ char *WebClient::Perform(const std::string& postData)
 	addHeader(L"User-Agent: Amendux/" + Config::getVersion());
 	addHeader(L"X-Client: Amendux/" + Config::getVersion());
 #else
-	addHeader("User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; FSL 7.0.5.01003)");
+	int randAgent = rand() % 6;
+	addHeader("User-Agent: " + userAgent[randAgent]);
 #endif
 
 	if (!postData.empty()) {

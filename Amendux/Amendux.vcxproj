@@ -103,6 +103,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\libsodium_vc120.1.0.0.0\build\native\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,13 +133,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;SODIUM_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\libsodium_vc120.1.0.0.0\build\native\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +175,7 @@
     <ClInclude Include="TCPSocket.h" />
     <ClInclude Include="TenativeSock.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="TransferClient.h" />
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="WebClient.h" />
@@ -201,6 +204,7 @@
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPSocket.cpp" />
     <ClCompile Include="TenativeSock.cpp" />
+    <ClCompile Include="TransferClient.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="WebClient.cpp" />
