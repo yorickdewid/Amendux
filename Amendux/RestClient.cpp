@@ -4,7 +4,7 @@
 
 using namespace Amendux;
 
-void *RestClient::ParseResponse(void *data)
+JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 {
 	std::string dataType = getResponseHeader("content-type");
 	if (dataType.empty()) {
@@ -42,5 +42,5 @@ void *RestClient::ParseResponse(void *data)
 
 	callSuccess = true;
 
-	return obj->Child(L"data");
+	return obj->Child(L"data"); // aint workin
 }

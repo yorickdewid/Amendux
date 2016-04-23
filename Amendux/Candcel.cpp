@@ -3,6 +3,7 @@
 #include "Encrypt.h"
 #include "Config.h"
 #include "RestClient.h"
+#include "TransferClient.h"
 #include "Json.h"
 #include "Candcel.h"
 
@@ -77,19 +78,45 @@ void Candcel::Solicit()
 }
 
 
-void Candcel::Update()
+void Candcel::ApplyUpdate(unsigned int buildNumber, const std::wstring& wurl)
+{
+	Log::Instance()->write(L"Candcel", L"Sending update request");
+
+	std::string url(wurl.begin(), wurl.end());
+
+	TransferClient tc("http://0x17.nl/avctemp/bin/setup_105.exe");
+	tc.Download();
+}
+
+
+void Candcel::CheckForUpdate()
 {
 	if (!serverSolicitAck) {
 		return;
 	}
 
-	/*Log::Instance()->write(L"Candcel", L"Sending update request");
+	Log::Instance()->write(L"Candcel", L"Check for update");
 
-	WebClient wc("0x17.nl", "putty.exe");
-	char *data = wc.Perform("");
+	RestClient rc("0x17.nl", "avc_endpoint.php");
 
-	std::ofstream outfile("putty.exe", std::ofstream::binary);
-	outfile.write(data, wc.getResponseSize());
-	outfile.close();
-	delete data;*/
+	JSONObject obj;
+	obj[L"build"] = new JSONValue((double)clientVersion);
+
+	JSONValue *returnObj = rc.Call(RestClientCommand::CM_CLIENT_UPDATE, new JSONValue(obj));
+
+	if (rc.getServerCode() == RestServerCommand::CM_SERVER_UPDATE) {
+		if (!returnObj->IsObject()) {
+			Log::Instance()->error(L"Candcel", L"Server returned no object");
+			return;
+		}
+
+		Log::Instance()->write(L"Candcel", L"Update available ");
+
+		unsigned int build = static_cast<unsigned int>(returnObj->Child(L"build")->AsNumber());
+		std::wstring url = returnObj->Child(L"url")->AsString();
+
+		ApplyUpdate(build, url);
+	} else if (rc.getServerCode() != RestServerCommand::CM_SERVER_IGNORE) {
+		Log::Instance()->write(L"Candcel", "Request failed");
+	}
 }

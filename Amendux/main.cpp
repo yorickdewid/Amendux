@@ -55,6 +55,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// Notify mothership of our instance
 	Commander.Solicit();
+	Commander.CheckForUpdate();
 
 	// Launch the guard
 	Amendux::Candcel::SpawnInterval(&Commander);

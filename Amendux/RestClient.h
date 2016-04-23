@@ -16,6 +16,8 @@ namespace Amendux {
 	enum RestServerCommand {
 		CM_SERVER_INVALID = 0, /* Command invalid */
 		CM_SERVER_PONG = 101, /* Ping server response */
+		CM_SERVER_IGNORE = 102, /* Ignore futher action */
+		CM_SERVER_UPDATE = 103, /* Server has new version */
 		CM_SERVER_ACK = 900, /* Acknowledge command */
 	};
 
@@ -25,12 +27,13 @@ namespace Amendux {
 		bool callSuccess = false;
 
 	public:
-		RestClient(const std::string& host, const std::string& uri = "") : WebClient(host, uri) {}
+		RestClient(const std::string& host, const std::string& uri) : WebClient(host, uri) {}
+		RestClient(const std::string& url) : WebClient(url) {}
 		~RestClient() {}
 
-		void *ParseResponse(void *data);
+		JSONValue *ParseResponse(void *data);
 
-		void *Call(RestClientCommand code, JSONValue *data, bool status = true) {
+		JSONValue *Call(RestClientCommand code, JSONValue *data, bool status = true) {
 			JSONObject obj;
 			obj[L"data"] = data;
 			obj[L"code"] = new JSONValue(static_cast<double>(code));

@@ -8,8 +8,7 @@
 
 using namespace Amendux;
 
-WebClient::WebClient(const std::string& host, const std::string& uri) : type(HttpType::GET)
-{
+void WebClient::Init(const std::string& host, const std::string& uri) {
 	if (SimpleSocks::initSimpleSocks()) {
 		Log::Instance()->error(L"WebClient", L"Failed to initialize Simple Socks");
 		return;
@@ -25,6 +24,17 @@ WebClient::WebClient(const std::string& host, const std::string& uri) : type(Htt
 
 	this->host = host;
 	this->uri = uri;
+}
+
+
+WebClient::WebClient(const std::string& url)
+{
+	HttpUrl urlPart = HttpUrl(url);
+	if (urlPart.protocol != "http") {
+		return;
+	}
+
+	Init(urlPart.host, urlPart.path);
 }
 
 

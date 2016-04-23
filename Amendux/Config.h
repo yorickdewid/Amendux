@@ -4,7 +4,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 102;
+	constexpr unsigned int clientVersion = 103;
 
 	class Config
 	{
