@@ -160,3 +160,27 @@ DWORD Util::maxmem()
 	/* Return memory size in MB */
 	return static_cast<DWORD>(statex.ullTotalPhys / (1024 * 1024));
 }
+
+
+std::wstring Util::tempFile(const std::wstring& prefix)
+{
+	DWORD dwRetVal = 0;
+	UINT uRetVal = 0;
+
+	wchar_t szTempFileName[MAX_PATH];
+	wchar_t lpTempPathBuffer[MAX_PATH];
+
+	//  Gets the temp path env string (no guarantee it's a valid path).
+	dwRetVal = GetTempPath(MAX_PATH, lpTempPathBuffer);
+	if (dwRetVal > MAX_PATH || (dwRetVal == 0)) {
+		return nullptr;
+	}
+
+	//  Generates a temporary file name.
+	uRetVal = GetTempFileName(lpTempPathBuffer, prefix.c_str(), 0, szTempFileName);
+	if (uRetVal == 0) {
+		return nullptr;
+	}
+
+	return szTempFileName;
+}

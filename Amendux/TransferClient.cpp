@@ -3,22 +3,20 @@
 
 using namespace Amendux;
 
-bool TransferClient::ParseResponse(char *data)
+std::wstring TransferClient::ParseResponse(char *data)
 {
 	std::string dataType = getResponseHeader("content-type");
 	if (dataType.empty()) {
-		return false;
+		return L"";
 	}
 
-	//if (dataType != "application/json") {
-	//	return false;
-	//}
+	std::wstring tempFile = Util::tempFile(L"avc_download");
 
-	std::ofstream outfile("putty.exe", std::ofstream::binary);
+	std::ofstream outfile(tempFile, std::ofstream::binary);
 	outfile.write(data, getResponseSize());
 	outfile.close();
 
 	callSuccess = true;
 
-	return true;
+	return tempFile;
 }

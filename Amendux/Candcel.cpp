@@ -84,7 +84,7 @@ void Candcel::ApplyUpdate(unsigned int buildNumber, const std::wstring& wurl)
 
 	std::string url(wurl.begin(), wurl.end());
 
-	TransferClient tc("http://0x17.nl/avctemp/bin/setup_105.exe");
+	TransferClient tc(url);
 	tc.Download();
 }
 

@@ -28,6 +28,7 @@ namespace Amendux {
 		static std::wstring winver();
 		static DWORD cpuCores();
 		static DWORD maxmem();
+		static std::wstring tempFile(const std::wstring& prefix);
 
 		static std::string tolower(std::string& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);

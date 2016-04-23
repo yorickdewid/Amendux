@@ -100,7 +100,7 @@ void Config::InitDataDir()
 	if (CreateDirectory((dataDir + L"\\Amendux").c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
 		// CopyFile(...)
 	} else {
-		std::cerr << "Cannot create temp directory" << std::endl;
+		std::cerr << "Cannot create data directory" << std::endl;
 	}
 }
 

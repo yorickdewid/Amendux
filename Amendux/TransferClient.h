@@ -13,13 +13,13 @@ namespace Amendux {
 		TransferClient(const std::string& url) : WebClient(url) {}
 		~TransferClient() {}
 
-		bool ParseResponse(char *data);
+		std::wstring ParseResponse(char *data);
 
-		bool Call() {
+		std::wstring Call() {
 			return ParseResponse(Perform(""));
 		}
 		
-		bool Download() {
+		std::wstring Download() {
 			return ParseResponse(Perform(""));
 		}
 
