@@ -5,10 +5,7 @@
 
 namespace Amendux {
 
-	class Util
-	{
-	public:
-		// TODO move to config
+	namespace Util {
 		enum class Directory {
 			USER_DOCUMENTS,
 			USER_CONTACT,
@@ -21,15 +18,15 @@ namespace Amendux {
 			USER_VIDEOS,
 		};
 
-		static PWCHAR getDirectory(Util::Directory folderId);
-		static std::wstring generateUUID();
-		static std::wstring user();
-		static std::wstring machine();
-		static std::wstring winver();
-		static DWORD cpuCores();
-		static DWORD maxmem();
-		static std::wstring tempFile();
-		static std::wstring currentModule() {
+		PWCHAR getDirectory(Directory folderId);
+		std::wstring generateUUID();
+		std::wstring user();
+		std::wstring machine();
+		std::wstring winver();
+		DWORD cpuCores();
+		DWORD maxmem();
+		std::wstring tempFile();
+		std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
 
 			GetModuleFileName(NULL, szFileName, MAX_PATH);
@@ -109,6 +106,6 @@ namespace Amendux {
 			return str.substr(first, (last - first + 1));
 		}
 
-	};
+	}
 
 }

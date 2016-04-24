@@ -6,39 +6,37 @@
 #include <VersionHelpers.h>
 #include <iostream>
 
-using namespace Amendux;
-
-PWCHAR Util::getDirectory(Util::Directory folderId)
+PWCHAR Amendux::Util::getDirectory(Directory folderId)
 {
 	KNOWNFOLDERID kfid;
 	WCHAR *localDocPath = new WCHAR[128];
 	
 	switch (folderId) {
-		case Util::Directory::USER_DOCUMENTS:
+		case Directory::USER_DOCUMENTS:
 			kfid = FOLDERID_Documents;
 			break;
-		case Util::Directory::USER_CONTACT:
+		case Directory::USER_CONTACT:
 			kfid = FOLDERID_Contacts;
 			break;
-		case Util::Directory::USER_DESKTOP:
+		case Directory::USER_DESKTOP:
 			kfid = FOLDERID_Desktop;
 			break;
-		case Util::Directory::USER_DOWNLOAD:
+		case Directory::USER_DOWNLOAD:
 			kfid = FOLDERID_Downloads;
 			break;
-		case Util::Directory::USER_FAVORITE:
+		case Directory::USER_FAVORITE:
 			kfid = FOLDERID_Favorites;
 			break;
-		case Util::Directory::USER_APPDATA:
+		case Directory::USER_APPDATA:
 			kfid = FOLDERID_LocalAppData;
 			break;
-		case Util::Directory::USER_PICTURES:
+		case Directory::USER_PICTURES:
 			kfid = FOLDERID_Pictures;
 			break;
-		case Util::Directory::USER_MUSIC:
+		case Directory::USER_MUSIC:
 			kfid = FOLDERID_Music;
 			break;
-		case Util::Directory::USER_VIDEOS:
+		case Directory::USER_VIDEOS:
 			kfid = FOLDERID_Videos;
 			break;
 		default:
@@ -53,7 +51,7 @@ PWCHAR Util::getDirectory(Util::Directory folderId)
 }
 
 
-std::wstring Util::generateUUID()
+std::wstring Amendux::Util::generateUUID()
 {
 	GUID gidReference;
 	wchar_t szGuidW[40];
@@ -63,7 +61,7 @@ std::wstring Util::generateUUID()
 }
 
 
-std::wstring Util::user()
+std::wstring Amendux::Util::user()
 {
 	TCHAR username[UNLEN + 1];
 	DWORD size = UNLEN + 1;
@@ -72,7 +70,7 @@ std::wstring Util::user()
 }
 
 
-std::wstring Util::machine()
+std::wstring Amendux::Util::machine()
 {
 	TCHAR name[MAX_COMPUTERNAME_LENGTH + 1];
 	DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
@@ -81,7 +79,7 @@ std::wstring Util::machine()
 }
 
 
-std::wstring Util::winver()
+std::wstring Amendux::Util::winver()
 {
 	if (IsWindowsServer()) {
 		return L"Windows Server";
@@ -140,7 +138,7 @@ std::wstring Util::winver()
 }
 
 
-DWORD Util::cpuCores()
+DWORD Amendux::Util::cpuCores()
 {
 	SYSTEM_INFO siSysInfo;
 
@@ -150,19 +148,19 @@ DWORD Util::cpuCores()
 }
 
 
-DWORD Util::maxmem()
+DWORD Amendux::Util::maxmem()
 {
 	MEMORYSTATUSEX statex;
 	statex.dwLength = sizeof(statex);
 
 	GlobalMemoryStatusEx(&statex);
 
-	/* Return memory size in MB */
+	// Return memory size in MB
 	return static_cast<DWORD>(statex.ullTotalPhys / (1024 * 1024));
 }
 
 
-std::wstring Util::tempFile()
+std::wstring Amendux::Util::tempFile()
 {
 	DWORD dwRetVal = 0;
 	UINT uRetVal = 0;
@@ -171,15 +169,15 @@ std::wstring Util::tempFile()
 	WCHAR lpTempPathBuffer[MAX_PATH];
 	WCHAR lpPrex[4];
 
-	//  Gets the temp path env string (no guarantee it's a valid path).
+	// Gets the temp path env string (no guarantee it's a valid path).
 	dwRetVal = GetTempPath(MAX_PATH, lpTempPathBuffer);
 	if (dwRetVal > MAX_PATH || (dwRetVal == 0)) {
 		return nullptr;
 	}
 
-	generateString(lpPrex, 3);
+	Amendux::Util::generateString(lpPrex, 3);
 
-	//  Generates a temporary file name.
+	// Generates a temporary file name.
 	uRetVal = GetTempFileName(lpTempPathBuffer, lpPrex, 0, szTempFileName);
 	if (uRetVal == 0) {
 		return nullptr;
@@ -187,3 +185,4 @@ std::wstring Util::tempFile()
 
 	return szTempFileName;
 }
+
