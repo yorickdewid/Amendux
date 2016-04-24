@@ -11,7 +11,7 @@
 #define MAX_LOADSTRING 100
 
 // Global modules
-Amendux::Encrypt FileCrypt;						// File encryptor module
+// Amendux::Encrypt FileCrypt;						// File encryptor module
 Amendux::Config cfg;							// Common config
 Amendux::Candcel Commander;						// Command and Control
 
@@ -51,7 +51,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// Initialize and configure modules
 	Amendux::Log::Init();
-	Amendux::Config::Init(FileCrypt);
+	// Amendux::Config::Init(FileCrypt);
 
 	// Window accelerators
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
@@ -253,7 +253,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 						break;
 					case IDM_ENCRYPT:
-						FileCrypt.Run();
+						// FileCrypt.Run();
 						break;
 					case IDM_DEBUG:
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_TEST), hWnd, Debug);

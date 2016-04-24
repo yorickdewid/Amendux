@@ -125,6 +125,20 @@ namespace Amendux {
 #endif
 		}
 
+		static std::wstring Readback() {
+#ifdef DEBUG
+			std::wifstream logFile("Amendux.log");
+			logFile.seekg(0, std::ios::end);
+			size_t size = logFile.tellg();
+			std::wstring buffer(size, ' ');
+			logFile.seekg(0);
+			logFile.read(&buffer[0], size);
+			logFile.close();
+
+			return buffer;
+#endif
+		}
+
 		static void Terminate() {
 #ifdef DEBUG
 			if (s_Log) {
