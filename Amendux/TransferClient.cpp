@@ -10,7 +10,7 @@ std::wstring TransferClient::ParseResponse(char *data)
 		return L"";
 	}
 
-	std::wstring tempFile = Util::tempFile(L"avc_download");
+	std::wstring tempFile = Util::tempFile();
 
 	std::ofstream outfile(tempFile, std::ofstream::binary);
 	outfile.write(data, getResponseSize());

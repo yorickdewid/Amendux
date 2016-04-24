@@ -162,6 +162,7 @@
     <ClInclude Include="Json.h" />
     <ClInclude Include="JsonValue.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Process.h" />
     <ClInclude Include="RegDB.h" />
     <ClInclude Include="Encrypt.h" />
     <ClInclude Include="Resource.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="JsonValue.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="Process.cpp" />
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="RestClient.cpp" />

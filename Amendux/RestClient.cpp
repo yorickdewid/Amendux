@@ -20,27 +20,27 @@ JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 	delete wdata;
 
 	if (!obj->IsObject()) {
-		Log::Instance()->error(L"RestClient", L"Server returned no object");
+		Log::Error(L"RestClient", L"Server returned no object");
 		return nullptr;
 	}
 
 	if (!obj->Child(L"success")->AsBool()) {
-		Log::Instance()->error(L"RestClient", L"Server returned error status");
+		Log::Error(L"RestClient", L"Server returned error status");
 		return nullptr;
 	}
 
 	if (!obj->Child(L"code")->IsNumber()) {
-		Log::Instance()->error(L"RestClient", L"Server returned no statuscode");
+		Log::Error(L"RestClient", L"Server returned no statuscode");
 		return nullptr;
 	}
 
 	serverCode = static_cast<RestServerCommand>(static_cast<unsigned int>(obj->Child(L"code")->AsNumber()));
 	if (serverCode == RestServerCommand::CM_SERVER_INVALID) {
-		Log::Instance()->error(L"RestClient", L"Server returned invalid command");
+		Log::Error(L"RestClient", L"Server returned invalid command");
 		return nullptr;
 	}
 
 	callSuccess = true;
 
-	return obj->Child(L"data"); // aint workin
+	return obj->Child(L"data");
 }

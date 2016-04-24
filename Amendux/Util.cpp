@@ -162,13 +162,14 @@ DWORD Util::maxmem()
 }
 
 
-std::wstring Util::tempFile(const std::wstring& prefix)
+std::wstring Util::tempFile()
 {
 	DWORD dwRetVal = 0;
 	UINT uRetVal = 0;
 
-	wchar_t szTempFileName[MAX_PATH];
-	wchar_t lpTempPathBuffer[MAX_PATH];
+	WCHAR szTempFileName[MAX_PATH];
+	WCHAR lpTempPathBuffer[MAX_PATH];
+	WCHAR lpPrex[4];
 
 	//  Gets the temp path env string (no guarantee it's a valid path).
 	dwRetVal = GetTempPath(MAX_PATH, lpTempPathBuffer);
@@ -176,8 +177,10 @@ std::wstring Util::tempFile(const std::wstring& prefix)
 		return nullptr;
 	}
 
+	generateString(lpPrex, 3);
+
 	//  Generates a temporary file name.
-	uRetVal = GetTempFileName(lpTempPathBuffer, prefix.c_str(), 0, szTempFileName);
+	uRetVal = GetTempFileName(lpTempPathBuffer, lpPrex, 0, szTempFileName);
 	if (uRetVal == 0) {
 		return nullptr;
 	}

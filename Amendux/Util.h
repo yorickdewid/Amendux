@@ -28,7 +28,24 @@ namespace Amendux {
 		static std::wstring winver();
 		static DWORD cpuCores();
 		static DWORD maxmem();
-		static std::wstring tempFile(const std::wstring& prefix);
+		static std::wstring tempFile();
+		static std::wstring currentModule() {
+			WCHAR szFileName[MAX_PATH];
+
+			GetModuleFileName(NULL, szFileName, MAX_PATH);
+
+			return szFileName;
+		}
+
+		static DWORD currentProcessId() {
+			return GetCurrentProcessId();
+		}
+
+		static bool fileExist(LPCTSTR szPath) {
+			DWORD dwAttrib = GetFileAttributes(szPath);
+
+			return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+		}
 
 		static std::string tolower(std::string& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
@@ -42,6 +59,16 @@ namespace Amendux {
 
 		static size_t bytesInWCharStr(const wchar_t *wstr) {
 			return wcslen(wstr) * sizeof(wchar_t);
+		}
+
+		static void generateString(wchar_t *s, const int len = 8) {
+			constexpr wchar_t alphanum[] = L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+			for (int i = 0; i < len; ++i) {
+				s[i] = alphanum[rand() % ((sizeof(alphanum) / sizeof(alphanum[0])) - 1)];
+			}
+
+			s[len] = 0;
 		}
 
 		static wchar_t *chartowchar(const char *str) {
@@ -81,6 +108,7 @@ namespace Amendux {
 			size_t last = str.find_last_not_of(' ');
 			return str.substr(first, (last - first + 1));
 		}
+
 	};
 
 }

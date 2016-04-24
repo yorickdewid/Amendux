@@ -10,7 +10,7 @@ using namespace Amendux;
 
 void WebClient::Init(const std::string& host, const std::string& uri) {
 	if (SimpleSocks::initSimpleSocks()) {
-		Log::Instance()->error(L"WebClient", L"Failed to initialize Simple Socks");
+		Log::Error(L"WebClient", L"Failed to initialize Simple Socks");
 		return;
 	}
 
@@ -18,7 +18,7 @@ void WebClient::Init(const std::string& host, const std::string& uri) {
 
 	//Connect it to Google on port 80. (80 is the HTTP port.)
 	if (sock->connect(host.c_str(), 80)) {
-		Log::Instance()->error(L"WebClient", L"Failed to connect to server");
+		Log::Error(L"WebClient", L"Failed to connect to server");
 		sock = nullptr;
 	}
 
@@ -99,7 +99,7 @@ char *WebClient::Perform(const std::string& postData)
 	// We send it through the socket
 	int retval = sock->send(httpHeader.c_str(), static_cast<int>(httpHeader.length()));
 	if (retval < 1) {
-		Log::Instance()->error(L"WebClient", L"Connection was lost");
+		Log::Error(L"WebClient", L"Connection was lost");
 		sock = nullptr;
 		return nullptr;
 	}
@@ -108,14 +108,14 @@ char *WebClient::Perform(const std::string& postData)
 	memset(buffer, 0, 1024);
 	retval = sock->peek(buffer, 1023);
 	if (retval < 1) {
-		Log::Instance()->error(L"WebClient", L"Socket error");
+		Log::Error(L"WebClient", L"Socket error");
 		return nullptr;
 	}
 
 	// The response header will end with "\r\n\r\n", so let's look for that.
 	char *endHeaderPtr = strstr(buffer, "\r\n\r\n");
 	if (!endHeaderPtr) {
-		Log::Instance()->error(L"WebClient", L"Could not find end of HTTP header");
+		Log::Error(L"WebClient", L"Could not find end of HTTP header");
 		return nullptr;
 	}
 
@@ -125,7 +125,7 @@ char *WebClient::Perform(const std::string& postData)
 
 	retval = sock->recv(buffer, static_cast<int>(headLen));
 	if (retval < 1) {
-		Log::Instance()->error(L"WebClient", L"Socket error");
+		Log::Error(L"WebClient", L"Socket error");
 		return nullptr;
 	}
 
@@ -172,7 +172,7 @@ char *WebClient::Perform(const std::string& postData)
 		if (retval == 0) {
 			break;
 		} else if (retval < 1) {
-			Log::Instance()->error(L"WebClient", L"Socket error");
+			Log::Error(L"WebClient", L"Socket error");
 			return nullptr;
 		}
 		got += retval;
