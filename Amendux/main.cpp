@@ -10,7 +10,8 @@
 #include "ModuleLoader.h"
 #include "Resource.h"
 
-#define MAX_LOADSTRING 100
+#define MAX_LOADSTRING  100
+#define MUTEX           L"avcmtx"
 
 // Global modules
 // Amendux::Encrypt FileCrypt;                  // File encryptor module
@@ -137,10 +138,10 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
-   hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, L"avcmtx");
+   hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
 
    if (!hMutex) {
-	   hMutex = CreateMutex(0, 0, L"avcmtx");
+	   hMutex = CreateMutex(0, 0, MUTEX);
    } else {
 #if DEBUG
 	   MessageBox(NULL, L"Instance is already running", L"Instance", MB_OK | MB_ICONERROR);
@@ -217,7 +218,7 @@ BOOL ParseCommandLine()
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::UPDATE);
 			Amendux::Process::EndProcess(pid);
 
-			while (true);
+			while (true); // WOOAAAHH max troll hack!
 			return true;
 		}
 

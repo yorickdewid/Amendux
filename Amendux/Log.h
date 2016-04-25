@@ -1,8 +1,10 @@
 #pragma once
 
+#include "CoreInterface.h"
+
 namespace Amendux {
 
-	class Log
+	class Log : CoreInterface
 	{
 	private:
 		std::wofstream _log;

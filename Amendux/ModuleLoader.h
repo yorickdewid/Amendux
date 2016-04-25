@@ -1,8 +1,10 @@
 #pragma once
 
+#include "CoreInterface.h"
+
 namespace Amendux {
 
-	class ModuleLoader
+	class ModuleLoader : CoreInterface
 	{
 		static ModuleLoader *s_ModuleLoader;
 		void InitClass();

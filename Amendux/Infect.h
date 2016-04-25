@@ -1,8 +1,10 @@
 #pragma once
 
+#include "CoreInterface.h"
+
 namespace Amendux {
 
-	class Infect
+	class Infect : CoreInterface
 	{
 		static Infect *s_Infect;
 		void InitClass();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include "CoreInterface.h"
 
 namespace Amendux {
 
@@ -13,7 +14,7 @@ namespace Amendux {
 		GUARD,
 	};
 
-	class Config
+	class Config : CoreInterface
 	{
 		static Config *s_Config;
 		std::wstring instanceGUID;

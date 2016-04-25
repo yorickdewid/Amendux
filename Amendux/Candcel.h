@@ -1,10 +1,11 @@
 #pragma once
 
+#include "CoreInterface.h"
 #include "Thread.h"
 
 namespace Amendux {
 
-	class Candcel
+	class Candcel : CoreInterface
 	{
 		static Candcel *s_Candcel;
 		bool serverSolicitAck = false;

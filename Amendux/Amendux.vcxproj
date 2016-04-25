@@ -159,6 +159,7 @@
     <ClInclude Include="AddrLookup.h" />
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="CoreInterface.h" />
     <ClInclude Include="Infect.h" />
     <ClInclude Include="ModuleInterface.h" />
     <ClInclude Include="Json.h" />
