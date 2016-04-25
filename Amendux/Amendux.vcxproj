@@ -159,6 +159,7 @@
     <ClInclude Include="AddrLookup.h" />
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Module.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="JsonValue.h" />
     <ClInclude Include="Log.h" />
@@ -211,10 +212,6 @@
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="WebClient.cpp" />
     <ClCompile Include="WSASystemMgr.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Amendux.ico" />
-    <Image Include="Amendux_small.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Amendux.rc" />

@@ -5,6 +5,7 @@
 #include <sstream>
 
 using namespace Amendux;
+using namespace Module;
 
 Encrypt::Encrypt()
 {

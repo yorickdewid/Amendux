@@ -44,6 +44,14 @@ namespace Amendux {
 			return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 		}
 
+		static bool createDirectory(std::wstring dir) {
+			if (CreateDirectory(dir.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
+				return true;
+			}
+
+			return false;
+		}
+
 		static std::string tolower(std::string& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 			return str;

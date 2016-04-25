@@ -49,11 +49,11 @@ namespace Amendux {
 	public:
 		Log() {
 			_log.open("Amendux.log");
-			_log << getTimestamp() << " [Log] Initialize logger module" << std::endl;
+			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
 		}
 
 		~Log() {
-			_log << getTimestamp() << " [Log] Terminate logger module" << std::endl;
+			_log << getTimestamp() << " [Log] Terminate logger class" << std::endl;
 			_log.close();
 		}
 

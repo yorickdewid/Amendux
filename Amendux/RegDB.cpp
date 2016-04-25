@@ -18,3 +18,9 @@ HKEY RegDB::createKey(HKEY kRoot, std::wstring location)
 
 	return hKey;
 }
+
+
+VOID RegDB::deleteKey(HKEY kRoot, std::wstring location)
+{
+	LONG nError = RegDeleteKey(kRoot, location.c_str());
+}

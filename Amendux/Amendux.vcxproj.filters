@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Json">
       <UniqueIdentifier>{5b667a23-a15d-4901-a7f0-274ee1583508}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module">
+      <UniqueIdentifier>{fe21742b-43d5-418b-84a4-ccbe465645ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Module">
+      <UniqueIdentifier>{aa19c0a7-6a6c-4d57-b06f-1875249ce56e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -38,9 +44,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Encrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RegDB.h">
@@ -106,12 +109,15 @@
     <ClInclude Include="Process.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Encrypt.h">
+      <Filter>Header Files\Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Encrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -177,14 +183,9 @@
     <ClCompile Include="Process.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Amendux.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Amendux_small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <ClCompile Include="Encrypt.cpp">
+      <Filter>Source Files\Module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Amendux.rc">

