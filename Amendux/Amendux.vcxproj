@@ -159,10 +159,12 @@
     <ClInclude Include="AddrLookup.h" />
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
-    <ClInclude Include="Module.h" />
+    <ClInclude Include="Infect.h" />
+    <ClInclude Include="ModuleInterface.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="JsonValue.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="ModuleLoader.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="RegDB.h" />
     <ClInclude Include="Encrypt.h" />
@@ -187,9 +189,11 @@
     <ClCompile Include="AddrLookup.cpp" />
     <ClCompile Include="Candcel.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Infect.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="JsonValue.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="ModuleLoader.cpp" />
     <ClCompile Include="Process.cpp" />
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />

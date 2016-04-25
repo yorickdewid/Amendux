@@ -46,6 +46,8 @@ namespace Amendux {
 			_write(mod, ws, type);
 		}
 
+		void InitClass() {}
+
 	public:
 		Log() {
 			_log.open("Amendux.log");
@@ -62,6 +64,8 @@ namespace Amendux {
 			if (!s_Log) {
 				s_Log = new Log;
 			}
+
+			s_Log->InitClass();
 #endif
 		}
 

@@ -4,7 +4,7 @@
 
 namespace Amendux {
 
-	class Module
+	class ModuleInterface
 	{
 		std::wstring modName;
 
