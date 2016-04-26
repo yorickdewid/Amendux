@@ -12,13 +12,11 @@
 
 #define MAX_LOADSTRING  100
 #define MUTEX           L"avcmtx"
+#define WINUICLASS      L"AVCWIN32PROG"
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
 HANDLE hMutex;									// Instance mutx lock
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // The main window class name
-
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
@@ -38,11 +36,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 		return false;
 	}
 
-    // Initialize global strings
-    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-    LoadStringW(hInstance, IDC_WIN32PROJECT1, szWindowClass, MAX_LOADSTRING);
-	MainRegisterClass(hInstance);
-
     // Perform application initialization
     if (!InitInstance(hInstance, nCmdShow)) {
         return false;
@@ -54,7 +47,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// If anything failed at this moment, disengage
 	if (!Amendux::Config::Success()) {
-		goto TerminateInstance;// TODO handle this via message loop
+		PostQuitMessage(0);
 	}
 
 	// Run core classes
@@ -77,8 +70,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
         }
     }
 
-TerminateInstance:
-
 	// Terminate modules in reverse order
 	Amendux::ModuleLoader::Terminate();
 	Amendux::Candcel::Terminate();
@@ -100,8 +91,10 @@ TerminateInstance:
 //
 //  PURPOSE: Registers the window class.
 //
+#if DEBUG
 ATOM MainRegisterClass(HINSTANCE hInstance)
 {
+
     WNDCLASSEXW wcex;
 
     wcex.cbSize         = sizeof(WNDCLASSEX);
@@ -114,11 +107,12 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WIN32PROJECT1);
-    wcex.lpszClassName  = szWindowClass;
+    wcex.lpszClassName  = WINUICLASS;
     wcex.hIconSm        = 0; // LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-    return RegisterClassExW(&wcex);
+	return RegisterClassExW(&wcex);
 }
+#endif
 
 
 //
@@ -133,30 +127,30 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   hInst = hInstance; // Store instance handle in our global variable
-   hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
+	hInst = hInstance; // Store instance handle in our global variable
+	hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
 
-   if (!hMutex) {
-	   hMutex = CreateMutex(0, 0, MUTEX);
-   } else {
+	if (hMutex) {
+		return false;
+	}
+
+	// Prevent other instances
+	hMutex = CreateMutex(0, 0, MUTEX);
+
 #if DEBUG
-	   MessageBox(NULL, L"Instance is already running", L"Instance", MB_OK | MB_ICONERROR);
+	// Main window 
+	MainRegisterClass(hInstance);
+	HWND hWnd = CreateWindowW(WINUICLASS, L"Amendux [DEBUG MODE]", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	if (!hWnd) {
+		ReleaseMutex(hMutex);
+		return false;
+	}
+
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 #endif
-	   return false;
-   }
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-
-   if (!hWnd) {
-	  ReleaseMutex(hMutex);
-      return false;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   // Plant the seed
+   // Drift random by planting the seed
    srand((unsigned int)time(NULL));
 
    return true;
@@ -248,6 +242,7 @@ BOOL ParseCommandLine()
 //  WM_DESTROY  - post a quit message and return
 //
 //
+#if DEBUG
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -332,3 +327,4 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return (INT_PTR)FALSE;
 }
+#endif
