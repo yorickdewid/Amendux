@@ -105,14 +105,16 @@ void Config::LogEnvironment()
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_VIDEOS);
 	Log::Info(L"Config", L"[Env] User videos: " + std::wstring(sUserDir));
+
+	sUserDir = Util::getDirectory(Util::Directory::USER_STARTUP);
+	Log::Info(L"Config", L"[Env] User startup: " + std::wstring(sUserDir));
 #endif
 }
 
 
 void Config::SetupDataDir()
 {
-	std::wstring dataDir = std::wstring(Util::getDirectory(Util::Directory::USER_APPDATA));
-	if (!Util::createDirectory(dataDir + L"\\Amendux")) {
+	if (!Util::createDirectory(DataDirectory())) {
 		Log::Error(L"Config", L"Cannot create data directory");
 
 		bSuccess = false;
@@ -137,6 +139,9 @@ void Config::SetupPersistentConfig()
 	DWORD procInit = 1;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
 
+	DWORD RunCount = 1;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
+
 	DWORD execMode = 3;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
 
@@ -144,6 +149,11 @@ void Config::SetupPersistentConfig()
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
 
 	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"DisplayName", L"Amendux", 7 * sizeof(wchar_t));
+
+	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"Path", DataDirectory().c_str(), (DWORD)(DataDirectory().size() * sizeof(wchar_t)));
+
+	BYTE flags = 0xfe;
+	RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"Flags", &flags, sizeof(BYTE));
 }
 
 

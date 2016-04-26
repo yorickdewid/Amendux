@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Log.h"
+#include "Config.h"
 #include "ModuleLoader.h"
 
 using namespace Amendux;
@@ -20,5 +21,7 @@ ModuleLoader::~ModuleLoader()
 
 void ModuleLoader::InitClass()
 {
-	// 
+	if (!Config::Current()->CanRunModules()) {
+		return;
+	}
 }

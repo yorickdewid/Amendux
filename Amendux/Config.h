@@ -5,7 +5,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 112;
+	constexpr unsigned int clientVersion = 120;
 
 	enum class OperationMode {
 		BASE = 1,
@@ -33,6 +33,11 @@ namespace Amendux {
 
 		inline std::wstring Guid() const {
 			return instanceGUID;
+		}
+
+		inline std::wstring DataDirectory() const {
+			std::wstring dataDir = std::wstring(Util::getDirectory(Util::Directory::USER_APPDATA));
+			return dataDir + L"\\Amendux";
 		}
 
 		inline void SetMode(OperationMode om) {
