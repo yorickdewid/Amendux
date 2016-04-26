@@ -6,6 +6,10 @@ using namespace Amendux;
 
 JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 {
+	if (!data) {
+		return nullptr;
+	}
+
 	std::string dataType = getResponseHeader("content-type");
 	if (dataType.empty()) {
 		return nullptr;

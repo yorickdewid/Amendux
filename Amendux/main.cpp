@@ -297,6 +297,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 		case WM_INITDIALOG:
+			SetDlgItemText(hDlg, IDC_STATIC_VERSION, (L"Amendux, Version " + Amendux::Config::getVersion()).c_str());
 			return (INT_PTR)TRUE;
 
 		case WM_COMMAND:
@@ -318,6 +319,7 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 		case WM_INITDIALOG:
+			SetDlgItemText(hDlg, IDC_DEBUG_CONSOLE, Amendux::Log::Readback().c_str());
 			return (INT_PTR)TRUE;
 
 		case WM_COMMAND:

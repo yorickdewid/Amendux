@@ -133,15 +133,15 @@ namespace Amendux {
 
 		static std::wstring Readback() {
 #ifdef DEBUG
-			std::wifstream logFile("Amendux.log");
-			logFile.seekg(0, std::ios::end);
-			size_t size = logFile.tellg();
-			std::wstring buffer(size, ' ');
-			logFile.seekg(0);
-			logFile.read(&buffer[0], size);
-			logFile.close();
+			std::wstring line;
+			std::wstring text;
+			std::wifstream file("Amendux.log");
+			while (std::getline(file, line)) {
+				line += L"\r\n";
+				text += line;
+			}
 
-			return buffer;
+			return text;
 #endif
 		}
 

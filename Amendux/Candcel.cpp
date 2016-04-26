@@ -57,6 +57,10 @@ void Candcel::IsAlive()
 DWORD Candcel::CheckIn()
 {
 	if (!serverSolicitAck) {
+		Solicit();
+	}
+	
+	if (!serverSolicitAck) {
 		return 1;
 	}
 
@@ -111,6 +115,10 @@ void Candcel::Solicit()
 
 void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 {
+	if (!serverSolicitAck) {
+		return;
+	}
+
 	Log::Info(L"Candcel", L"Sending update request");
 
 	std::string url(wurl.begin(), wurl.end());

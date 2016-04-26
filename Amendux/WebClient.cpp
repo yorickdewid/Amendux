@@ -16,7 +16,6 @@ void WebClient::Init(const std::string& host, const std::string& uri) {
 
 	sock = new SimpleSocks::TCPSocket;
 
-	//Connect it to Google on port 80. (80 is the HTTP port.)
 	if (sock->connect(host.c_str(), 80)) {
 		Log::Error(L"WebClient", L"Failed to connect to server");
 		sock = nullptr;
@@ -186,8 +185,11 @@ char *WebClient::Perform(const std::string& postData)
 
 WebClient::~WebClient()
 {
-	sock->close();
-	delete sock;
-	sock = nullptr;
+	if (isConnected()) {
+		sock->close();
+		delete sock;
+		sock = nullptr;
+	}
+
 	SimpleSocks::shutdownSimpleSocks();
 }
