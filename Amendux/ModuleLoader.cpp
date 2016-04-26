@@ -8,13 +8,13 @@ ModuleLoader *ModuleLoader::s_ModuleLoader = nullptr;
 
 ModuleLoader::ModuleLoader()
 {
-	Log::Info(L"Module", L"Initialize module class");
+	Log::Info(L"ModuleLoader", L"Initialize module loader class");
 }
 
 
 ModuleLoader::~ModuleLoader()
 {
-	Log::Info(L"Module", L"Terminate module class");
+	Log::Info(L"ModuleLoader", L"Terminate module loader class");
 }
 
 
