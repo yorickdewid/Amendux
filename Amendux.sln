@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Amendux", "Amendux\Amendux.vcxproj", "{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AVC Endpoint", "AVC Endpoint", "{623109C2-7769-437E-A67D-538A710A302E}"
+	ProjectSection(SolutionItems) = preProject
+		avc_endpoint.php = avc_endpoint.php
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
