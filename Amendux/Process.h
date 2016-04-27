@@ -9,7 +9,7 @@ namespace Amendux {
 		Process() {}
 		~Process() {}
 
-		static bool UpdateInstance(const std::wstring& file);
+		static bool RunUpdateInstance(const std::wstring& file);
 		static bool KillProcess(unsigned int pid);
 		static bool EndProcess(unsigned int pid, DWORD dwTimeout = 0);
 	};

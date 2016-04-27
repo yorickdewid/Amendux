@@ -5,7 +5,7 @@
 
 using namespace Amendux;
 
-bool Process::UpdateInstance(const std::wstring& file)
+bool Process::RunUpdateInstance(const std::wstring& file)
 {
 	// std::string updateExe(file.begin(), file.end());
 	std::string updateExe("C:\\Users\\yoric\\Source\\Repos\\amendux\\x64\\Debug\\Amendux.exe");

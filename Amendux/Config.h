@@ -5,7 +5,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 124;
+	constexpr unsigned int clientVersion = 127;
 
 	enum class OperationMode {
 		BASE = 1,
@@ -25,6 +25,7 @@ namespace Amendux {
 		void SetupDataDir();
 		void SetupPersistentConfig();
 		void CheckConfig();
+		void ApplyUpdate();
 		void InitClass();
 
 	public:

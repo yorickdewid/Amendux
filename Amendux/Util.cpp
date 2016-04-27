@@ -239,3 +239,13 @@ bool Amendux::Util::CopyFile(LPTSTR lpExistingFileName, LPTSTR lpNewFileName) //
 {
 	return ::CopyFile(lpExistingFileName, lpNewFileName, TRUE) != NULL;
 }
+
+
+std::wstring Amendux::Util::CurrentDirectory() //TODO inline
+{
+	TCHAR buffer[MAX_PATH];
+
+	::GetCurrentDirectory(MAX_PATH, buffer);
+
+	return buffer;
+}

