@@ -141,7 +141,7 @@ void Config::SetupPersistentConfig()
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
 
 	DWORD *dRsRunCount = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"RunCount", sizeof(DWORD));
-	if (!*dRsRunCount) {
+	if (!dRsRunCount) {
 		DWORD RunCount = 1;
 		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
 	} else {

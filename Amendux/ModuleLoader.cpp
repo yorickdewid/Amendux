@@ -24,4 +24,24 @@ void ModuleLoader::InitClass()
 	if (!Config::Current()->CanRunModules()) {
 		return;
 	}
+
+	//TODO load static modules
+
+	//TODO load dynamic modules
+
+	// SHELLMOD_API int fnShellMod();
+	/*{
+		typedef int (*DLLPROC)();
+		
+		HINSTANCE hInstDLL = LoadLibrary(L"ShellMod.dll");
+		if (hInstDLL) {
+			DLLPROC fnRunMod = (DLLPROC)GetProcAddress(hInstDLL, "fnShellMod");
+
+			if (fnRunMod) {
+				fnRunMod();
+			}
+
+			FreeLibrary(hInstDLL);
+		}
+	}*/
 }
