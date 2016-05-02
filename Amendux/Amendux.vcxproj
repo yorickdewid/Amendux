@@ -168,7 +168,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="CoreInterface.h" />
     <ClInclude Include="Infect.h" />
-    <ClInclude Include="ModuleInterface.h" />
+    <ClInclude Include="Module.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="JsonValue.h" />
     <ClInclude Include="Log.h" />
@@ -180,6 +180,7 @@
     <ClInclude Include="RestClient.h" />
     <ClInclude Include="SelectSet.h" />
     <ClInclude Include="Sha1.h" />
+    <ClInclude Include="Shell.h" />
     <ClInclude Include="SimpleSocksNS.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="RestClient.cpp" />
     <ClCompile Include="SelectSet.cpp" />
+    <ClCompile Include="Shell.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
     <ClCompile Include="Sha1.cpp" />
     <ClCompile Include="stdafx.cpp">

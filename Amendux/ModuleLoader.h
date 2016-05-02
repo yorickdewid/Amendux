@@ -7,11 +7,18 @@ namespace Amendux {
 	class ModuleLoader : CoreInterface
 	{
 		static ModuleLoader *s_ModuleLoader;
+		std::map<std::wstring, void *> moduleList;
 		void InitClass();
 
 	public:
 		ModuleLoader();
 		~ModuleLoader();
+
+		void RunModule(const std::wstring& modName);
+
+		void RegisterModule(const std::wstring& modName, void *pMod) {
+			moduleList[modName] = pMod;
+		}
 
 		static ModuleLoader *Current() {
 			if (!s_ModuleLoader) {

