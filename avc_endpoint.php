@@ -14,7 +14,7 @@
  *   server running PHP 5+ with PDO and SQLite 2+. Then call
  *   this script with the <script.php>?setup=true parameter.
  *
- * VERSION: 0.8
+ * VERSION: 0.9
  */
 
 /* Global config settings */
@@ -44,6 +44,18 @@ $server_codes = array(
 	"update" => 103,
 	"ack" => 900,
 );
+
+function logOke($message) {
+	if (DEBUG) {
+		echo "<b><font color=\"green\">[Oke] </font>" . $message . "</b><br />";
+	}
+}
+
+function logError($message) {
+	if (DEBUG) {
+		die("<b><font color=\"red\">[Error] </font>" . $message . "</b><br />");
+	}
+}
 
 function randomPassword($length = 14) {
     $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-=+;:,.?";
@@ -88,18 +100,28 @@ function setup() {
 
 	if (!file_exists(TMP_DIR)) {
 		if (!mkdir(TMP_DIR)) {
-	    	die('Error creating temp folders');
+	    	logError("Creating temp folder");
 		}
 
 		if (!mkdir(TMP_DIR . "/bin")) {
-	    	die('Error creating temp folders');
+			logError("Creating temp folders");
 		}
 
 		if (!mkdir(TMP_DIR . "/var")) {
-	    	die('Error creating temp folders');
+			logError("Creating temp folders");
 		}
+
+		if (!mkdir(TMP_DIR . "/etc")) {
+			logError("Creating temp folders");
+		}
+
+		if (!mkdir(TMP_DIR . "/cache")) {
+			logError("Creating temp folders");
+		}
+
+		logOke("Creating directories");
 	} else {
-		die("Error setup already present");
+		logError("Setup already present");
 	}
 
 	try {
@@ -147,6 +169,8 @@ function setup() {
 				FOREIGN KEY(guid) REFERENCES instances(guid)
 			)");
 
+		logOke("Creating database");
+
 		$db->exec("INSERT INTO settings (key, value) VALUES ('setup', 'true')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('masterpwd', '" . sha1($masterpwd) ."')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('allow_eliminate', 'true')");
@@ -159,12 +183,12 @@ function setup() {
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_password', '')");
 
 		$db = NULL;
+		logOke("Create default settings");
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error creating tables : " . $e->getMessage();
-		exit();
+		logError("Creating tables: " . $e->getMessage());
 	}
 
-	echo "Masterpassword: " . $masterpwd;
+	logOke("Masterpassword: " . $masterpwd);
 }
 
 /* ************************************
@@ -203,8 +227,7 @@ function saveNewInstance(Array $data) {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error logging : " . $e->getMessage();
-		exit();
+		logError("Saving: " . $e->getMessage());
 	}
 }
 
@@ -226,8 +249,7 @@ function saveNewCheckin(Array $data) {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error logging : " . $e->getMessage();
-		exit();
+		logError("Saving: " . $e->getMessage());
 	}
 }
 
@@ -254,8 +276,7 @@ function authenticateUser($username, $password) {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error authenticating : " . $e->getMessage();
-		exit();
+		logError("Authenticating: " . $e->getMessage());
 	}
 
 	return false;
@@ -280,8 +301,7 @@ function isUpdateEnabled() {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error getting update : " . $e->getMessage();
-		exit();
+		logError("Getting update: " . $e->getMessage());
 	}
 }
 
@@ -302,8 +322,7 @@ function latestClientVersion() {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error getting last version : " . $e->getMessage();
-		exit();
+		logError("Getting last version: " . $e->getMessage());
 	}
 }
 
@@ -324,8 +343,7 @@ function updateLocation() {
 
 		$db = NULL;
 	} catch(PDOException $e) {
-		if (DEBUG) echo "Error getting update : " . $e->getMessage();
-		exit();
+		logError("Getting update location: " . $e->getMessage());
 	}
 }
 
@@ -365,6 +383,13 @@ function handleSolicit(stdClass $data) {
 	}
 
 	saveNewInstance($db_bind);
+
+	if (property_exists($data, 'env')) {
+		$report = json_encode($data->env, JSON_PRETTY_PRINT);
+
+		$file = TMP_DIR . "/cache/" . $data->guid . ".txt";
+		file_put_contents($file, $report);
+	}
 }
 
 function handleCheckin(stdClass $data) {
