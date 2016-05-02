@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <vector>
 #include <algorithm>
 
@@ -31,6 +32,7 @@ namespace Amendux {
 		bool CreateSoftLink(LPTSTR lpSymlinkFileName, LPTSTR lpTargetFileName);
 		bool CopyFile(LPTSTR lpExistingFileName, LPTSTR lpNewFileName);
 		std::wstring CurrentDirectory();
+		std::map<std::wstring, std::wstring> *EnvVariables();
 
 		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];

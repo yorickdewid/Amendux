@@ -249,3 +249,42 @@ std::wstring Amendux::Util::CurrentDirectory() //TODO inline
 
 	return buffer;
 }
+
+std::map<std::wstring, std::wstring> *Amendux::Util::EnvVariables()
+{
+	LPTSTR lpszVariable;
+	LPTCH lpvEnv;
+	std::map<std::wstring, std::wstring> *envList = new std::map<std::wstring, std::wstring>;
+
+	// Get a pointer to the environment block. 
+	lpvEnv = ::GetEnvironmentStrings();
+
+	// If the returned pointer is NULL, exit.
+	if (!lpvEnv) {
+		return nullptr;
+	}
+
+	// Variable strings are separated by NULL byte, and the block is 
+	// terminated by a NULL byte. 
+	lpszVariable = (LPTSTR)lpvEnv;
+
+	while (*lpszVariable) {
+		std::wstring envItem = std::wstring(lpszVariable);
+		//_tprintf(L">>%s\n", lpszVariable);
+
+		size_t nCnt = std::count(envItem.begin(), envItem.end(), '=');
+		if (nCnt == 1) {
+			size_t pos = envItem.find_first_of('=');
+
+			(*envList)[(envItem.substr(0, pos))] = Util::trim<std::wstring>(envItem.substr(pos + 1));
+		}
+
+		// Log::Info(L"Config", L"[Env] VAR: " + x);
+
+		lpszVariable += lstrlen(lpszVariable) + 1;
+	}
+
+	::FreeEnvironmentStrings(lpvEnv);
+
+	return envList;
+}

