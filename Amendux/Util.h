@@ -69,11 +69,6 @@ namespace Amendux {
 			return str;
 		}
 
-		/*static std::wstring tolower(std::wstring& str) {
-			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-			return str;
-		}*/
-
 		static size_t bytesInWCharStr(const wchar_t *wstr) {
 			return wcslen(wstr) * sizeof(wchar_t);
 		}

@@ -52,7 +52,8 @@ namespace Amendux {
 
 	public:
 		Log() {
-			_log.open("Amendux.log");
+			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
+			_log.open((loc + L"\\Amendux.log").c_str());
 			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
 		}
 
@@ -133,9 +134,10 @@ namespace Amendux {
 
 		static std::wstring Readback() {
 #ifdef DEBUG
+			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 			std::wstring line;
 			std::wstring text;
-			std::wifstream file("Amendux.log");
+			std::wifstream file((loc + L"\\Amendux.log").c_str());
 			while (std::getline(file, line)) {
 				line += L"\r\n";
 				text += line;

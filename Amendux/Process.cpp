@@ -7,16 +7,20 @@ using namespace Amendux;
 
 bool Process::RunUpdateInstance(const std::wstring& file)
 {
-	// std::string updateExe(file.begin(), file.end());
-	std::string updateExe("C:\\Users\\yoric\\Source\\Repos\\amendux\\x64\\Debug\\Amendux.exe");
-	updateExe += " /NU " + std::to_string(Util::currentProcessId()) + " 0x17";
+	//std::wstring updateExe(file.begin(), file.end());
+	std::wstring updateExe = L" /Nu " + std::to_wstring(Util::currentProcessId()) + L" 0x17";
 
-	/*UINT rs = WinExec(updateExe.c_str(), NULL);
-	if (rs <= 31) {
-		return false;
-	}*/
+	HANDLE hProcess = NULL;
+	PROCESS_INFORMATION processInfo;
+	STARTUPINFO startupInfo;
+	::ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+	if (::CreateProcess(file.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
+		hProcess = processInfo.hProcess;
+		return true;
+	}
 
-	return true;
+	return false;
 }
 
 

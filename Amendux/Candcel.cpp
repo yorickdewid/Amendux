@@ -44,12 +44,18 @@ void Candcel::IsAlive()
 {
 	Log::Info(L"Candcel", L"Check if server is alive");
 
-	RestClient rc("0x17.nl", "avc_endpoint.php");
+	for (int i = 0; i < 10; ++i) {
+		RestClient rc("0x17.nl", "avc_endpoint.php");
 
-	rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
+		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
-	if (rc.getServerCode() != RestServerCommand::CM_SERVER_PONG) {
-		Log::Error(L"Candcel", L"Server did not respond");
+		if (rc.getServerCode() == RestServerCommand::CM_SERVER_PONG) {
+			break;
+		}
+
+		Log::Error(L"Candcel", L"Server did not respond, attempt " + std::to_wstring(i));
+
+		Sleep(1000);
 	}
 }
 
@@ -84,7 +90,14 @@ DWORD Candcel::CheckIn()
 		}
 
 		checkInCount++;
-		if (checkInCount > 120) {
+
+		// Solicit about every two hours
+		if (checkInCount % 8 == 0) {
+			Solicit();
+		}
+
+		// Check for updates after about a day
+		if (checkInCount > 100) {
 			CheckForUpdate();
 			checkInCount = 0;
 		}
@@ -124,6 +137,8 @@ void Candcel::Solicit()
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
 		Log::Error(L"Candcel", L"Request failed");
+
+		serverSolicitAck = false;
 		return;
 	}
 

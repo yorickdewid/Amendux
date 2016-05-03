@@ -195,7 +195,7 @@ void Config::ApplyUpdate()
 		return;
 	}
 	
-	Log::Error(L"Config", L"Applying update");
+	Log::Info(L"Config", L"Applying update");
 
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
 	std::wstring startupDir = Util::getDirectory(Util::Directory::USER_STARTUP);
