@@ -1,22 +1,20 @@
 #include "stdafx.h"
 #include "Log.h"
-#include "RegDb.h"
+#include "Config.h"
 #include "Process.h"
 
 using namespace Amendux;
 
 bool Process::RunUpdateInstance(const std::wstring& file)
 {
-	//std::wstring updateExe(file.begin(), file.end());
 	std::wstring updateExe = L" /Nu " + std::to_wstring(Util::currentProcessId()) + L" 0x17";
 
-	HANDLE hProcess = NULL;
 	PROCESS_INFORMATION processInfo;
 	STARTUPINFO startupInfo;
 	::ZeroMemory(&startupInfo, sizeof(startupInfo));
 	startupInfo.cb = sizeof(startupInfo);
+
 	if (::CreateProcess(file.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-		hProcess = processInfo.hProcess;
 		return true;
 	}
 
@@ -82,7 +80,6 @@ bool Process::LoadModule(const std::wstring& module)
 	HINSTANCE hInstDLL = LoadLibrary(module.c_str());
 	if (hInstDLL) {
 		DLLPROC fnRunMod = (DLLPROC)GetProcAddress(hInstDLL, "AvcMain");
-
 		if (fnRunMod) {
 			fnRunMod();
 
@@ -166,4 +163,49 @@ LPWSTR Process::Execute(LPWSTR command) {
 	LPWSTR result = Util::chartowchar(output);
 	LocalFree(output);
 	return result;
+}
+
+
+void Process::SpawnGuard()
+{
+	DWORD value = MAX_PATH;
+	WCHAR buffer[MAX_PATH];
+
+	if (!Config::Current()->CanGuardProcess()) {
+		return;
+	}
+
+	Log::Info(L"Process", L"Start guarding main module");
+
+	unsigned int pid = Config::Current()->GuardProcess();
+	HANDLE hProc = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
+	if (!hProc) {
+		Log::Error(L"Process", L"Cannot find process");
+		return;
+	}
+
+	if (!QueryFullProcessImageName(hProc, 0, buffer, &value)) {
+		Log::Error(L"Process", L"Cannot find process image");
+		return;
+	}
+
+	if (WaitForSingleObject(hProc, INFINITE) == WAIT_OBJECT_0) {
+		Log::Warn(L"Process", L"Main module terminated");
+		
+		Sleep(1000);
+
+		PROCESS_INFORMATION processInfo;
+		STARTUPINFO startupInfo;
+		::ZeroMemory(&startupInfo, sizeof(startupInfo));
+		startupInfo.cb = sizeof(startupInfo);
+
+		if (::CreateProcess(buffer, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
+			hProc = processInfo.hProcess;
+			Log::Info(L"Process", L"Main module restarted");
+		}
+
+		PostQuitMessage(0);
+	}
+
+	CloseHandle(hProc);
 }

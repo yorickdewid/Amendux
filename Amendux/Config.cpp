@@ -51,7 +51,7 @@ void Config::InitClass()
 			break;
 		case Amendux::OperationMode::UPDATE:
 
-			CheckConfig();
+			CheckObsoleteConfig();
 			ApplyUpdate();
 
 			LogEnvironment();
@@ -59,6 +59,10 @@ void Config::InitClass()
 		case Amendux::OperationMode::ELIMINATE:
 			break;
 		case Amendux::OperationMode::GUARD:
+			
+			BasicConfig();
+
+			LogEnvironment();
 			break;
 		default:
 			break;
@@ -164,7 +168,7 @@ void Config::SetupPersistentConfig()
 }
 
 
-void Config::CheckConfig()
+void Config::CheckObsoleteConfig()
 {
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
@@ -220,4 +224,23 @@ void Config::ApplyUpdate()
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
 
 	PostQuitMessage(0);
+}
+
+
+void Config::BasicConfig()
+{
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
+	if (!dRsTempPath) {
+		bSuccess = false;
+		return;
+	}
+
+	instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
+
+	DWORD *procInit = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"InitProcedure", sizeof(DWORD));
+	if (!*procInit || *procInit != 1) {
+		bSuccess = false;
+		return;
+	}
 }

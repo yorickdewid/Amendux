@@ -57,6 +57,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// Launch the checkin process
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
+	Amendux::Process::SpawnGuard();
 
 	// Window accelerators
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
@@ -232,13 +233,19 @@ BOOL ParseCommandLine()
 		}
 
 		// Spawn a guard
-		if (!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG") || !wcscmp(szCmd, L"/Sg") || !wcscmp(szCmd, L"/sG")) {
+		if ((!wcscmp(szCmd, L"/sg") || !wcscmp(szCmd, L"/SG") || !wcscmp(szCmd, L"/Sg") || !wcscmp(szCmd, L"/sG")) && argCount > 2) {
+			unsigned int pid = _wtoi(szArgList[i + 1]);
+			if (pid < 1) {
+				continue;
+			}
+
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::GUARD);
+			Amendux::Config::Current()->SetGuardProcessId(pid);
 			return true;
 		}
 
 		// Run elimination mode
-		if ((!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL") || !wcscmp(szCmd, L"/El") || !wcscmp(szCmd, L"/eL")) && argCount > 2) {
+		if (!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL") || !wcscmp(szCmd, L"/El") || !wcscmp(szCmd, L"/eL")) {
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::ELIMINATE);
 			return true;
 		}

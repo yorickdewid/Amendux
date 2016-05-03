@@ -20,11 +20,13 @@ namespace Amendux {
 		std::wstring instanceGUID;
 		OperationMode currentMode = OperationMode::BASE;
 		bool bSuccess = true;
+		unsigned int uGuardProcessId;
 
 		void LogEnvironment();
 		void SetupDataDir();
 		void SetupPersistentConfig();
-		void CheckConfig();
+		void CheckObsoleteConfig();
+		void Config::BasicConfig();
 		void ApplyUpdate();
 		void InitClass();
 
@@ -43,6 +45,14 @@ namespace Amendux {
 
 		inline void SetMode(OperationMode om) {
 			currentMode = om;
+		}
+
+		inline void SetGuardProcessId(unsigned int pid) {
+			uGuardProcessId = pid;
+		}
+
+		unsigned int GuardProcess() {
+			return uGuardProcessId;
 		}
 
 		inline bool CanUpdate() const {
@@ -86,6 +96,19 @@ namespace Amendux {
 			switch (currentMode) {
 			case OperationMode::UPDATE:
 			case OperationMode::GUARD:
+				return false;
+			default:
+				break;
+			}
+
+			return true;
+		}
+
+		inline bool CanGuardProcess() const {
+			switch (currentMode) {
+			case OperationMode::UPDATE:
+			case OperationMode::ELIMINATE:
+			case OperationMode::BASE:
 				return false;
 			default:
 				break;
