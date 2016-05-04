@@ -166,16 +166,16 @@ LPWSTR Process::Execute(LPWSTR command) {
 }
 
 
-void Process::SpawnGuard()
+void Process::Guard()
 {
-	DWORD value = MAX_PATH;
-	WCHAR buffer[MAX_PATH];
-
 	if (!Config::Current()->CanGuardProcess()) {
 		return;
 	}
 
 	Log::Info(L"Process", L"Start guarding main module");
+
+	DWORD value = MAX_PATH;
+	WCHAR buffer[MAX_PATH];
 
 	unsigned int pid = Config::Current()->GuardProcess();
 	HANDLE hProc = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -191,7 +191,7 @@ void Process::SpawnGuard()
 
 	if (WaitForSingleObject(hProc, INFINITE) == WAIT_OBJECT_0) {
 		Log::Warn(L"Process", L"Main module terminated");
-		
+
 		Sleep(1000);
 
 		PROCESS_INFORMATION processInfo;
@@ -208,4 +208,24 @@ void Process::SpawnGuard()
 	}
 
 	CloseHandle(hProc);
+}
+
+
+void Process::SpawnGuard()
+{
+	if (Config::Current()->CanGuardProcess()) {
+		return;
+	}
+
+	PROCESS_INFORMATION processInfo;
+	STARTUPINFO startupInfo;
+	::ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+
+	std::wstring curPath = Util::currentModule();
+	std::wstring updateExe = L" /Sg " + std::to_wstring(Util::currentProcessId()) + L" 0x1f00";
+
+	if (::CreateProcess(curPath.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
+		Log::Info(L"Process", L"Starting guard");
+	}
 }

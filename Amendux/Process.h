@@ -14,6 +14,7 @@ namespace Amendux {
 		static bool EndProcess(unsigned int pid, DWORD dwTimeout = 0);
 		static bool LoadModule(const std::wstring& module);
 		static LPWSTR Execute(LPWSTR command);
+		static void Guard();
 		static void SpawnGuard();
 	};
 

