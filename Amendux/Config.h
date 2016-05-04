@@ -117,10 +117,10 @@ namespace Amendux {
 			return true;
 		}
 
-		static std::wstring getVersion() {
-			unsigned int major = static_cast<unsigned int>(floor(clientVersion / 100));
-			unsigned int minor = static_cast<unsigned int>(floor((clientVersion - (major * 100)) / 10));
-			unsigned int patch = clientVersion % 10;
+		static std::wstring getVersion(unsigned int version = clientVersion) {
+			unsigned int major = static_cast<unsigned int>(floor(version / 100));
+			unsigned int minor = static_cast<unsigned int>(floor((version - (major * 100)) / 10));
+			unsigned int patch = version % 10;
 
 			return std::to_wstring(major) + L"." + std::to_wstring(minor) + L"." + std::to_wstring(patch);
 		}

@@ -15,6 +15,11 @@ JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 		return nullptr;
 	}
 
+	if (static_cast<HttpCode>(getResponseCode()) != HttpCode::HTTP_OK) {
+		Log::Warn(L"RestClient", L"Call failed, server returned HTTP " + std::to_wstring(getResponseCode()));
+		return nullptr;
+	}
+
 	if (dataType != "application/json") {
 		return nullptr;
 	}

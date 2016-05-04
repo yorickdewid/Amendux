@@ -18,6 +18,15 @@ namespace Amendux {
 		"Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8",
 	};
 
+	enum class HttpCode {
+		HTTP_OK = 200,
+		HTTP_BAD_REQUEST = 400,
+		HTTP_UNAUTHORIZED = 401,
+		HTTP_FORBIDDEN = 403,
+		HTTP_NOT_FOUND = 404,
+		HTTP_INTERNAL_SERVER_ERROR = 500,
+	};
+
 	enum class HttpType {
 		GET,
 		POST,
@@ -32,8 +41,9 @@ namespace Amendux {
 				protocol.reserve(std::distance(url.begin(), prot_i));
 				std::transform(url.begin(), prot_i, std::back_inserter(protocol), std::ptr_fun<int, int>(tolower));
 
-				if (prot_i == url.end())
+				if (prot_i == url.end()) {
 					return;
+				}
 
 				std::advance(prot_i, prot_end.length());
 				std::string::const_iterator path_i = std::find(prot_i, url.end(), '/');
@@ -42,8 +52,9 @@ namespace Amendux {
 				std::string::const_iterator query_i = std::find(path_i, url.end(), '?');
 				path.assign(path_i, query_i);
 
-				if (query_i != url.end())
+				if (query_i != url.end()) {
 					++query_i;
+				}
 
 				query.assign(query_i, url.end());
 			}

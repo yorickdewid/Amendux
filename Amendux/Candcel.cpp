@@ -152,7 +152,7 @@ void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 		return;
 	}
 
-	Log::Info(L"Candcel", L"Sending update request");
+	Log::Info(L"Candcel", L"Sending update request for version " + Config::getVersion(buildNumber));
 
 	std::string url(wurl.begin(), wurl.end());
 
