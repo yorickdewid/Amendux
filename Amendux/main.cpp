@@ -157,7 +157,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 #if DEBUG
-	// Main window 
+	// Main window
 	MainRegisterClass(hInstance);
 	HWND hWnd = CreateWindowW(WINUICLASS, L"Amendux [DEBUG MODE]", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	if (!hWnd) {
