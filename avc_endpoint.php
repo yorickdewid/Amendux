@@ -10,11 +10,11 @@
  * and confidential.
  *
  * INSTALL:
- *   To get started you should upload this script to a
- *   server running PHP 5+ with PDO and SQLite 2+. Then call
+ *   To get started you should upload this script to a (apache)
+ *   server running PHP 5.1+ with PDO and SQLite 2+. Then call
  *   this script with the <script.php>?setup=true parameter.
  *
- * VERSION: 1.0
+ * VERSION: 1.3
  */
 
 /* Global config settings */
@@ -25,10 +25,11 @@ define("TMP_DIR",	"avctemp");
 define("AUTH_USER",	"admin");
 
 const GUIDLEN = 38;
+const PWDSIZE = 22;
 
 if (DEBUG) {
 	error_reporting(E_ALL);
-	ini_set('display_errors', 1);
+	ini_set("display_errors", 1);
 }
 
 if (INACTIVE) {
@@ -38,16 +39,22 @@ if (INACTIVE) {
 
 /* Command codes sent by server */
 $server_codes = array(
-	"invalid" => 0, /* remove? */
-	"pong" => 101,
-	"ignore" => 102,
-	"update" => 103,
-	"ack" => 900,
+	"invalid" =>	0, /* remove? */
+	"pong" =>		101,
+	"ignore" =>		102,
+	"update" =>		103,
+	"ack" => 		900,
 );
 
 function logOke($message) {
 	if (DEBUG) {
 		echo "<b><font color=\"green\">[Oke] </font>" . $message . "</b><br />";
+	}
+}
+
+function logWarn($message) {
+	if (DEBUG) {
+		echo "<b><font color=\"yellow\">[Warn] </font>" . $message . "</b><br />";
 	}
 }
 
@@ -59,10 +66,10 @@ function logError($message) {
 
 function deleteDirectory($path) {
 	if (is_dir($path) === true) {
-		$files = array_diff(scandir($path), array('.', '..'));
+		$files = array_diff(scandir($path), array(".", ".."));
 
 		foreach ($files as $file) {
-			deleteDirectory(realpath($path) . '/' . $file);
+			deleteDirectory(realpath($path) . "/" . $file);
 		}
 
 		return rmdir($path);
@@ -73,8 +80,12 @@ function deleteDirectory($path) {
 	return false;
 }
 
-function randomPassword($length = 14) {
-    $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-=+;:,.?";
+function randomPassword($length = PWDSIZE, $ext = true) {
+	$chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+	if ($ext) {
+    	$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-=+;:,.?";
+	}
+
     $password = substr(str_shuffle($chars), 0, $length);
     return $password;
 }
@@ -85,6 +96,14 @@ function sendResponseError() {
 	exit();
 }
 
+/* Send basic auth for admin requests */
+function sendBasicAuth() {
+	header("WWW-Authenticate: Basic realm=\"Authentication\"");
+	header("HTTP/1.0 401 Unauthorized");
+	exit();
+}
+
+/* Send back REST call */
 function sendResponse($obj, $code, $success = true) {
 	global $server_codes;
 
@@ -109,10 +128,25 @@ function sendResponse($obj, $code, $success = true) {
 
 /* Contains the database setup, should only be run once */
 function setup() {
-	/* This password is hashed using SHA1 and generated pseudorandom which is not
-	 * the best of ideas but since we're trying to minimize dependecies its the
-	 * best we've got */
+	/* This password is hashed using crypt() and generated pseudorandom which is not
+	 * the best of ideas but since we're trying to minimize dependencies its the
+	 * best we've got. Therefore length is important. */
 	$masterpwd = randomPassword();
+	$avcname = "AVC_" . randomPassword(5, false) . "$";
+
+	if (!defined('PDO::ATTR_DRIVER_NAME')) {
+		logError("PDO not available");
+	}
+
+	if (!in_array("sqlite", PDO::getAvailableDrivers())) {
+		logError("SQLite not available");
+	}
+
+	if (!is_writable(".")) {
+		logError("Current directory not writable");
+	}
+
+	logOke("Minimum requirements passed");
 
 	if (!file_exists(TMP_DIR)) {
 		if (!mkdir(TMP_DIR)) {
@@ -138,8 +172,18 @@ function setup() {
 		logOke("Creating directories");
 
 		$htaccess  = "Options -Indexes\n";
-        $htaccess .= "Deny from all\n";
-        $htaccess .= "Require all denied\n";
+		$htaccess .= "Deny from all\n";
+		$htaccess .= "Require all denied\n";
+
+		file_put_contents(TMP_DIR . "/var/.htaccess", $htaccess);
+		file_put_contents(TMP_DIR . "/etc/.htaccess", $htaccess);
+		file_put_contents(TMP_DIR . "/cache/.htaccess", $htaccess);
+
+		$htaccess  = "Options -Indexes\n";
+		$htaccess .= "<Files \"*.db\">\n";
+		$htaccess .= "Deny from all\n";
+		$htaccess .= "Require all denied\n";
+		$htaccess .= "</Files>\n";
 
 		file_put_contents(TMP_DIR . "/.htaccess", $htaccess);
 
@@ -196,13 +240,14 @@ function setup() {
 		logOke("Creating database");
 
 		$db->exec("INSERT INTO settings (key, value) VALUES ('setup', 'true')");
-		$db->exec("INSERT INTO settings (key, value) VALUES ('masterpwd', '" . sha1($masterpwd) ."')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('avc_name', '" . $avcname . "')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('masterpwd', '" . crypt($masterpwd, randomPassword(32)) ."')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('allow_eliminate', 'true')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('client_update', 'true')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('client_version', '')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('url', '" . $_SERVER['HTTP_HOST'] . "')");
-		$db->exec("INSERT INTO settings (key, value) VALUES ('update_url', 'http://example.org/update_xyz.exe')");
-		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_host', 'ftp://example.org')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('update_url', 'http://" . $_SERVER['HTTP_HOST'] . "/" . TMP_DIR . "/bin/update_xyz.exe')");
+		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_host', 'ftp://" . $_SERVER['HTTP_HOST'] . "')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_username', '')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('ftp_password', '')");
 		$db->exec("INSERT INTO settings (key, value) VALUES ('mod_encrypt', 'true')");
@@ -216,12 +261,34 @@ function setup() {
 		logError("Creating tables: " . $e->getMessage());
 	}
 
+	logOke("AVC name: " . $avcname);
 	logOke("Masterpassword: " . $masterpwd);
 }
 
 /* ************************************
  *  REST INTERFACE
  * ************************************/
+
+function avc_name() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT value FROM settings WHERE key='avc_name'";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		if ($row = $stmt->fetch()) {
+			$db = NULL;
+			return $row[0];
+		}
+
+		$db = NULL;
+	} catch(PDOException $e) {
+		logError("Getting AVC name: " . $e->getMessage());
+	}
+}
 
 function saveNewInstance(Array $data) {
 	if (!isset($data[":guid"])) {
@@ -281,8 +348,48 @@ function saveNewCheckin(Array $data) {
 	}
 }
 
-function authenticateUser($username, $password) {
-	if ($username != AUTH_USER) {
+function saveSetting($key, $value) {
+	if (!isset($key)) {
+		sendResponseError();
+	}
+
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$selectSql = "SELECT value FROM settings WHERE key=:key";
+
+		$stmt = $db->prepare($selectSql);
+		$stmt->execute([":key" => $key]);
+
+		if ($stmt->fetch()) {
+			$updateSql = "UPDATE settings
+						SET value=:value
+						WHERE key=:key";
+
+			$stmt = $db->prepare($updateSql);
+			$stmt->execute([":key" => $key, ":value" => $value]);
+		} else {
+			$insertSql = "INSERT INTO settings (key, value)
+						VALUES
+						(:key, :value)";
+
+			$stmt = $db->prepare($insertSql);
+			$stmt->execute([":key" => $key, ":value" => $value]);
+		}
+
+		$db = NULL;
+	} catch(PDOException $e) {
+		logError("Saving: " . $e->getMessage());
+	}
+}
+
+function authenticateUser() {
+	if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW'])) {
+		sendBasicAuth();
+	}
+
+	if ($_SERVER['PHP_AUTH_USER'] != AUTH_USER) {
 		return false;
 	}
 
@@ -296,7 +403,8 @@ function authenticateUser($username, $password) {
 		$stmt->execute();
 		
 		if ($row = $stmt->fetch()) {
-			if ($row[0] == sha1($password)) {
+
+			if (hash_equals($row[0], crypt($_SERVER['PHP_AUTH_PW'], $row[0]))) {
 				$db = NULL;
 				return true;
 			}
@@ -307,7 +415,7 @@ function authenticateUser($username, $password) {
 		logError("Authenticating: " . $e->getMessage());
 	}
 
-	return false;
+	sendBasicAuth();
 }
 
 function isUpdateEnabled() {
@@ -417,6 +525,73 @@ function countCheckins() {
 	}
 }
 
+function listInstances() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT * FROM instances";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		$obj = [];
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			array_push($obj, $row);
+		}
+
+		$db = NULL;
+		return $obj;
+	} catch(PDOException $e) {
+		logError("Listing instances: " . $e->getMessage());
+	}
+}
+
+function listCheckins() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT * FROM checkin";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		$obj = [];
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			array_push($obj, $row);
+		}
+
+		$db = NULL;
+		return $obj;
+	} catch(PDOException $e) {
+		logError("Listing checkings: " . $e->getMessage());
+	}
+}
+
+function listSettings() {
+	try {
+		$db = new PDO("sqlite:" . TMP_DIR . "/" . SQL_DB);
+		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		$sql = "SELECT * FROM settings";
+
+		$stmt = $db->prepare($sql);
+		$stmt->execute();
+		
+		$obj = [];
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			// array_push($obj, $row);
+			$obj[$row["key"]] = $row["value"];
+		}
+
+		$db = NULL;
+		return $obj;
+	} catch(PDOException $e) {
+		logError("Listing settings: " . $e->getMessage());
+	}
+}
+
 function handleSolicit(stdClass $data) {
 	if (!property_exists($data, 'guid')) {
 		sendResponseError();
@@ -496,19 +671,66 @@ function handleUpdateCheck(stdClass $data) {
 	sendResponse(null, "ignore");
 }
 
+function handleAdminInformationRequest() {
+	$obj["setup"] = true;
+	$obj["name"] = avc_name();
+	$obj["instances"] = intval(countInstances());
+	$obj["checkins"] = intval(countCheckins());
+
+	sendResponse($obj, "ack");
+}
+
+function handleAdminInstances() {
+	sendResponse(listInstances(), "ack");
+}
+
+function handleAdminCheckins() {
+	sendResponse(listCheckins(), "ack");
+}
+
+function handleAdminSettings(stdClass $data = null) {
+	if (!empty($data)) {
+		foreach($data as $key => $value) {
+    		saveSetting($key, $value);
+		}
+	}
+
+	sendResponse(listSettings(), "ack");
+}
+
+function handleAdminPasswordChange(stdClass $data) {
+	if (!property_exists($data, "password")) {
+		sendResponseError();
+	}
+
+	if (strlen($data->password) < PWDSIZE) {
+		sendResponseError();
+	}
+
+	saveSetting("masterpwd", crypt($data->password, randomPassword(32)));
+
+	sendResponse(null, "ack");
+}
+
 function handleRestRequest() {
-	if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['data'])) {
-		$object = json_decode($_POST['data']);
+	if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST["data"])) {
+		$object = json_decode($_POST["data"]);
 		if (!is_object($object)) {
 			sendResponseError();
 		}
 
-		if (!property_exists($object, 'code')) {
+		if (!property_exists($object, "code")) {
 			sendResponseError();
 		}
 
-		if (!property_exists($object, 'success')) {
+		if (!property_exists($object, "success")) {
 			sendResponseError();
+		}
+
+		if (property_exists($object, "data")) {
+			if (!is_object($object->data) && !is_null($object->data)) {
+				sendResponseError();
+			}
 		}
 
 		switch ($object->code) {
@@ -519,8 +741,8 @@ function handleRestRequest() {
 
 			/* Client sends solicit */
 			case 200:
-				if (!is_object($object->data)) {
-					sendResponseError();			
+				if (empty($object->data)) {
+					sendResponseError();
 				}
 
 				handleSolicit($object->data);
@@ -529,8 +751,8 @@ function handleRestRequest() {
 
 			/* Client sends checkin */
 			case 201:
-				if (!is_object($object->data)) {
-					sendResponseError();			
+				if (empty($object->data)) {
+					sendResponseError();
 				}
 
 				handleCheckin($object->data);
@@ -539,8 +761,8 @@ function handleRestRequest() {
 
 			/* Client sends update */
 			case 202:
-				if (!is_object($object->data)) {
-					sendResponseError();			
+				if (empty($object->data)) {
+					sendResponseError();
 				}
 
 				handleUpdateCheck($object->data);
@@ -549,6 +771,60 @@ function handleRestRequest() {
 			/* Client sends eliminate */
 			case 299:
 				// sendResponse(null, "pong");
+				break;
+
+
+			/* ***********************
+			 * Admin console commands
+			 * ***********************/
+
+			/* Client request for AVC status */
+			case 700:
+				if (!authenticateUser()) {
+					sendResponseError();
+				}
+
+				handleAdminInformationRequest();
+				break;
+
+			/* Client request for instances */
+			case 701:
+				if (!authenticateUser()) {
+					sendResponseError();
+				}
+
+				handleAdminInstances();
+				break;
+
+			/* Client request for checkins */
+			case 702:
+				if (!authenticateUser()) {
+					sendResponseError();
+				}
+
+				handleAdminCheckins();
+				break;
+
+			/* Client request for settings */
+			case 703:
+				if (!authenticateUser()) {
+					sendResponseError();
+				}
+
+				handleAdminSettings($object->data);
+				break;
+
+			/* Client sends new password */
+			case 704:
+				if (!authenticateUser()) {
+					sendResponseError();
+				}
+
+				if (empty($object->data)) {
+					sendResponseError();
+				}
+
+				handleAdminPasswordChange($object->data);
 				break;
 
 			default:
@@ -563,46 +839,52 @@ function handleRestRequest() {
  *  ADMIN INTERFACE
  * ************************************/
 
-function login() {
-	header('WWW-Authenticate: Basic realm="Master CP"');
-	header('HTTP/1.0 401 Unauthorized');
-	echo "Request unauthorized\n";
-	exit();
-}
-
 function handleAdminRequest() {
-	if (!isset($_SERVER['PHP_AUTH_USER'])) {
-		login();
-	} else {
-		if (authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW'])) {
-
-			if (isset($_GET['downloaddb']) && $_GET['downloaddb'] == "true") {
-				header('Content-Description: File Transfer');
-				header('Content-Type: application/octet-stream');
-				header('Content-Disposition: attachment; filename="'.basename(SQL_DB).'"');
-				header('Expires: 0');
-				header('Cache-Control: must-revalidate');
-				header('Pragma: public');
-				header('Content-Length: ' . filesize(TMP_DIR . "/" . SQL_DB));
-				readfile(TMP_DIR . "/" . SQL_DB);
-				exit();
-			}
-
-			if (isset($_GET['purge']) && $_GET['purge'] == "true") {
-				deleteDirectory(TMP_DIR);
-				unlink(basename(__FILE__));
-				logOke("Endpoint and data purged");
-				exit();
-			}
-
-			logOke("Login: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']));
-			logOke("Instances: " . countInstances());
-			logOke("Checkins: " . countCheckins());
-			echo "<br /><br />Download database:<br /><button onclick=\"window.open('?admin=true&downloaddb=true');\">Download database</button>\n";
-			echo "<br /><br />Purge AVC endpoint:<br /><button onclick=\"if (confirm('Purge this endpoint including data?')){ window.location.href = '?admin=true&purge=true'; }else{ false; }\">Eliminate endpoint</button>\n";
-		} else {
-			login();
+	if (authenticateUser()) {
+		if (isset($_GET["downloaddb"]) && $_GET["downloaddb"] == "true") {
+			header('Content-Description: File Transfer');
+			header('Content-Type: application/octet-stream');
+			header('Content-Disposition: attachment; filename="'.basename(SQL_DB).'"');
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate');
+			header('Pragma: public');
+			header('Content-Length: ' . filesize(TMP_DIR . "/" . SQL_DB));
+			readfile(TMP_DIR . "/" . SQL_DB);
+			exit();
 		}
+
+		if (isset($_GET["purge"]) && $_GET["purge"] == "true") {
+			deleteDirectory(TMP_DIR);
+			unlink(basename(__FILE__));
+			logOke("Endpoint and data purged");
+			exit();
+		}
+
+		if (isset($_GET["upload"]) && $_GET["upload"] == "true") {
+			if (isset($_FILES["file"])) {
+				$file_name = $_FILES['file']['name'];
+				$file_tmp = $_FILES['file']['tmp_name'];
+
+				if (isset($_POST['filename']) && strlen($_POST['filename']) > 0) {
+					$file_name = $_POST['filename'];
+				}
+
+				move_uploaded_file($file_tmp, TMP_DIR . "/bin/" . $file_name);
+				logOke("File uploaded to bin directory");
+				exit();
+			}
+
+			logError("File not uploaded");
+			exit();
+		}
+
+		logOke("Login: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']));
+		logOke("Name: " . avc_name());
+		logOke("Instances: " . countInstances());
+		logOke("Checkins: " . countCheckins());
+		echo "<br /><br />Download database:<br /><button onclick=\"window.open('?admin=true&downloaddb=true');\">Download database</button>\n";
+		echo "<br /><br />Purge AVC endpoint:<br /><button onclick=\"if (confirm('Purge this endpoint including data?')){ window.location.href = '?admin=true&purge=true'; }else{ false; }\">Eliminate endpoint</button>\n";
+		echo "<br /><br />Upload file:<br /><form action=\"?admin=true&upload=true\" method=\"POST\" enctype=\"multipart/form-data\"><input type=\"text\" name=\"filename\" placeholder=\"Optional filename\" /><br /><input type=\"file\" name=\"file\" /><br /><input type=\"submit\" value=\"Upload\"/></form>\n";
 	}
 }
 
@@ -611,13 +893,13 @@ function handleAdminRequest() {
  * ************************************/
 
 /* Call setup procedure */
-if (isset($_GET['setup']) && $_GET['setup'] == "true") {
+if (isset($_GET["setup"]) && $_GET["setup"] == "true") {
 	setup();
 	exit();
 }
 
 /* Admin interface */
-if (isset($_GET['admin']) && $_GET['admin'] == "true") {
+if (isset($_GET["admin"]) && $_GET["admin"] == "true") {
 	handleAdminRequest();
 	exit();
 }
