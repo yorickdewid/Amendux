@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Json">
+      <UniqueIdentifier>{bfa256a1-60a1-4280-875f-4c4e8877ab9e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -31,6 +34,12 @@
     </ClCompile>
     <ClCompile Include="AdminConsole.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Amendux\Json.cpp">
+      <Filter>Source Files\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Amendux\JsonValue.cpp">
+      <Filter>Source Files\Json</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

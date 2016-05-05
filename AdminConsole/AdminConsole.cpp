@@ -3,10 +3,21 @@
 
 #include "stdafx.h"
 #include <curl\curl.h>
+#include "Json.h"
+
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
+
 
 void theW00t();
-bool connectEndpoint(const std::string& endpoint, const std::string& auth);
-static bool bIsConnected = false;
+JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const std::string& data);
+
+std::string name;
+std::string endpoint;
+std::string userpass;
 
 BOOL WINAPI consoleHandler(DWORD signal) {
 
@@ -19,8 +30,6 @@ BOOL WINAPI consoleHandler(DWORD signal) {
 
 int main()
 {
-	std::string endpoint;
-	std::string userpass;
 	std::cout << "********************************************************************************" << std::endl;
 	std::cout << "*                                [ ADMIN CONSOLE ]                             *" << std::endl;
 	std::cout << "********************************************************************************" << std::endl;
@@ -29,24 +38,29 @@ int main()
 	//	std::cerr << "Could not set control handler" << std::endl;
 	//	return 1;
 	//}
+	JSONValue *response;
 
 	do {
-		std::cout << "(endpoint) console> ";
+		std::cout << "endpoint> ";
 		std::cin >> endpoint;
 
-		std::cout << "(auth) console> ";
+		std::cout << "auth> ";
 		std::cin >> userpass;
+	} while (!(response = RestCall(endpoint, userpass, "data={\"code\":700,\"success\":true,\"data\":null}")));
 
-		connectEndpoint(endpoint + "?admin=true", userpass);
+	std::wstring wname;
+	wname = response->Child(L"name")->AsString();
+	name = std::string(wname.begin(), wname.end());
 
-	} while (!bIsConnected);
+	std::cout << "Instances:\t" << response->Child(L"instances")->AsNumber() << std::endl;
+	std::cout << "Checkins:\t" << response->Child(L"checkins")->AsNumber() << std::endl;
 
 	std::cin.ignore(10000, '\n');
 
 	while (true) {
 		std::string command;
 
-		std::cout << "(admin) console> ";
+		std::cout << "(" << name << ")> ";
 		std::getline(std::cin, command);
 		if (command.empty()) {
 			continue;
@@ -58,12 +72,94 @@ int main()
 			std::cout << "  settings\t\tList current settings" << std::endl;
 			std::cout << "  set <key> <value>\tSet key to value" << std::endl;
 			std::cout << "  show <instance>\tShow info about instance" << std::endl;
+			std::cout << "  password <passwd>\tChange master password" << std::endl;
 
 			continue;
 		}
 
 		if (!command.compare("w00t!")) {
 			theW00t();
+			continue;
+		}
+
+		if (!command.compare("instances")) {
+			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
+			if (!response) {
+				continue; // discon?
+			}
+
+			if (!response->IsArray()) {
+				continue;
+			}
+
+			std::cout << "GUID                                   | IP           | OS" << std::endl;
+			std::cout << "----------------------------------------+-------------+-----------" << std::endl;
+
+			for (auto const& inst : response->AsArray()) {
+				if (!inst->IsObject()) {
+					continue;
+				}
+			
+				std::wcout << inst->Child(L"guid")->AsString() << " | " << inst->Child(L"remote")->AsString() << " | " << inst->Child(L"os_version")->AsString() << std::endl;
+			}
+
+			continue;
+		}
+
+		if (!command.compare("settings")) {
+			response = RestCall(endpoint, userpass, "data={\"code\":703,\"success\":true,\"data\":null}");
+			if (!response) {
+				continue; // discon?
+			}
+
+			if (!response->IsObject()) {
+				continue;
+			}
+
+			JSONObject obj = response->AsObject();
+			JSONObject::iterator it_obj;
+			for (it_obj = obj.begin(); it_obj != obj.end(); it_obj++) {
+				std::wcout << it_obj->first << "\t\t| ";
+				std::wcout << it_obj->second->AsString() << std::endl;
+			}
+
+			continue;
+		}
+
+		if (!command.substr(0, 3).compare("set")) {
+			std::istringstream iss(command);
+
+			std::vector<std::string> tokens;
+			std::copy(std::istream_iterator<std::string>(iss), std::istream_iterator<std::string>(), std::back_inserter(tokens));
+
+			if (tokens.size() != 3) {
+				std::cerr << "Too few arguments" << std::endl;
+				continue;
+			}
+
+			std::string data = "data={\"code\":703,\"success\":true,\"data\":{\"" + tokens.at(1) + "\":\"" + tokens.at(2) + "\"}}";
+			RestCall(endpoint, userpass, data);
+
+			continue;
+		}
+
+		if (!command.substr(0, 8).compare("password")) {
+			if (command.size() < 10) {
+				std::cerr << "Too few arguments" << std::endl;
+				continue;
+			}
+
+			std::string password = command.substr(9);
+			if (password.length() < 22) {
+				std::cerr << "Password must have 22 characters at least" << std::endl;
+				continue;
+			}
+
+			std::string data = "data={\"code\":704,\"success\":true,\"data\":{\"password\":\"" + password + "\"}}";
+			RestCall(endpoint, userpass, data);
+
+			userpass = "admin:" + password;
+
 			continue;
 		}
 
@@ -83,19 +179,21 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *use
 	return size * nmemb;
 }
 
-bool connectEndpoint(const std::string& endpoint, const std::string& auth)
+JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const std::string& data)
 {
 	CURL *curl;
 	CURLcode res;
 	std::string readBuffer;
+	bool bSuccess = false;
 
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30);
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Amendux Admin Console/0.1");
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Amendux Admin Console/0.3");
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth.c_str());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 
@@ -110,8 +208,7 @@ bool connectEndpoint(const std::string& endpoint, const std::string& auth)
 		long http_code = 0;
 		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 		if (http_code == 200) {
-			bIsConnected = true;
-			//Succeeded
+			bSuccess = true;
 		} else if (http_code == 401) {
 			std::cerr << "Authentication failed" << std::endl;
 		}
@@ -120,7 +217,24 @@ bool connectEndpoint(const std::string& endpoint, const std::string& auth)
 		curl_easy_cleanup(curl);
 	}
 
-	return true;
+	if (!bSuccess) {
+		return nullptr;
+	}
+
+	JSONValue *obj = JSON::Parse(readBuffer.c_str());
+	if (!obj->IsObject()) {
+		std::cerr << "Server returned no object" << std::endl;
+	}
+
+	if (!obj->Child(L"success")->AsBool()) {
+		std::cerr << "Server returned error status" << std::endl;
+	}
+
+	if (!obj->Child(L"code")->IsNumber()) {
+		std::cerr << "Server returned no statuscode" << std::endl;
+	}
+
+	return obj->Child(L"data");
 }
 
 void theW00t()
