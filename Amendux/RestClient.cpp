@@ -24,7 +24,7 @@ JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 		return nullptr;
 	}
 
-	wchar_t *wdata = Util::chartowchar((char *)data);
+	wchar_t *wdata = Util::chartowchar((char *)data); //TODO Parse can handle char as well
 	JSONValue *obj = JSON::Parse(wdata);
 	delete wdata;
 
