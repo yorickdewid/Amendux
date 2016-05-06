@@ -29,11 +29,16 @@ BOOL WINAPI consoleHandler(DWORD signal) {
 	return TRUE;
 }
 
-int main()
+int main(int argc, char *argv[], char *envp[])
 {
 	std::cout << "********************************************************************************" << std::endl;
 	std::cout << "*                                [ ADMIN CONSOLE ]                             *" << std::endl;
 	std::cout << "********************************************************************************" << std::endl;
+
+	if (argc == 3) {
+		endpoint = argv[1];
+		userpass = argv[2];
+	}
 
 	//if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
 	//	std::cerr << "Could not set control handler" << std::endl;
@@ -42,11 +47,13 @@ int main()
 	JSONValue *response;
 
 	do {
-		std::cout << "endpoint> ";
-		std::cin >> endpoint;
+		if (endpoint.empty() || userpass.empty()) {
+			std::cout << "endpoint> ";
+			std::cin >> endpoint;
 
-		std::cout << "auth> ";
-		std::cin >> userpass;
+			std::cout << "auth> ";
+			std::cin >> userpass;
+		}
 	} while (!(response = RestCall(endpoint, userpass, "data={\"code\":700,\"success\":true,\"data\":null}")));
 
 	std::wstring wname;
@@ -74,6 +81,7 @@ int main()
 			std::cout << "  set <key> <value>\tSet key to value" << std::endl;
 			std::cout << "  show <instance>\tShow info about instance" << std::endl;
 			std::cout << "  password <passwd>\tChange master password" << std::endl;
+			std::cout << "  update <file> <build>\tDispatch new version to server" << std::endl;
 
 			continue;
 		}
