@@ -10,6 +10,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iterator>
+#include <iomanip>
 
 
 void theW00t();
@@ -116,11 +117,59 @@ int main()
 				continue;
 			}
 
+			std::cout << std::left << std::setw(20) << std::setfill(' ') << "Key";
+			std::cout << "| " << std::left << std::setw(50) << std::setfill(' ') << "Value" << std::endl;
+			
+			std::cout << std::right << std::setw(21) << std::setfill('-') << '+' << std::setw(50) << std::setfill('-') << ' ' << std::endl;
+
 			JSONObject obj = response->AsObject();
 			JSONObject::iterator it_obj;
 			for (it_obj = obj.begin(); it_obj != obj.end(); it_obj++) {
-				std::wcout << it_obj->first << "\t\t| ";
-				std::wcout << it_obj->second->AsString() << std::endl;
+				std::wcout << std::left << std::setw(20) << std::setfill(L' ') << it_obj->first;
+				std::wcout << L"| " << std::left << it_obj->second->AsString() << std::endl;
+			}
+
+			continue;
+		}
+
+		if (!command.substr(0, 4).compare("show")) {
+			std::string quid = command.substr(5);
+			if (quid.length() != 38) {
+				std::cerr << "GUID malformed" << std::endl;
+				continue;
+			}
+
+			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
+			if (!response) {
+				continue;
+			}
+
+			if (!response->IsArray()) {
+				continue;
+			}
+
+			for (auto const& inst : response->AsArray()) {
+				if (!inst->IsObject()) {
+					continue;
+				}
+
+				std::wstring wquid = inst->Child(L"guid")->AsString();
+				std::string _quid(wquid.begin(), wquid.end());
+				if (!quid.compare(_quid)) {
+
+					JSONObject obj = inst->AsObject();
+					JSONObject::iterator it_obj;
+					for (it_obj = obj.begin(); it_obj != obj.end(); it_obj++) {
+						std::wcout << it_obj->first << "\t\t| ";
+						if (it_obj->second->IsNull()) {
+							std::wcout << "" << std::endl;
+						} else {
+							std::wcout << it_obj->second->AsString() << std::endl;
+						}
+					}
+
+				}
+
 			}
 
 			continue;
@@ -211,6 +260,8 @@ JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const 
 			bSuccess = true;
 		} else if (http_code == 401) {
 			std::cerr << "Authentication failed" << std::endl;
+		} else {
+			std::cerr << "Connection to admin interface failed" << std::endl;
 		}
 
 		/* always cleanup */
