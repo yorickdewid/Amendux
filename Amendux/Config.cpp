@@ -83,6 +83,7 @@ void Config::LogEnvironment()
 	Log::Info(L"Config", L"[Env] Max memory: " + std::to_wstring(Util::maxmem()));
 	Log::Info(L"Config", L"[Env] User: " + Util::user());
 	Log::Info(L"Config", L"[Env] Computer: " + Util::machine());
+	Log::Info(L"Config", L"[Env] Screen resolution: " + Util::windowResolution());
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 	Log::Info(L"Config", L"[Env] User document: " + std::wstring(sUserDir));

@@ -106,8 +106,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulCall, LPVOID lpReserved)
 #if DEBUG
 ATOM MainRegisterClass(HINSTANCE hInstance)
 {
-
-    WNDCLASSEXW wcex;
+    WNDCLASSEX wcex;
 
     wcex.cbSize         = sizeof(WNDCLASSEX);
     wcex.style          = CS_HREDRAW | CS_VREDRAW;
@@ -118,11 +117,11 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon          = 0; // LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32PROJECT1));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_WIN32PROJECT1);
+    wcex.lpszMenuName   = MAKEINTRESOURCE(IDC_WIN32PROJECT1);
     wcex.lpszClassName  = WINUICLASS;
     wcex.hIconSm        = 0; // LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-	return RegisterClassExW(&wcex);
+	return RegisterClassEx(&wcex);
 }
 #endif
 
@@ -163,7 +162,24 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
+	
+	{
+		HWND hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
+			TEXT("Push Button"),                  // the caption of the button
+			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
+			0, 0,                                  // the left and top co-ordinates
+			100, 300,                              // width and height
+			hWnd,                                 // parent window handle
+			(HMENU)100101,                   // the ID of your button
+			hInstance,                            // the instance of your application
+			NULL);                          /*Parameters for main window*/
 
+		if (!hwndButton) {
+			return false;
+		}
+
+	}
+	
 	SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Start core modules... [DEBUG]");
 
 	ShowWindow(hWnd, nCmdShow);
@@ -280,15 +296,15 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 	InitCommonControls();
 
 	// Create the status bar.
-	HWND hwndStatus = CreateWindowEx(0, STATUSCLASSNAME, (PCTSTR)NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
+	HWND hWndStatus = CreateWindowEx(0, STATUSCLASSNAME, (PCTSTR)NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
 		0, 0, 0, 0,
 		hwndParent,
 		(HMENU)idStatus,
 		hinst,
 		NULL);
 
-	if (!hwndStatus) {
-		return hwndStatus;
+	if (!hWndStatus) {
+		return hWndStatus;
 	}
 
 	// Get the coordinates of the parent window's client area.
@@ -308,14 +324,15 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 	}
 
 	// Tell the status bar to create the window parts.
-	SendMessage(hwndStatus, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
-	SendMessage(hwndStatus, SB_SETTEXT, 0, (LPARAM)L"Initializing...");
+	SendMessage(hWndStatus, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
+	SendMessage(hWndStatus, SB_SETTEXT, 0, (LPARAM)L"Initializing...");
 	
 	// Free the array, and return.
 	LocalUnlock(hloc);
 	LocalFree(hloc);
-	return hwndStatus;
+	return hWndStatus;
 }
+
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -331,9 +348,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
 		case WM_COMMAND: {
-				int wmId = LOWORD(wParam);
-				// Parse the menu selections:
-				switch (wmId) {
+				switch (LOWORD(wParam)) {
 					case IDM_ABOUT:
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 						break;
@@ -351,6 +366,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			}
 			break;
+
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hWnd, &ps);
@@ -358,9 +374,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				EndPaint(hWnd, &ps);
 			}
 			break;
+
 		case WM_SIZE:
 			SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, WM_SIZE, 0, 0);
 			break;
+
+		case WM_GETMINMAXINFO: {
+				MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+				mmi->ptMinTrackSize.x = 750;
+				mmi->ptMinTrackSize.y = 450;
+			}
+			break;
+
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;

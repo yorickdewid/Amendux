@@ -21,7 +21,7 @@ namespace Amendux {
 
 			time_t rawtime = time(NULL);
 			struct tm timeinfo;
-			gmtime_s(&timeinfo, &rawtime);
+			localtime_s(&timeinfo, &rawtime);
 
 			wcsftime(buff, sizeof(buff), L"%Y-%m-%d %H:%M:%S", &timeinfo);
 

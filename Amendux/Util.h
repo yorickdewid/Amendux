@@ -34,6 +34,19 @@ namespace Amendux {
 		std::wstring CurrentDirectory();
 		std::map<std::wstring, std::wstring> *EnvVariables();
 
+		static std::wstring windowResolution() {
+			std::wstring res;
+
+			int x = ::GetSystemMetrics(SM_CXSCREEN);
+			int y = ::GetSystemMetrics(SM_CYSCREEN);
+
+			res.append(std::to_wstring(x));
+			res.append(L"x");
+			res.append(std::to_wstring(x));
+
+			return res;
+		}
+
 		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
 
