@@ -53,7 +53,8 @@ namespace Amendux {
 	public:
 		Log() {
 			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
-			_log.open((loc + L"\\Amendux.log").c_str());
+			DWORD pid = Util::currentProcessId();
+			_log.open((loc + L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
 			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
 		}
 
@@ -134,10 +135,11 @@ namespace Amendux {
 
 		static std::wstring Readback() {
 #ifdef DEBUG
+			DWORD pid = Util::currentProcessId();
 			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 			std::wstring line;
 			std::wstring text;
-			std::wifstream file((loc + L"\\Amendux.log").c_str());
+			std::wifstream file((loc + L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
 			while (std::getline(file, line)) {
 				line += L"\r\n";
 				text += line;

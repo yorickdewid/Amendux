@@ -20,6 +20,7 @@ HANDLE hMutex;									// Instance mutx lock
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
+HWND				CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cParts);
 BOOL                InitInstance(HINSTANCE, int);
 BOOL                CleanupInstance();
 BOOL                ParseCommandLine();
@@ -60,16 +61,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
 	Amendux::Process::SpawnGuard();
 
-	// Window accelerators
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WIN32PROJECT1));
-
 	// Main message loop
     MSG msg;
     while (GetMessage(&msg, nullptr, 0, 0)) {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
 
 	// Terminate modules in reverse order
@@ -159,11 +155,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 #if DEBUG
 	// Main window
 	MainRegisterClass(hInstance);
-	HWND hWnd = CreateWindowW(WINUICLASS, L"Amendux [DEBUG MODE]", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
+	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux [DEBUG MODE]", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	if (!hWnd) {
 		ReleaseMutex(hMutex);
 		return false;
 	}
+
+	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
+
+	SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Start core modules... [DEBUG]");
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -262,6 +263,60 @@ BOOL ParseCommandLine()
 }
 
 
+#if DEBUG
+//
+//  FUNCTION: CreateStatusBar(HWND, HMENU, HINSTANCE, int)
+//
+//  PURPOSE:  Creating status bar
+//
+//  WM_SIZE  - force status bar on bottom
+//
+//
+HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cParts)
+{
+	RECT rcClient;
+
+	// Ensure that the common control DLL is loaded.
+	InitCommonControls();
+
+	// Create the status bar.
+	HWND hwndStatus = CreateWindowEx(0, STATUSCLASSNAME, (PCTSTR)NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
+		0, 0, 0, 0,
+		hwndParent,
+		(HMENU)idStatus,
+		hinst,
+		NULL);
+
+	if (!hwndStatus) {
+		return hwndStatus;
+	}
+
+	// Get the coordinates of the parent window's client area.
+	GetClientRect(hwndParent, &rcClient);
+
+	// Allocate an array for holding the right edge coordinates.
+	HLOCAL hloc = LocalAlloc(LHND, sizeof(int) * cParts);
+	PINT paParts = (PINT)LocalLock(hloc);
+
+	// Calculate the right edge coordinate for each part, and
+	// copy the coordinates to the array.
+	int nWidth = rcClient.right / cParts;
+	int rightEdge = nWidth;
+	for (int i = 0; i < cParts; i++) {
+		paParts[i] = rightEdge;
+		rightEdge += nWidth;
+	}
+
+	// Tell the status bar to create the window parts.
+	SendMessage(hwndStatus, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
+	SendMessage(hwndStatus, SB_SETTEXT, 0, (LPARAM)L"Initializing...");
+	
+	// Free the array, and return.
+	LocalUnlock(hloc);
+	LocalFree(hloc);
+	return hwndStatus;
+}
+
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -272,7 +327,6 @@ BOOL ParseCommandLine()
 //  WM_DESTROY  - post a quit message and return
 //
 //
-#if DEBUG
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -303,6 +357,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				// TODO: Add any drawing code that uses hdc here...
 				EndPaint(hWnd, &ps);
 			}
+			break;
+		case WM_SIZE:
+			SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, WM_SIZE, 0, 0);
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);

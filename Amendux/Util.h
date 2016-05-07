@@ -37,17 +37,17 @@ namespace Amendux {
 		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
 
-			GetModuleFileName(NULL, szFileName, MAX_PATH);
+			::GetModuleFileName(NULL, szFileName, MAX_PATH);
 
 			return szFileName;
 		}
 
 		static DWORD currentProcessId() {
-			return GetCurrentProcessId();
+			return ::GetCurrentProcessId();
 		}
 
 		static bool fileExist(LPCTSTR szPath) {
-			DWORD dwAttrib = GetFileAttributes(szPath);
+			DWORD dwAttrib = ::GetFileAttributes(szPath);
 
 			return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 		}

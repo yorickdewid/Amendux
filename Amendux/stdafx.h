@@ -28,6 +28,10 @@
 #include <windows.h>
 #include <shellapi.h>
 
+#if DEBUG
+#include <Commctrl.h>
+#endif
+
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
