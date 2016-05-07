@@ -40,6 +40,8 @@ int main(int argc, char *argv[], char *envp[])
 		userpass = argv[2];
 	}
 
+	SetConsoleTitle(L"Admin Console");
+
 	//if (!SetConsoleCtrlHandler(consoleHandler, TRUE)) {
 	//	std::cerr << "Could not set control handler" << std::endl;
 	//	return 1;
@@ -55,6 +57,8 @@ int main(int argc, char *argv[], char *envp[])
 			std::cin >> userpass;
 		}
 	} while (!(response = RestCall(endpoint, userpass, "data={\"code\":700,\"success\":true,\"data\":null}")));
+
+	SetConsoleTitle(L"Admin Console: Connected");
 
 	std::wstring wname;
 	wname = response->Child(L"name")->AsString();
@@ -75,13 +79,15 @@ int main(int argc, char *argv[], char *envp[])
 		}
 
 		if (!command.compare("help") || !command.compare("?")) {
-			std::cout << "  help\t\t\tShow help" << std::endl;
-			std::cout << "  instances\t\tList all instances" << std::endl;
-			std::cout << "  settings\t\tList current settings" << std::endl;
-			std::cout << "  set <key> <value>\tSet key to value" << std::endl;
-			std::cout << "  show <instance>\tShow info about instance" << std::endl;
-			std::cout << "  password <passwd>\tChange master password" << std::endl;
-			std::cout << "  update <file> <build>\tDispatch new version to server" << std::endl;
+
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "help" << "Show help" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "instances" << "List all instances" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "settings" << "List current settings" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "set <key> <value>" << "Set config setting" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "show <instance>" << "Show info about instance" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "invoke <instance>" << "Start session with instance" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "password <passwd>" << "Change master password" << std::endl;
+			std::cout << std::left << std::setw(25) << std::setfill(' ') << "update <file> <build>" << "Dispatch new version to server" << std::endl;
 
 			continue;
 		}
@@ -101,8 +107,10 @@ int main(int argc, char *argv[], char *envp[])
 				continue;
 			}
 
-			std::cout << "GUID                                   | IP           | OS" << std::endl;
-			std::cout << "----------------------------------------+-------------+-----------" << std::endl;
+			std::cout << std::left << std::setw(39) << std::setfill(' ') << "QUID";
+			std::cout << "| " << std::left << std::setw(13) << std::setfill(' ') << "IP";
+			std::cout << "| " << std::left << std::setfill(' ') << "OS" << std::endl;
+			std::cout << std::right << std::setw(40) << std::setfill('-') << '+' << std::setw(15) << std::setfill('-') << '+' << std::setw(20) << std::setfill('-') << ' ' << std::endl;
 
 			for (auto const& inst : response->AsArray()) {
 				if (!inst->IsObject()) {
@@ -127,7 +135,6 @@ int main(int argc, char *argv[], char *envp[])
 
 			std::cout << std::left << std::setw(20) << std::setfill(' ') << "Key";
 			std::cout << "| " << std::left << std::setw(50) << std::setfill(' ') << "Value" << std::endl;
-			
 			std::cout << std::right << std::setw(21) << std::setfill('-') << '+' << std::setw(50) << std::setfill('-') << ' ' << std::endl;
 
 			JSONObject obj = response->AsObject();
@@ -217,6 +224,14 @@ int main(int argc, char *argv[], char *envp[])
 
 			userpass = "admin:" + password;
 
+			continue;
+		}
+
+		if (!command.substr(0, 6).compare("invoke")) {
+			TCHAR szFileName[MAX_PATH];
+
+			GetModuleFileName(NULL, szFileName, MAX_PATH);
+			
 			continue;
 		}
 
