@@ -52,15 +52,19 @@ namespace Amendux {
 
 	public:
 		Log() {
+#ifdef DEBUG
 			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 			DWORD pid = Util::currentProcessId();
 			_log.open((loc + L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
 			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
+#endif
 		}
 
 		~Log() {
+#ifdef DEBUG
 			_log << getTimestamp() << " [Log] Terminate logger class" << std::endl;
 			_log.close();
+#endif
 		}
 
 		static void Init() {

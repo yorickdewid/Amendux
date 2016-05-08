@@ -10,6 +10,14 @@ namespace Amendux {
 		static HKEY createKey(HKEY kRoot, std::wstring location);
 		static VOID RegDB::deleteKey(HKEY kRoot, std::wstring location);
 
+		static HKEY createKey(HKEY kRoot, std::string location) {
+			return createKey(kRoot, std::wstring(location.begin(), location.end()));
+		}
+
+		static VOID RegDB::deleteKey(HKEY kRoot, std::string location) {
+			RegDB::deleteKey(kRoot, std::wstring(location.begin(), location.end()));
+		}
+
 		template <typename T>
 		static void setValue(HKEY hKey, DWORD type, LPCTSTR lpValue, T data, DWORD datalen = sizeof(T))
 		{

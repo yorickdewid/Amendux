@@ -3,6 +3,12 @@
 #include "RegDB.h"
 #include "Config.h"
 
+#if DEBUG
+#define LogCurrentMode()	Log::Info(L"Config", L"Mode: " + Config::ModeName() + L" (" + std::to_wstring((int)currentMode) + L")");
+#else
+#define LogCurrentMode()
+#endif
+
 using namespace Amendux;
 
 Config *Config::s_Config = nullptr;
@@ -39,7 +45,7 @@ Config::~Config()
 
 void Config::InitClass()
 {
-	Log::Info(L"Config", L"Mode: " + Config::ModeName() + L" (" + std::to_wstring((int)currentMode) + L")");
+	LogCurrentMode();
 
 	mainThreadId = ::GetCurrentThreadId();
 
@@ -108,6 +114,14 @@ void Config::SetupDataDir()
 
 void Config::SetupPersistentConfig()
 {
+	/*HKEY hRoot_0 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(0));
+	HKEY hRoot_1 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(1));
+	HKEY hRoot_2 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(2));
+	HKEY hRoot_3 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(3));
+	HKEY hRoot_4 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(4));
+	HKEY hRoot_5 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(5));*/
+
+
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
 	
 	/* Intance GUID */
@@ -165,7 +179,7 @@ void Config::SetupPersistentConfig()
 
 void Config::CheckObsoleteConfig()
 {
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
 		bSuccess = false;
@@ -196,7 +210,7 @@ void Config::ApplyUpdate()
 	
 	Log::Info(L"Config", L"Applying update");
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
 	std::wstring startupDir = Util::getDirectory(Util::Directory::USER_STARTUP);
 	std::wstring curExec = Util::currentModule();
 	std::wstring appDir = Config::Current()->DataDirectory();
@@ -206,8 +220,8 @@ void Config::ApplyUpdate()
 		return;
 	}
 
-	appDir += L"\\Amendux.exe";
-	startupDir += L"\\AmenduxGuard.exe";
+	appDir += L"\\Amendux.exe"; //TODO
+	startupDir += L"\\AmenduxGuard.exe"; //TODO
 
 	Util::deleteFile(appDir.c_str());
 	Util::CopyFile((wchar_t *)curExec.c_str(), (wchar_t *)appDir.c_str());
@@ -224,7 +238,7 @@ void Config::ApplyUpdate()
 
 void Config::BasicConfig()
 {
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
 
 	/* Intance GUID */
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));

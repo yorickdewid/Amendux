@@ -14,7 +14,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 131;
+	constexpr unsigned int clientVersion = 134;
 
 	enum class OperationMode {
 		BASE = 1,
@@ -49,6 +49,10 @@ namespace Amendux {
 			return instanceGUID;
 		}
 
+		inline unsigned int Variant() const {
+			return variant;
+		}
+
 		inline unsigned int MainThread() const {
 			return mainThreadId;
 		}
@@ -61,8 +65,9 @@ namespace Amendux {
 
 		inline std::wstring ExeName() const {
 			std::string exeName = Variant::getExeName(variant);
+			std::string exeExt = Variant::getExeExtension(variant);
 
-			return std::wstring(exeName.begin(), exeName.end()) + L".exe";
+			return std::wstring(exeName.begin(), exeName.end()) + std::wstring(exeExt.begin(), exeExt.end());
 		}
 
 		inline std::wstring DataDirectory() const {
