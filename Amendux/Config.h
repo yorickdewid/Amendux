@@ -58,12 +58,17 @@ namespace Amendux {
 		}
 
 		inline std::wstring DisplayName() const {
+			if (variant == VARIANT_INVALID) {
+				return L"UNKNOWN";
+			}
+
 			std::string displayName = Variant::getDisplayName(variant);
 
 			return std::wstring(displayName.begin(), displayName.end());
 		}
 
 		inline std::wstring ExeName() const {
+			//todo handle invalid
 			std::string exeName = Variant::getExeName(variant);
 			std::string exeExt = Variant::getExeExtension(variant);
 

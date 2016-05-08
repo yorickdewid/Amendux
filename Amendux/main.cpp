@@ -10,6 +10,10 @@
 #include "ModuleLoader.h"
 #include "Resource.h"
 
+#if DEBUG
+#include <sodium.h>
+#endif
+
 #define MAX_LOADSTRING  100
 #define MUTEX           L"avcmtx"
 #define WINUICLASS      L"AVCWIN32PROG"
@@ -355,7 +359,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				EndPaint(hWnd, &ps);
 
 				std::wstring status = L"Running... [DEBUG]";
-				std::wstring tile = L"Amendux [DEBUG]";
+				std::wstring tile = L"Amendux (" + Amendux::Config::Current()->DisplayName() + L") [DEBUG]";
 				
 				status += L"[" + Amendux::Config::Current()->ModeName() + L"]";
 				tile += L"[" + Amendux::Config::Current()->ModeName() + L"]";
@@ -364,7 +368,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				if (Amendux::Candcel::Current()->IsConnected()) {
 					status += L"[CONNECTED][CHECKIN:" + std::to_wstring(Amendux::Candcel::Current()->CheckinCounter()) + L"]";
-					status += L"[GUARDED]";
+					status += L"[GUARDED]";//TODO
 				}
 
 				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)status.c_str());
@@ -401,6 +405,8 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message) {
 		case WM_INITDIALOG:
 			SetDlgItemText(hDlg, IDC_STATIC_VERSION, (L"Amendux, Version " + Amendux::Config::getVersion()).c_str());
+			SetDlgItemText(hDlg, IDC_STATIC_SODIUM, L"libsodium " SODIUM_VERSION_STRING);
+
 			return (INT_PTR)TRUE;
 
 		case WM_COMMAND:
