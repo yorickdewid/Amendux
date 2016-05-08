@@ -21,6 +21,7 @@ namespace Amendux {
 		OperationMode currentMode = OperationMode::BASE;
 		bool bSuccess = true;
 		unsigned int uGuardProcessId;
+		unsigned int mainThreadId;
 
 		void LogEnvironment();
 		void SetupDataDir();
@@ -36,6 +37,10 @@ namespace Amendux {
 
 		inline std::wstring Guid() const {
 			return instanceGUID;
+		}
+
+		inline unsigned int MainThread() const {
+			return mainThreadId;
 		}
 
 		inline std::wstring DataDirectory() const {

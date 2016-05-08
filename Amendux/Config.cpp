@@ -41,6 +41,8 @@ void Config::InitClass()
 {
 	Log::Info(L"Config", L"Mode: " + std::to_wstring((int)currentMode));
 
+	mainThreadId = ::GetCurrentThreadId();
+
 	switch (currentMode) {
 		case Amendux::OperationMode::BASE:
 
@@ -84,33 +86,7 @@ void Config::LogEnvironment()
 	Log::Info(L"Config", L"[Env] User: " + Util::user());
 	Log::Info(L"Config", L"[Env] Computer: " + Util::machine());
 	Log::Info(L"Config", L"[Env] Screen resolution: " + Util::windowResolution());
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
-	Log::Info(L"Config", L"[Env] User document: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_CONTACT);
-	Log::Info(L"Config", L"[Env] User contact: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_DESKTOP);
-	Log::Info(L"Config", L"[Env] User desktop: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_DOWNLOAD);
-	Log::Info(L"Config", L"[Env] User download: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_FAVORITE);
-	Log::Info(L"Config", L"[Env] User favorite: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_APPDATA);
-	Log::Info(L"Config", L"[Env] User appdata: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_PICTURES);
-	Log::Info(L"Config", L"[Env] User pictures: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_MUSIC);
-	Log::Info(L"Config", L"[Env] User music: " + std::wstring(sUserDir));
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_VIDEOS);
-	Log::Info(L"Config", L"[Env] User videos: " + std::wstring(sUserDir));
+	Log::Info(L"Config", L"[Env] Timezone: " + Util::timezoneName());
 
 	sUserDir = Util::getDirectory(Util::Directory::USER_STARTUP);
 	Log::Info(L"Config", L"[Env] User startup: " + std::wstring(sUserDir));

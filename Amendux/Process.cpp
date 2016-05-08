@@ -166,12 +166,8 @@ LPWSTR Process::Execute(LPWSTR command) {
 }
 
 
-void Process::Guard()
+DWORD Process::GuardObject()
 {
-	if (!Config::Current()->CanGuardProcess()) {
-		return;
-	}
-
 	Log::Info(L"Process", L"Start guarding main module");
 
 	DWORD value = MAX_PATH;
@@ -181,12 +177,16 @@ void Process::Guard()
 	HANDLE hProc = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
 	if (!hProc) {
 		Log::Error(L"Process", L"Cannot find process");
-		return;
+
+		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
+		return 0;
 	}
 
 	if (!QueryFullProcessImageName(hProc, 0, buffer, &value)) {
 		Log::Error(L"Process", L"Cannot find process image");
-		return;
+
+		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
+		return 0;
 	}
 
 	if (WaitForSingleObject(hProc, INFINITE) == WAIT_OBJECT_0) {
@@ -204,10 +204,25 @@ void Process::Guard()
 			Log::Info(L"Process", L"Main module restarted");
 		}
 
-		PostQuitMessage(0);
+		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
 	}
 
 	CloseHandle(hProc);
+
+	return 1;
+}
+
+
+void Process::Guard()
+{
+	if (!Config::Current()->CanGuardProcess()) {
+		return;
+	}
+
+	Thread<Process> *thread = new Thread<Process>(new Process, &Process::GuardObject);
+	if (!thread->Start()) {
+		Log::Error(L"Process", L"Cannot spawn waiting process");
+	}
 }
 
 

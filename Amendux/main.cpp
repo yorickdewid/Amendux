@@ -162,24 +162,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
-	
-	{
-		HWND hwndButton = CreateWindow(TEXT("button"),                      // The class name required is button
-			TEXT("Push Button"),                  // the caption of the button
-			WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,  // the styles
-			0, 0,                                  // the left and top co-ordinates
-			100, 300,                              // width and height
-			hWnd,                                 // parent window handle
-			(HMENU)100101,                   // the ID of your button
-			hInstance,                            // the instance of your application
-			NULL);                          /*Parameters for main window*/
 
-		if (!hwndButton) {
-			return false;
-		}
-
-	}
-	
 	SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Start core modules... [DEBUG]");
 
 	ShowWindow(hWnd, nCmdShow);

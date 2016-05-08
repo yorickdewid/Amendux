@@ -131,6 +131,8 @@ void Candcel::Solicit()
 	obj[L"maxmem"] = new JSONValue(std::to_wstring(Util::maxmem()));
 	obj[L"user"] = new JSONValue(Util::user());
 	obj[L"computer"] = new JSONValue(Util::machine());
+	obj[L"resolution"] = new JSONValue(Util::windowResolution());
+	obj[L"timezone"] = new JSONValue(Util::timezoneName());
 	obj[L"env"] = new JSONValue(env);
 
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));

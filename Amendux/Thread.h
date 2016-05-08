@@ -21,7 +21,11 @@ namespace Amendux {
 	private:
 		static DWORD run(LPVOID thread_obj) {
 			Thread<T>* thread = (Thread<T>*)thread_obj;
-			return (thread->object->*thread->method) ();
+			if (thread->object) {
+				return (thread->object->*thread->method)();
+			}
+
+			return 0;
 		}
 
 		Thread(const Thread<T>& other) {}
@@ -31,7 +35,7 @@ namespace Amendux {
 		/* Creates a new Thread object. object: the one which method should be
 		executed. method: pointer to the object's method. */
 		explicit Thread(T *object, DWORD(T:: *method)(void)) {
-			this->hThread = NULL;
+			this->hThread = nullptr;
 			this->object = object;
 			this->method = method;
 			this->threadID = 0;

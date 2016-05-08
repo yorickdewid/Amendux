@@ -47,6 +47,16 @@ namespace Amendux {
 			return res;
 		}
 
+		static std::wstring timezoneName() {
+			TIME_ZONE_INFORMATION tzi = {0};
+			
+			if (GetTimeZoneInformation(&tzi) == TIME_ZONE_ID_INVALID) {
+				return L"";
+			}
+
+			return tzi.StandardName;
+		}
+
 		static std::wstring currentModule() {
 			WCHAR szFileName[MAX_PATH];
 
