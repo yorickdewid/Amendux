@@ -19,7 +19,7 @@ namespace Amendux {
 		static bool LoadModule(const std::wstring& module);
 		static LPWSTR Execute(LPWSTR command);
 		static void Guard();
-		static void SpawnGuard();
+		static void SpawnGuardProcess();
 	};
 
 }

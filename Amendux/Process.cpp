@@ -226,7 +226,7 @@ void Process::Guard()
 }
 
 
-void Process::SpawnGuard()
+void Process::SpawnGuardProcess()
 {
 	if (Config::Current()->CanGuardProcess()) {
 		return;

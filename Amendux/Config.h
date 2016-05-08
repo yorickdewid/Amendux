@@ -5,7 +5,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 130;
+	constexpr unsigned int clientVersion = 131;
 
 	enum class OperationMode {
 		BASE = 1,
@@ -59,6 +59,25 @@ namespace Amendux {
 		unsigned int GuardProcess() {
 			return uGuardProcessId;
 		}
+
+#if DEBUG
+		std::wstring ModeName() {
+			switch (currentMode) {
+				case OperationMode::BASE:
+					return L"CORE";
+				case OperationMode::UPDATE:
+					return L"UPDATE";
+				case OperationMode::ELIMINATE:
+					return L"ELIMINATE";
+				case OperationMode::GUARD:
+					return L"GUARD";
+				default:
+					break;
+			}
+
+			return L"";
+		}
+#endif
 
 		inline bool CanUpdate() const {
 			switch (currentMode) {

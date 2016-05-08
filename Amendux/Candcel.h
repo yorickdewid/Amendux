@@ -22,6 +22,14 @@ namespace Amendux {
 		Candcel();
 		~Candcel();
 
+		bool IsConnected() const {
+			return serverSolicitAck;
+		}
+
+		unsigned int CheckinCounter() const {
+			return checkInCount;
+		}
+
 		static void SpawnInterval(Candcel *cc) {
 			if (!Config::Current()->CanConnect()) {
 				return;
