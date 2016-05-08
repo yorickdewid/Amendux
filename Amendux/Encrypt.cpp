@@ -149,25 +149,3 @@ void Encrypt::Run()
 
 	this->getDirFiles(L"C:\\Users\\yoric\\Documents\\CRYPT");
 }
-
-
-void Encrypt::rot13(char str[])
-{
-	for (int i = 0; str[i] != '\0'; i++) {
-		if (str[i] >= 'a' && str[i] <= 'm') {
-			str[i] += 13;
-		}
-
-		else if (str[i] > 'm' && str[i] <= 'z') {
-			str[i] -= 13;
-		}
-
-		else if (str[i] >= 'A' && str[i] <= 'M') {
-			str[i] += 13;
-		}
-
-		else if (str[i] > 'M' && str[i] <= 'Z') {
-			str[i] -= 13;
-		}
-	}
-}

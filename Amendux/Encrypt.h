@@ -25,8 +25,6 @@ namespace Amendux {
 			Encrypt();
 			~Encrypt();
 
-			static void Encrypt::rot13(char str[]);
-
 			unsigned char *clientPublickey() {
 				return clientPublicKey;
 			}

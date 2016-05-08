@@ -243,7 +243,6 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RestClient.h" />
     <ClInclude Include="SelectSet.h" />
-    <ClInclude Include="Sha1.h" />
     <ClInclude Include="Shell.h" />
     <ClInclude Include="SimpleSocksNS.h" />
     <ClInclude Include="stdafx.h" />
@@ -275,7 +274,6 @@
     <ClCompile Include="SelectSet.cpp" />
     <ClCompile Include="Shell.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
-    <ClCompile Include="Sha1.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugRunDLL|Win32'">Create</PrecompiledHeader>
