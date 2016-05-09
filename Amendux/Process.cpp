@@ -242,5 +242,7 @@ void Process::SpawnGuardProcess()
 
 	if (::CreateProcess(curPath.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
 		Log::Info(L"Process", L"Starting guard");
+
+		Config::Current()->SetGuardProcessId(processInfo.dwProcessId);
 	}
 }

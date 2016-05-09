@@ -221,10 +221,16 @@ BOOL ParseCommandLine()
 
 		// Run update mode
 		if ((!wcscmp(szCmd, L"/nu") || !wcscmp(szCmd, L"/NU") || !wcscmp(szCmd, L"/Nu") || !wcscmp(szCmd, L"/nU")) && argCount > 2) {
+			unsigned int guardPid = Amendux::Config::Current()->GuardProcess();
 			unsigned int pid = _wtoi(szArgList[i + 1]);
 			if (pid < 1) {
 				continue;
 			}
+
+			// Give the main module and guard some time to enter message loop
+			Sleep(10 * 1000);
+			
+			Amendux::Process::EndProcess(guardPid, 10);
 
 			// Give the main module some time to enter message loop
 			Sleep(10 * 1000);
@@ -232,7 +238,7 @@ BOOL ParseCommandLine()
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::UPDATE);
 			Amendux::Process::EndProcess(pid, 10);
 
-			// Give the main moduke some time to release mutex
+			// Give the main module some time to release mutex
 			Sleep(10 * 1000);
 
 			return true;
@@ -342,6 +348,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						break;
 					case IDM_DEBUG:
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_TEST), hWnd, Debug);
+						break;
+					case MENU_FILE_KILLGUARD: {
+							unsigned int pid = Amendux::Config::Current()->GuardProcess();
+							Amendux::Process::EndProcess(pid);
+						}
 						break;
 					case IDM_EXIT:
 						DestroyWindow(hWnd);

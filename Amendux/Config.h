@@ -14,7 +14,7 @@
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 134;
+	constexpr unsigned int clientVersion = 137;
 
 	enum class OperationMode {
 		BASE = 1,
