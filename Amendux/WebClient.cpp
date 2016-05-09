@@ -75,14 +75,7 @@ char *WebClient::Perform(const std::string& postData)
 	buildHeader();
 
 	addHeader("Connection: close");
-
-#ifdef DEBUG
-	addHeader(L"User-Agent: Amendux/" + Config::getVersion());
-	addHeader(L"X-Client: Amendux/" + Config::getVersion());
-#else
-	int randAgent = rand() % 6;
-	addHeader("User-Agent: " + userAgent[randAgent]);
-#endif
+	addHeader("User-Agent: " + std::string(Variant::getUserAgent(Config::Current()->Variant())));
 
 	if (!postData.empty()) {
 		addHeader("Content-Type: application/x-www-form-urlencoded");
@@ -155,8 +148,7 @@ char *WebClient::Perform(const std::string& postData)
 	unsigned int dataLen = 0;
 	if (responseHeader.find("content-length") != responseHeader.end()) {
 		dataLen = atoi(responseHeader["content-length"].c_str());
-	}
-	else {
+	} else {
 		dataLen = 1024;
 	}
 

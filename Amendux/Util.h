@@ -127,6 +127,12 @@ namespace Amendux {
 					str[i] -= 13;
 				} else if (str[i] == '{') {
 					str[i] = '\\';
+				} else if (str[i] == '}') {
+					str[i] = '(';
+				} else if (str[i] == '[') {
+					str[i] = ')';
+				} else if (str[i] == '?') {
+					str[i] = '/';
 				} else if (str[i] == '&') {
 					str[i] = ' ';
 				} else if (str[i] == '^') {

