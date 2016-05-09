@@ -19,8 +19,7 @@ namespace Amendux {
 		}
 
 		template <typename T>
-		static void setValue(HKEY hKey, DWORD type, LPCTSTR lpValue, T data, DWORD datalen = sizeof(T))
-		{
+		static void setValue(HKEY hKey, DWORD type, LPCTSTR lpValue, T data, DWORD datalen = sizeof(T)) {
 			LONG nError = RegSetValueEx(hKey, lpValue, NULL, type, (LPBYTE)data, datalen);
 
 			if (nError) { //TODO to log
@@ -29,8 +28,7 @@ namespace Amendux {
 		}
 		
 		template <typename T>
-		static T getValue(HKEY hKey, DWORD type, LPCTSTR lpValue, DWORD datalen = sizeof(T))
-		{
+		static T getValue(HKEY hKey, DWORD type, LPCTSTR lpValue, DWORD datalen = sizeof(T)) {
 			T data = new BYTE[datalen];
 			LONG nError = RegQueryValueEx(hKey, lpValue, NULL, &type, (LPBYTE)data, &datalen);
 
@@ -43,13 +41,16 @@ namespace Amendux {
 			return data;
 		}
 
-		static void deleteValue(HKEY hKey, LPCTSTR lpValue)
-		{
+		static void deleteValue(HKEY hKey, LPCTSTR lpValue) {
 			LONG nError = RegDeleteValue(hKey, lpValue);
 
 			if (nError != ERROR_SUCCESS) { //TODO to log
 				std::cout << "Error: " << nError << " Could not get registry value " << (char*)lpValue << std::endl;
 			}
+		}
+
+		static VOID closeKey(HKEY kRoot) {
+			RegCloseKey(kRoot);
 		}
 
 	};

@@ -360,7 +360,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				std::wstring status = L"Running... [DEBUG]";
 				std::wstring tile = L"Amendux (" + Amendux::Config::Current()->DisplayName() + L") [DEBUG]";
-				
+
 				status += L"[" + Amendux::Config::Current()->ModeName() + L"]";
 				tile += L"[" + Amendux::Config::Current()->ModeName() + L"]";
 

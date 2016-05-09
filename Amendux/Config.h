@@ -33,6 +33,7 @@ namespace Amendux {
 		unsigned int uGuardProcessId;
 		unsigned int mainThreadId;
 
+
 		void LogEnvironment();
 		void SetupDataDir();
 		void SetupPersistentConfig();
@@ -59,7 +60,7 @@ namespace Amendux {
 
 		inline std::wstring DisplayName() const {
 			if (variant == VARIANT_INVALID) {
-				return L"UNKNOWN";
+				return L"";
 			}
 
 			std::string displayName = Variant::getDisplayName(variant);
@@ -68,7 +69,10 @@ namespace Amendux {
 		}
 
 		inline std::wstring ExeName() const {
-			//todo handle invalid
+			if (variant == VARIANT_INVALID) {
+				return L"";
+			}
+
 			std::string exeName = Variant::getExeName(variant);
 			std::string exeExt = Variant::getExeExtension(variant);
 
