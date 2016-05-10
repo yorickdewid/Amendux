@@ -12,13 +12,13 @@
 #include <iterator>
 #include <iomanip>
 
-
 void theW00t();
 JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const std::string& data);
 
 std::string name;
 std::string endpoint;
 std::string userpass;
+std::string instance;
 
 BOOL WINAPI consoleHandler(DWORD signal) {
 
@@ -33,11 +33,16 @@ int main(int argc, char *argv[], char *envp[])
 {
 	std::cout << "********************************************************************************" << std::endl;
 	std::cout << "*                                [ ADMIN CONSOLE ]                             *" << std::endl;
+	std::cout << "*                              [ Amendux (c) 2016. ]                           *" << std::endl;
 	std::cout << "********************************************************************************" << std::endl;
 
-	if (argc == 3) {
+	if (argc > 1) {
 		endpoint = argv[1];
 		userpass = argv[2];
+
+		if (argc > 3) {
+			instance = argv[3];
+		}
 	}
 
 	SetConsoleTitle(L"Admin Console");
@@ -58,21 +63,27 @@ int main(int argc, char *argv[], char *envp[])
 		}
 	} while (!(response = RestCall(endpoint, userpass, "data={\"code\":700,\"success\":true,\"data\":null}")));
 
-	SetConsoleTitle(L"Admin Console: Connected");
-
 	std::wstring wname;
 	wname = response->Child(L"name")->AsString();
 	name = std::string(wname.begin(), wname.end());
 
-	std::cout << "Instances:\t" << response->Child(L"instances")->AsNumber() << std::endl;
-	std::cout << "Checkins:\t" << response->Child(L"checkins")->AsNumber() << std::endl;
+	if (instance.empty()) {
+		std::cout << "Instances:\t" << response->Child(L"instances")->AsNumber() << std::endl;
+		std::cout << "Checkins:\t" << response->Child(L"checkins")->AsNumber() << std::endl;
+
+		SetConsoleTitle(L"Admin Console Main: Connected");
+	} else {
+		std::cout << "Instance:\t" << instance << std::endl;
+
+		SetConsoleTitle(L"Admin Console Invoked: Connected");
+	}
 
 	std::cin.ignore(10000, '\n');
 
 	while (true) {
 		std::string command;
 
-		std::cout << "(" << name << ")> ";
+		std::cout << (!instance.empty() ? instance : name) << " > ";
 		std::getline(std::cin, command);
 		if (command.empty()) {
 			continue;
@@ -80,14 +91,22 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!command.compare("help") || !command.compare("?")) {
 
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "help" << "Show help" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "instances" << "List all instances" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "settings" << "List current settings" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "set <key> <value>" << "Set config setting" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "show <instance>" << "Show info about instance" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "invoke <instance>" << "Start session with instance" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "password <passwd>" << "Change master password" << std::endl;
-			std::cout << std::left << std::setw(25) << std::setfill(' ') << "update <file> <build>" << "Dispatch new version to server" << std::endl;
+			if (instance.empty()) {
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "help" << "Show help" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "instances" << "List all instances" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "settings" << "List current settings" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "set <key> <value>" << "Set config setting" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "invoke <instance>" << "Start session with instance" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "password <passwd>" << "Change master password" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "update <file> <build>" << "Dispatch new version to server" << std::endl;
+			} else {
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "help" << "Show help" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "info" << "All info about this instance" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "report" << "Retrieve last report from instance" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "alive" << "Timetable when system was active" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "purge" << "Purge instance record" << std::endl;
+				std::cout << std::left << std::setw(25) << std::setfill(' ') << "name <name>" << "Change instance name" << std::endl;
+			}
 
 			continue;
 		}
@@ -97,7 +116,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		}
 
-		if (!command.compare("instances")) {
+		if (!command.compare("instances") && instance.empty()) {
 			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
 			if (!response) {
 				continue; // discon?
@@ -109,21 +128,22 @@ int main(int argc, char *argv[], char *envp[])
 
 			std::cout << std::left << std::setw(39) << std::setfill(' ') << "QUID";
 			std::cout << "| " << std::left << std::setw(13) << std::setfill(' ') << "IP";
-			std::cout << "| " << std::left << std::setfill(' ') << "OS" << std::endl;
-			std::cout << std::right << std::setw(40) << std::setfill('-') << '+' << std::setw(15) << std::setfill('-') << '+' << std::setw(20) << std::setfill('-') << ' ' << std::endl;
+			std::cout << "| " << std::left << std::setw(18) << std::setfill(' ') << "OS";
+			std::cout << "| " << std::left << std::setfill(' ') << "Name" << std::endl;
+			std::cout << std::right << std::setw(40) << std::setfill('-') << '+' << std::setw(15) << std::setfill('-') << '+' << std::setw(20) << std::setfill('-') << '+' << std::setw(20) << std::setfill('-') << ' ' << std::endl;
 
 			for (auto const& inst : response->AsArray()) {
 				if (!inst->IsObject()) {
 					continue;
 				}
 			
-				std::wcout << inst->Child(L"guid")->AsString() << " | " << inst->Child(L"remote")->AsString() << " | " << inst->Child(L"os_version")->AsString() << std::endl;
+				std::wcout << inst->Child(L"guid")->AsString() << " | " << inst->Child(L"remote")->AsString() << " | " << std::left << std::setw(17) << std::setfill(L' ') << inst->Child(L"os_version")->AsString() << " | " << (inst->Child(L"name")->IsNull() ? L"" : inst->Child(L"name")->AsString()) << std::endl;
 			}
 
 			continue;
 		}
 
-		if (!command.compare("settings")) {
+		if (!command.compare("settings") && instance.empty()) {
 			response = RestCall(endpoint, userpass, "data={\"code\":703,\"success\":true,\"data\":null}");
 			if (!response) {
 				continue; // discon?
@@ -147,13 +167,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		}
 
-		if (!command.substr(0, 4).compare("show")) {
-			std::string quid = command.substr(5);
-			if (quid.length() != 38) {
-				std::cerr << "GUID malformed" << std::endl;
-				continue;
-			}
-
+		if (!command.substr(0, 4).compare("info") && !instance.empty()) {
 			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
 			if (!response) {
 				continue;
@@ -170,12 +184,19 @@ int main(int argc, char *argv[], char *envp[])
 
 				std::wstring wquid = inst->Child(L"guid")->AsString();
 				std::string _quid(wquid.begin(), wquid.end());
-				if (!quid.compare(_quid)) {
+				if (!instance.compare(_quid)) {
+
+					std::cout << std::left << std::setw(30) << std::setfill(' ') << "Key";
+					std::cout << "| " << std::left << std::setw(50) << std::setfill(' ') << "Value" << std::endl;
+					std::cout << std::right << std::setw(31) << std::setfill('-') << '+' << std::setw(50) << std::setfill('-') << ' ' << std::endl;
 
 					JSONObject obj = inst->AsObject();
 					JSONObject::iterator it_obj;
 					for (it_obj = obj.begin(); it_obj != obj.end(); it_obj++) {
-						std::wcout << it_obj->first << "\t\t| ";
+
+						std::wcout << std::left << std::setw(30) << std::setfill(L' ') << it_obj->first;
+						std::wcout << L"| " << std::left;
+
 						if (it_obj->second->IsNull()) {
 							std::wcout << "" << std::endl;
 						} else {
@@ -190,7 +211,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		}
 
-		if (!command.substr(0, 3).compare("set")) {
+		if (!command.substr(0, 3).compare("set") && instance.empty()) {
 			std::istringstream iss(command);
 
 			std::vector<std::string> tokens;
@@ -207,7 +228,7 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		}
 
-		if (!command.substr(0, 8).compare("password")) {
+		if (!command.substr(0, 8).compare("password") && instance.empty()) {
 			if (command.size() < 10) {
 				std::cerr << "Too few arguments" << std::endl;
 				continue;
@@ -227,11 +248,25 @@ int main(int argc, char *argv[], char *envp[])
 			continue;
 		}
 
-		if (!command.substr(0, 6).compare("invoke")) {
+		if (!command.substr(0, 6).compare("invoke") && instance.empty()) {
 			TCHAR szFileName[MAX_PATH];
 
+			std::string quid = command.substr(7);
+			if (quid.length() != 38) {
+				std::cerr << "GUID malformed" << std::endl;
+				continue;
+			}
+
 			GetModuleFileName(NULL, szFileName, MAX_PATH);
-			
+
+			std::wstring wcommand = L"start " + std::wstring(szFileName) + L" ";
+			std::string command(wcommand.begin(), wcommand.end());
+			command += endpoint + " ";
+			command += userpass + " ";
+			command += quid;
+
+			system(command.c_str());
+		
 			continue;
 		}
 
@@ -262,7 +297,7 @@ JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const 
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, endpoint.c_str());
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30);
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Amendux Admin Console/0.3");
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth.c_str());
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
