@@ -13,7 +13,7 @@
 #include <iomanip>
 
 void theW00t();
-JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const std::string& data);
+JSONValue *RestCall(const std::string& endpoint, const std::string& auth, int code, JSONValue *data = new JSONValue(), bool status = true);
 
 std::string name;
 std::string endpoint;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[], char *envp[])
 			std::cout << "auth> ";
 			std::cin >> userpass;
 		}
-	} while (!(response = RestCall(endpoint, userpass, "data={\"code\":700,\"success\":true,\"data\":null}")));
+	} while (!(response = RestCall(endpoint, userpass, 700)));
 
 	std::wstring wname;
 	wname = response->Child(L"name")->AsString();
@@ -117,9 +117,9 @@ int main(int argc, char *argv[], char *envp[])
 		}
 
 		if (!command.compare("instances") && instance.empty()) {
-			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
+			response = RestCall(endpoint, userpass, 701);
 			if (!response) {
-				continue; // discon?
+				continue;
 			}
 
 			if (!response->IsArray()) {
@@ -144,7 +144,7 @@ int main(int argc, char *argv[], char *envp[])
 		}
 
 		if (!command.compare("settings") && instance.empty()) {
-			response = RestCall(endpoint, userpass, "data={\"code\":703,\"success\":true,\"data\":null}");
+			response = RestCall(endpoint, userpass, 703);
 			if (!response) {
 				continue; // discon?
 			}
@@ -168,7 +168,7 @@ int main(int argc, char *argv[], char *envp[])
 		}
 
 		if (!command.substr(0, 4).compare("info") && !instance.empty()) {
-			response = RestCall(endpoint, userpass, "data={\"code\":701,\"success\":true,\"data\":null}");
+			response = RestCall(endpoint, userpass, 701);
 			if (!response) {
 				continue;
 			}
@@ -222,8 +222,13 @@ int main(int argc, char *argv[], char *envp[])
 				continue;
 			}
 
-			std::string data = "data={\"code\":703,\"success\":true,\"data\":{\"" + tokens.at(1) + "\":\"" + tokens.at(2) + "\"}}";
-			RestCall(endpoint, userpass, data);
+			std::wstring key(tokens.at(1).begin(), tokens.at(1).end());
+			std::wstring value(tokens.at(2).begin(), tokens.at(2).end());
+
+			JSONObject obj;
+			obj[key] = new JSONValue(value);
+
+			RestCall(endpoint, userpass, 703, new JSONValue(obj));
 
 			continue;
 		}
@@ -240,8 +245,12 @@ int main(int argc, char *argv[], char *envp[])
 				continue;
 			}
 
-			std::string data = "data={\"code\":704,\"success\":true,\"data\":{\"password\":\"" + password + "\"}}";
-			RestCall(endpoint, userpass, data);
+			std::wstring pwd(password.begin(), password.end());
+
+			JSONObject obj;
+			obj[L"password"] = new JSONValue(pwd);
+
+			RestCall(endpoint, userpass, 704, new JSONValue(obj));
 
 			userpass = "admin:" + password;
 
@@ -286,12 +295,20 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *use
 	return size * nmemb;
 }
 
-JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const std::string& data)
+JSONValue *RestCall(const std::string& endpoint, const std::string& auth, int code, JSONValue *data, bool status)
 {
 	CURL *curl;
 	CURLcode res;
 	std::string readBuffer;
 	bool bSuccess = false;
+	
+	JSONObject reqObj;
+	reqObj[L"data"] = data;
+	reqObj[L"code"] = new JSONValue(static_cast<double>(code));
+	reqObj[L"success"] = new JSONValue(status);
+
+	std::wstring wdataObj = L"data=" + JSONValue(reqObj).Stringify();
+	std::string dataObj(wdataObj.begin(), wdataObj.end());
 
 	curl = curl_easy_init();
 	if (curl) {
@@ -300,7 +317,7 @@ JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const 
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "Amendux Admin Console/0.3");
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth.c_str());
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data.c_str());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, dataObj.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 
@@ -330,20 +347,20 @@ JSONValue *RestCall(const std::string& endpoint, const std::string& auth, const 
 		return nullptr;
 	}
 
-	JSONValue *obj = JSON::Parse(readBuffer.c_str());
-	if (!obj->IsObject()) {
+	JSONValue *recvObj = JSON::Parse(readBuffer.c_str());
+	if (!recvObj->IsObject()) {
 		std::cerr << "Server returned no object" << std::endl;
 	}
 
-	if (!obj->Child(L"success")->AsBool()) {
+	if (!recvObj->Child(L"success")->AsBool()) {
 		std::cerr << "Server returned error status" << std::endl;
 	}
 
-	if (!obj->Child(L"code")->IsNumber()) {
+	if (!recvObj->Child(L"code")->IsNumber()) {
 		std::cerr << "Server returned no statuscode" << std::endl;
 	}
 
-	return obj->Child(L"data");
+	return recvObj->Child(L"data");
 }
 
 void theW00t()
