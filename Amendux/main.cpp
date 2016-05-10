@@ -118,12 +118,12 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
     wcex.cbClsExtra     = 0;
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
-	wcex.hIcon          = 0; // LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WIN32PROJECT1));
+	wcex.hIcon          = 0;
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-    wcex.lpszMenuName   = MAKEINTRESOURCE(IDC_WIN32PROJECT1);
+    wcex.lpszMenuName   = MAKEINTRESOURCE(MAIN_MENU);
     wcex.lpszClassName  = WINUICLASS;
-    wcex.hIconSm        = 0; // LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.hIconSm        = 0;
 
 	return RegisterClassEx(&wcex);
 }
@@ -340,22 +340,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
 		case WM_COMMAND: {
 				switch (LOWORD(wParam)) {
-					case IDM_ABOUT:
-						DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+					case MENU_ABOUT:
+						DialogBox(hInst, MAKEINTRESOURCE(DIALOG_ABOUT), hWnd, About);
 						break;
-					case IDM_ENCRYPT:
+					case MENU_MOD_ENCRYPT:
 						// FileCrypt.Run();
 						break;
-					case IDM_DEBUG:
-						DialogBox(hInst, MAKEINTRESOURCE(IDD_TEST), hWnd, Debug);
+					case MENU_FILE_DEBUG:
+						DialogBox(hInst, MAKEINTRESOURCE(DIALOG_DEBUG_LOG), hWnd, Debug);
 						break;
 					case MENU_FILE_KILLGUARD: {
 							unsigned int pid = Amendux::Config::Current()->GuardProcess();
 							Amendux::Process::EndProcess(pid);
 						}
 						break;
-					case IDM_EXIT:
-						DestroyWindow(hWnd);
+					case MENU_EXIT: {
+							unsigned int pid = Amendux::Config::Current()->GuardProcess();
+							Amendux::Process::EndProcess(pid);
+							DestroyWindow(hWnd);
+						}
 						break;
 					default:
 						return DefWindowProc(hWnd, message, wParam, lParam);
@@ -446,7 +449,10 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
 				EndDialog(hDlg, LOWORD(wParam));
 				return (INT_PTR)TRUE;
+			} else if (LOWORD(wParam) == BTN_REFRESH) {
+				SetDlgItemText(hDlg, IDC_DEBUG_CONSOLE, Amendux::Log::Readback().c_str());
 			}
+
 			break;
 	}
 
