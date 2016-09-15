@@ -14,7 +14,7 @@
  *   server running PHP 5.1+ with PDO and SQLite 2+. Then call
  *   this script with the <script.php>?setup=true parameter.
  *
- * VERSION: 1.3
+ * VERSION: 1.4
  */
 
 /* Global config settings */
@@ -23,9 +23,9 @@ define("INACTIVE",	false);
 define("SQL_DB",	"avc.db");
 define("TMP_DIR",	"avctemp");
 define("AUTH_USER",	"admin");
+define("PWDSIZE",	22);
 
-const GUIDLEN = 38;
-const PWDSIZE = 22;
+$GUIDLEN = 38;
 
 if (DEBUG) {
 	error_reporting(E_ALL);
@@ -302,7 +302,7 @@ function saveNewInstance(Array $data) {
 		$selectSql = "SELECT 1 FROM instances WHERE guid=:guid";
 
 		$stmt = $db->prepare($selectSql);
-		$stmt->execute([":guid" => $data[":guid"]]);
+		$stmt->execute(Array(":guid" => $data[":guid"]));
 		
 		if ($stmt->fetch()) {
 			$updateSql = "UPDATE instances
@@ -360,7 +360,7 @@ function saveSetting($key, $value) {
 		$selectSql = "SELECT value FROM settings WHERE key=:key";
 
 		$stmt = $db->prepare($selectSql);
-		$stmt->execute([":key" => $key]);
+		$stmt->execute(Array(":key" => $key));
 
 		if ($stmt->fetch()) {
 			$updateSql = "UPDATE settings
@@ -368,14 +368,14 @@ function saveSetting($key, $value) {
 						WHERE key=:key";
 
 			$stmt = $db->prepare($updateSql);
-			$stmt->execute([":key" => $key, ":value" => $value]);
+			$stmt->execute(Array(":key" => $key, ":value" => $value));
 		} else {
 			$insertSql = "INSERT INTO settings (key, value)
 						VALUES
 						(:key, :value)";
 
 			$stmt = $db->prepare($insertSql);
-			$stmt->execute([":key" => $key, ":value" => $value]);
+			$stmt->execute(Array(":key" => $key, ":value" => $value));
 		}
 
 		$db = NULL;
@@ -535,7 +535,7 @@ function listInstances() {
 		$stmt = $db->prepare($sql);
 		$stmt->execute();
 		
-		$obj = [];
+		$obj = Array();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			array_push($obj, $row);
 		}
@@ -557,7 +557,7 @@ function listCheckins() {
 		$stmt = $db->prepare($sql);
 		$stmt->execute();
 		
-		$obj = [];
+		$obj = Array();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			array_push($obj, $row);
 		}
@@ -579,7 +579,7 @@ function listSettings() {
 		$stmt = $db->prepare($sql);
 		$stmt->execute();
 		
-		$obj = [];
+		$obj = Array();
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			// array_push($obj, $row);
 			$obj[$row["key"]] = $row["value"];
@@ -597,7 +597,7 @@ function handleSolicit(stdClass $data) {
 		sendResponseError();
 	}
 
-	if (strlen($data->guid) != GUIDLEN) {
+	if (strlen($data->guid) != $GUIDLEN) {
 		sendResponseError();
 	}
 
@@ -642,7 +642,7 @@ function handleCheckin(stdClass $data) {
 		sendResponseError();
 	}
 
-	if (strlen($data->guid) != GUIDLEN) {
+	if (strlen($data->guid) != $GUIDLEN) {
 		sendResponseError();
 	}
 
