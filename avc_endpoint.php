@@ -18,11 +18,11 @@
  *   setup: <script.php>?setup=true
  *   admin: <script.php>?admin=true
  *
- * VERSION: 1.5.3
+ * VERSION: 1.5.4
  */
 
 /* Global config settings */
-define("VERSION",	"1.5.3");
+define("VERSION",	"1.5.4");
 define("DEBUG",		true);
 define("INACTIVE",	false);
 define("SQL_DB",	"avc.db");
@@ -132,6 +132,9 @@ function sendResponse($obj, $code, $success = true) {
 		"success" => $success,
 	);
 
+	header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+	header('Cache-Control: post-check=0, pre-check=0', false);
+	header('Pragma: no-cache');
 	header('Content-type: application/json');
 	echo json_encode($array);
 	exit();
@@ -741,6 +744,7 @@ function handleAdminPasswordChange(stdClass $data) {
 	sendResponse(null, "ack");
 }
 
+/* REST router */
 function handleRestRequest() {
 	if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST["data"])) {
 		$object = json_decode($_POST["data"]);
@@ -870,6 +874,8 @@ function handleRestRequest() {
 
 function handleAdminRequest() {
 	if (authenticateUser()) {
+
+		/* Download database */
 		if (isset($_GET["downloaddb"]) && $_GET["downloaddb"] == "true") {
 			header('Content-Description: File Transfer');
 			header('Content-Type: application/octet-stream');
@@ -882,6 +888,9 @@ function handleAdminRequest() {
 			exit();
 		}
 
+		/* Purge entire endpoint. This deletes everything including source
+		 * files, uploads and the database.
+		 */
 		if (isset($_GET["purge"]) && $_GET["purge"] == "true") {
 			deleteDirectory(TMP_DIR);
 			unlink(basename(__FILE__));
@@ -889,6 +898,7 @@ function handleAdminRequest() {
 			exit();
 		}
 
+		/* Upload new file */
 		if (isset($_GET["upload"]) && $_GET["upload"] == "true") {
 			if (isset($_FILES["file"])) {
 				$file_name = $_FILES['file']['name'];
@@ -920,6 +930,7 @@ function handleAdminRequest() {
 			exit();
 		}
 
+		/* Delete file from upload directory */
 		if (isset($_GET["deleteupload"]) && $_GET["deleteupload"] == "true" && isset($_GET["file"])) {
 			if (@unlink(TMP_DIR . "/bin/" . $_GET["file"]))
 				logOke("File removed");
@@ -930,11 +941,20 @@ function handleAdminRequest() {
 			exit();
 		}
 
+		/* Show PHP info */
 		if (isset($_GET["phpinfo"]) && $_GET["phpinfo"] == "true") {
 			phpinfo();
 			exit();
 		}
 
+		// Add custom admin operations here
+
+		/* Disable all caching */
+		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+
+		/* Admin view interface */
 		logOke("Version: " . VERSION);
 		logOke("Login: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']));
 		logOke("Name: " . avc_name());
@@ -953,6 +973,8 @@ function handleAdminRequest() {
 		}
 
 		echo "</ul>\n";
+
+		// Add custom HTML here
 	}
 }
 
@@ -972,7 +994,7 @@ if (isset($_GET["admin"]) && $_GET["admin"] == "true") {
 	exit();
 }
 
-/* Handle incomming requests */
+/* Handle incomming REST requests */
 handleRestRequest();
 
 ?>
