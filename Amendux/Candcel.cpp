@@ -50,13 +50,15 @@ void Candcel::IsAlive()
 		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
 		if (rc.getServerCode() == RestServerCommand::CM_SERVER_PONG) {
-			break;
+			return;
 		}
 
-		Log::Error(L"Candcel", L"Server did not respond, attempt " + std::to_wstring(i));
+		Log::Error(L"Candcel", L"Server did not respond as expected, attempt " + std::to_wstring(i));
 
 		Sleep(1000);
 	}
+
+	Log::Error(L"Candcel", L"Server did not respond as expected, giving up");
 }
 
 
