@@ -10,14 +10,19 @@
  * and confidential.
  *
  * INSTALL:
- *   To get started you should upload this script to a (apache)
- *   server running PHP 5.1+ with PDO and SQLite 2+. Then call
- *   this script with the <script.php>?setup=true parameter.
+ *   To get started change global settings and upload
+ *   this script to a (apache) server running PHP 5.1+
+ *   with PDO and SQLite 2+.
  *
- * VERSION: 1.4
+ * OPERATION:
+ *   setup: <script.php>?setup=true
+ *   admin: <script.php>?admin=true
+ *
+ * VERSION: 1.5.3
  */
 
 /* Global config settings */
+define("VERSION",	"1.5.3");
 define("DEBUG",		true);
 define("INACTIVE",	false);
 define("SQL_DB",	"avc.db");
@@ -37,6 +42,12 @@ if (INACTIVE) {
 	exit();
 }
 
+/* Try overriding defaults */
+ini_set('upload_max_filesize', '100M');     
+ini_set('post_max_size', '100M'); 
+ini_set('max_execution_time', '1800');
+ini_set('memory_limit', '128M');
+
 /* Command codes sent by server */
 $server_codes = array(
 	"invalid" =>	0, /* remove? */
@@ -46,6 +57,10 @@ $server_codes = array(
 	"ack" => 		900,
 );
 
+/* ************************************
+ *  HELPERS
+ * ************************************/
+
 function logOke($message) {
 	if (DEBUG) {
 		echo "<b><font color=\"green\">[Oke] </font>" . $message . "</b><br />";
@@ -54,7 +69,7 @@ function logOke($message) {
 
 function logWarn($message) {
 	if (DEBUG) {
-		echo "<b><font color=\"yellow\">[Warn] </font>" . $message . "</b><br />";
+		echo "<b><font color=\"orange\">[Warn] </font>" . $message . "</b><br />";
 	}
 }
 
@@ -120,6 +135,20 @@ function sendResponse($obj, $code, $success = true) {
 	header('Content-type: application/json');
 	echo json_encode($array);
 	exit();
+}
+
+/* If the hash_equals() function does not ecist */
+if (!function_exists('hash_equals')) {
+	function hash_equals($str1, $str2) {
+		if(strlen($str1) != strlen($str2)) {
+			return false;
+		} else {
+			$res = $str1 ^ $str2;
+			$ret = 0;
+			for($i = strlen($res) - 1; $i >= 0; $i--) $ret |= ord($res[$i]);
+			return !$ret;
+		}
+	}
 }
 
 /* ************************************
@@ -864,20 +893,49 @@ function handleAdminRequest() {
 			if (isset($_FILES["file"])) {
 				$file_name = $_FILES['file']['name'];
 				$file_tmp = $_FILES['file']['tmp_name'];
+				$file_size = $_FILES['file']['size'];
 
 				if (isset($_POST['filename']) && strlen($_POST['filename']) > 0) {
 					$file_name = $_POST['filename'];
 				}
 
+				if (!$file_size) {
+					logWarn("File is empty");
+
+					echo "<br /><a href=\"?admin=true\"><< Back</a>";
+					exit();
+				}
+
 				move_uploaded_file($file_tmp, TMP_DIR . "/bin/" . $file_name);
 				logOke("File uploaded to bin directory");
+				logOke("Access through: <a href=\"" . TMP_DIR . "/bin/" . $file_name . "\">" . TMP_DIR . "/bin/" . $file_name . "</a>");
+
+				echo "<br /><a href=\"?admin=true\"><< Back</a>";
 				exit();
 			}
 
-			logError("File not uploaded");
+			logWarn("File not uploaded");
+
+			echo "<br /><a href=\"?admin=true\"><< Back</a>";
 			exit();
 		}
 
+		if (isset($_GET["deleteupload"]) && $_GET["deleteupload"] == "true" && isset($_GET["file"])) {
+			if (@unlink(TMP_DIR . "/bin/" . $_GET["file"]))
+				logOke("File removed");
+			else
+				logWarn("File not removed or does not exist");
+
+			echo "<br /><a href=\"?admin=true\"><< Back</a>";
+			exit();
+		}
+
+		if (isset($_GET["phpinfo"]) && $_GET["phpinfo"] == "true") {
+			phpinfo();
+			exit();
+		}
+
+		logOke("Version: " . VERSION);
 		logOke("Login: " . htmlspecialchars($_SERVER['PHP_AUTH_USER']));
 		logOke("Name: " . avc_name());
 		logOke("Instances: " . countInstances());
@@ -885,6 +943,16 @@ function handleAdminRequest() {
 		echo "<br /><br />Download database:<br /><button onclick=\"window.open('?admin=true&downloaddb=true');\">Download database</button>\n";
 		echo "<br /><br />Purge AVC endpoint:<br /><button onclick=\"if (confirm('Purge this endpoint including data?')){ window.location.href = '?admin=true&purge=true'; }else{ false; }\">Eliminate endpoint</button>\n";
 		echo "<br /><br />Upload file:<br /><form action=\"?admin=true&upload=true\" method=\"POST\" enctype=\"multipart/form-data\"><input type=\"text\" name=\"filename\" placeholder=\"Optional filename\" /><br /><input type=\"file\" name=\"file\" /><br /><input type=\"submit\" value=\"Upload\"/></form>\n";
+		echo "<br />Other:<br /><button onclick=\"window.open('?admin=true&phpinfo=true');\">PHP Info</button>\n";
+		echo "<br /><br />Directory listing:<br /><ul>\n";
+
+		foreach (scandir(TMP_DIR . "/bin/") as $item) {
+			if ($item == "." || $item == "..")
+				continue;
+			echo "<li><a href=" . TMP_DIR . "/bin/" . $item . ">" . $item . "</a> (<a href=\"?admin=true&deleteupload=true&file=" . $item . "\">delete</a>)</li>\n";
+		}
+
+		echo "</ul>\n";
 	}
 }
 
