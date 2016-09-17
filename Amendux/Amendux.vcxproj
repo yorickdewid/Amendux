@@ -233,6 +233,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddrLookup.h" />
+    <ClInclude Include="Base64.h" />
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="CoreInterface.h" />
@@ -279,6 +280,7 @@
     <ClCompile Include="SelectSet.cpp" />
     <ClCompile Include="Shell.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
+    <ClCompile Include="Base64.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugRunDLL|Win32'">Create</PrecompiledHeader>

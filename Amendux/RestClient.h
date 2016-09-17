@@ -2,6 +2,7 @@
 
 #include "WebClient.h"
 #include "Json.h"
+#include "Base64.h"
 
 namespace Amendux {
 
@@ -31,7 +32,7 @@ namespace Amendux {
 		RestClient(const std::string& url) : WebClient(url) {}
 		~RestClient() {}
 
-		JSONValue *ParseResponse(void *data);
+		JSONValue *ParseResponse(char *data);
 
 		JSONValue *Call(RestClientCommand code, JSONValue *data, bool status = true) {
 			JSONObject obj;
@@ -39,7 +40,7 @@ namespace Amendux {
 			obj[L"code"] = new JSONValue(static_cast<double>(code));
 			obj[L"success"] = new JSONValue(status);
 
-			std::wstring dataObj = L"data=" + JSONValue(obj).Stringify();
+			std::wstring dataObj = L"data=" + base64_encode(JSONValue(obj).Stringify());
 
 			return ParseResponse(Perform(dataObj));
 		}

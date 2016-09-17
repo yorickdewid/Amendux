@@ -1,10 +1,11 @@
 #include "stdafx.h"
 #include "Log.h"
+#include "BAse64.h"
 #include "RestClient.h"
 
 using namespace Amendux;
 
-JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
+JSONValue *RestClient::ParseResponse(char *data)
 {
 	if (!data) {
 		return nullptr;
@@ -24,9 +25,9 @@ JSONValue *RestClient::ParseResponse(void *data)//TODO why not char?
 		return nullptr;
 	}
 
-	wchar_t *wdata = Util::chartowchar((char *)data); //TODO Parse can handle char as well
-	JSONValue *obj = JSON::Parse(wdata);
-	delete wdata;
+	std::string wdata = base64_decode((char *)data);
+
+	JSONValue *obj = JSON::Parse(wdata.c_str());
 
 	if (!obj->IsObject()) {
 		Log::Error(L"RestClient", L"Server returned no object");
