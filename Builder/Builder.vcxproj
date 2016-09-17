@@ -163,7 +163,11 @@
     <ResourceCompile Include="Builder.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\handyman-tools.ico" />
+    <Image Include="..\..\handyman-tools.png" />
     <Image Include="Builder.ico" />
+    <Image Include="icon1.ico" />
+    <Image Include="icon2.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
