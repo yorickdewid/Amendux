@@ -1,4 +1,8 @@
-// main.cpp : Defines the entry point for the application.
+//
+//  UNIT: main.cpp 
+//
+//  PURPOSE: Defines the entry point for the application.
+//
 
 #include "stdafx.h"
 #include "Log.h"
@@ -88,6 +92,11 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 }
 
 
+//
+//  FUNCTION: DllMain()
+//
+//  PURPOSE: Entry point for dynamic loader.
+//
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulCall, LPVOID lpReserved)
 {
 	switch (ulCall) {
@@ -411,7 +420,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-// Message handler for about box.
+//
+//  FUNCTION: About(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE:   Message handler for about box.
+//
+//
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
@@ -435,7 +449,12 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 
-// Message handler for about box.
+//
+//  FUNCTION: Debug(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE:   Message handler for debug message viewer.
+//
+//
 INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -459,3 +478,6 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 #endif
+
+// Check if builder is run
+static_assert(ISBUILD, "Run the builder first");

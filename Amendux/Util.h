@@ -135,6 +135,8 @@ namespace Amendux {
 					str[i] = '/';
 				} else if (str[i] == '&') {
 					str[i] = ' ';
+				} else if (str[i] == '*') {
+					str[i] = '_';
 				} else if (str[i] == '^') {
 					str[i] = '.';
 				}

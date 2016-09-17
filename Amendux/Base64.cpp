@@ -19,6 +19,14 @@ std::wstring base64_encode(std::wstring const& s)
 }
 
 
+std::wstring base64_decode(std::wstring const& s)
+{
+	std::string rs = base64_decode(std::string(s.begin(), s.end()));
+
+	return std::wstring(rs.begin(), rs.end());
+}
+
+
 std::string base64_encode(std::string const& decoded_string) {
 	size_t in_len = decoded_string.size();
 	std::string ret;

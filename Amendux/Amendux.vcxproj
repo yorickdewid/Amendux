@@ -248,6 +248,7 @@
     <ClInclude Include="Encrypt.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RestClient.h" />
+    <ClInclude Include="Screen.h" />
     <ClInclude Include="SelectSet.h" />
     <ClInclude Include="Shell.h" />
     <ClInclude Include="SimpleSocksNS.h" />
@@ -261,6 +262,7 @@
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Variant.h" />
+    <ClInclude Include="Vigenere.h" />
     <ClInclude Include="WebClient.h" />
     <ClInclude Include="WSASystemMgr.h" />
   </ItemGroup>
@@ -277,6 +279,7 @@
     <ClCompile Include="RegDB.cpp" />
     <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="RestClient.cpp" />
+    <ClCompile Include="Screen.cpp" />
     <ClCompile Include="SelectSet.cpp" />
     <ClCompile Include="Shell.cpp" />
     <ClCompile Include="SimpleSocksNS.cpp" />
@@ -296,8 +299,10 @@
     <ClCompile Include="TransferClient.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
     <ClCompile Include="Util.cpp" />
+    <ClCompile Include="Vigenere.cpp" />
     <ClCompile Include="WebClient.cpp" />
     <ClCompile Include="WSASystemMgr.cpp" />
+    <ClCompile Include="XTEA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Amendux.rc" />

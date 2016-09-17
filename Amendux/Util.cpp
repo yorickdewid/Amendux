@@ -88,7 +88,7 @@ std::wstring Amendux::Util::winver()
 		return L"Windows Server";
 	}
 
-	// At some point this becomes available
+	// TODO: At some point this becomes available
 	/*if (IsWindows10OrGreater()) {
 		return L"Windows 10";
 	}*/

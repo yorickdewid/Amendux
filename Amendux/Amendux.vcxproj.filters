@@ -130,6 +130,12 @@
     <ClInclude Include="Base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vigenere.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Screen.h">
+      <Filter>Header Files\Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -208,6 +214,15 @@
       <Filter>Source Files\Module</Filter>
     </ClCompile>
     <ClCompile Include="Base64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Vigenere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Screen.cpp">
+      <Filter>Source Files\Module</Filter>
+    </ClCompile>
+    <ClCompile Include="XTEA.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

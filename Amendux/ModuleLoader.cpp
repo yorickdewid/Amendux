@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Config.h"
 #include "Shell.h"
+#include "Screen.h"
 #include "Thread.h"
 #include "ModuleLoader.h"
 
@@ -39,5 +40,11 @@ void ModuleLoader::InitClass()
 	}
 
 	// Register modules
-	Shell *pShell = new Shell(this);
+#ifdef MODSHELL_ENABLED
+	RegisterModule(L"shell", new Shell(this));
+#endif
+
+#ifdef MODSCREEN_ENABLED
+	RegisterModule(L"screen", new Screen(this));
+#endif
 }

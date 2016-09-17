@@ -4,14 +4,6 @@
 #include "CoreInterface.h"
 #include "Variant.h"
 
-#if DEBUG
-#define AVC_HOST		"0x17.nl"
-#define AVC_ENDPOINT	"avc_endpoint.php"
-#else
-#define AVC_HOST		"0x17.nl"
-#define AVC_ENDPOINT	"avc_endpoint.php"
-#endif
-
 namespace Amendux {
 
 	constexpr unsigned int clientVersion = 137;
@@ -32,7 +24,6 @@ namespace Amendux {
 		unsigned int variant = VARIANT_INVALID;
 		unsigned int uGuardProcessId;
 		unsigned int mainThreadId;
-
 
 		void LogEnvironment();
 		void SetupDataDir();
@@ -56,6 +47,14 @@ namespace Amendux {
 
 		inline unsigned int MainThread() const {
 			return mainThreadId;
+		}
+
+		inline std::string AvcHost() const {
+			return Variant::getAvcHost();
+		}
+
+		inline std::string AvcUri() const {
+			return Variant::getAvcUri();
 		}
 
 		inline std::wstring DisplayName() const {

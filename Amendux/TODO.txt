@@ -2,9 +2,14 @@
     AMENDUX PROJECT : Amendux Project TODO List
 ========================================================================
 
+Modules
+	Parameters
+
+Secure boot
+	Also set task
+
 Encrypted communications
-    Traffic send to and from the CandC should be sealed with an encrypted box. This can only be done when the server side
-	supports libsodium.
+    Traffic send to and from the CandC should be sealed with an encrypted box. Using XTEA
 
 SSL
     It be great if the WebClient can support SSL domains and traffic
