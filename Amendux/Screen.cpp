@@ -1,24 +1,19 @@
 #include "stdafx.h"
 #include "Log.h"
 #include "Config.h"
-#include "Process.h"
+#include "Candcel.h"
 #include "Screen.h"
 
 using namespace Amendux;
 
-void errhandler(LPCSTR object, HWND hwnd) {
-
-}
-
-
-PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
+PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 {
 	BITMAP bmp;
 	PBITMAPINFO pbmi;
 
 	// Retrieve the bitmap color format, width, and height.  
 	if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
-		errhandler("GetObject", hwnd);
+		Log::Error(L"Module::Screen", L"GetObject");
 
 	// Convert the color format to a count of bits.  
 	WORD cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
@@ -76,29 +71,27 @@ PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp)
 }
 
 
-void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
+void CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 {
-	HANDLE hf;                 // file handle  
-	BITMAPFILEHEADER hdr;       // bitmap file-header  
-	PBITMAPINFOHEADER pbih;     // bitmap info-header  
-	LPBYTE lpBits;              // memory pointer  
-	DWORD dwTotal;              // total count of bytes  
-	DWORD cb;                   // incremental count of bytes  
-	BYTE *hp;                   // byte pointer  
+	HANDLE hf;                  // File handle  
+	BITMAPFILEHEADER hdr;       // Bitmap file-header  
+	PBITMAPINFOHEADER pbih;     // Bitmap info-header  
+	LPBYTE lpBits;              // Memory pointer  
+	DWORD dwTotal;              // Total count of bytes  
+	DWORD cb;                   // Incremental count of bytes  
+	BYTE *hp;                   // Byte pointer  
 	DWORD dwTmp;
 
 	pbih = (PBITMAPINFOHEADER)pbi;
 	lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
 
 	if (!lpBits)
-		errhandler("GlobalAlloc", hwnd);
+		Log::Error(L"Module::Screen", L"GlobalAlloc");
 
 	// Retrieve the color table (RGBQUAD array) and the bits  
 	// (array of palette indices) from the DIB.  
 	if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-	{
-		errhandler("GetDIBits", hwnd);
-	}
+		Log::Error(L"Module::Screen", L"GetDIBits");
 
 	// Create the .BMP file.  
 	hf = CreateFile(pszFile,
@@ -109,42 +102,33 @@ void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)NULL);
 	if (hf == INVALID_HANDLE_VALUE)
-		errhandler("CreateFile", hwnd);
-	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M"  
-								// Compute the size of the entire file.  
-	hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) +
-		pbih->biSize + pbih->biClrUsed
-		* sizeof(RGBQUAD) + pbih->biSizeImage);
+		Log::Error(L"Module::Screen", L"CreateFile");
+
+	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M" Compute the size of the entire file.  
+	hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD) + pbih->biSizeImage);
 	hdr.bfReserved1 = 0;
 	hdr.bfReserved2 = 0;
 
 	// Compute the offset to the array of color indices.  
-	hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) +
-		pbih->biSize + pbih->biClrUsed
-		* sizeof(RGBQUAD);
+	hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD);
 
 	// Copy the BITMAPFILEHEADER into the .BMP file.  
-	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER),
-		(LPDWORD)&dwTmp, NULL))
-	{
-		errhandler("WriteFile", hwnd);
-	}
+	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), (LPDWORD)&dwTmp, NULL))
+		Log::Error(L"Module::Screen", L"WriteFile");
 
 	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER)
-		+ pbih->biClrUsed * sizeof(RGBQUAD),
-		(LPDWORD)&dwTmp, (NULL)))
-		errhandler("WriteFile", hwnd);
+	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof(RGBQUAD), (LPDWORD)&dwTmp, (NULL)))
+		Log::Error(L"Module::Screen", L"WriteFile");
 
 	// Copy the array of color indices into the .BMP file.  
 	dwTotal = cb = pbih->biSizeImage;
 	hp = lpBits;
 	if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, NULL))
-		errhandler("WriteFile", hwnd);
+		Log::Error(L"Module::Screen", L"WriteFile");
 
 	// Close the .BMP file.  
 	if (!CloseHandle(hf))
-		errhandler("CloseHandle", hwnd);
+		Log::Error(L"Module::Screen", L"CloseHandle");
 
 	// Free memory.  
 	GlobalFree((HGLOBAL)lpBits);
@@ -173,10 +157,10 @@ DWORD Screen::Run()
 	BitBlt(hMemoryDC, 0, 0, width, height, hScreenDC, 0, 0, SRCCOPY);
 	hBitmap = (HBITMAP)SelectObject(hMemoryDC, hOldBitmap);
 
-	PBITMAPINFO pbmi = CreateBitmapInfoStruct(NULL, hBitmap);
+	PBITMAPINFO pbmi = CreateBitmapInfoStruct(hBitmap);
 
 	// TODO: retrieve filename from parameters
-	CreateBMPFile(NULL, L"test.bmp", pbmi, hBitmap, hScreenDC);
+	CreateBMPFile(L"screen.bmp", pbmi, hBitmap, hScreenDC);
 
 	// clean up
 	DeleteDC(hMemoryDC);

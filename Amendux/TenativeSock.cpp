@@ -5,9 +5,7 @@
 
 using namespace SimpleSocksPrivateNS;
 
-TenativeSock::TenativeSock() :
-	sock(INVALID_SOCKET),
-	valid(false)
+TenativeSock::TenativeSock() : sock(INVALID_SOCKET), valid(false)
 {
 	//NOP
 }
@@ -19,12 +17,14 @@ TenativeSock::~TenativeSock() {
 }
 
 int TenativeSock::generate(int type, int protocol) {
-	if (sock != INVALID_SOCKET)
+	if (sock != INVALID_SOCKET) {
 		return -1;
+	}
 
 	sock = socket(AF_INET, type, protocol);
-	if (sock == INVALID_SOCKET)
+	if (sock == INVALID_SOCKET) {
 		return -1;
+	}
 
 	return 0;
 }

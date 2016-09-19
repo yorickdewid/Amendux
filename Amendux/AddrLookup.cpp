@@ -4,18 +4,18 @@
 
 using namespace SimpleSocksPrivateNS;
 
-AddrLookup::AddrLookup() :
-	list(NULL),
-	node(NULL)
+AddrLookup::AddrLookup() : list(NULL), node(NULL)
 {
 	//NOP
 }
 
-AddrLookup::~AddrLookup() {
+AddrLookup::~AddrLookup()
+{
 	clear();
 }
 
-int AddrLookup::lookup(const char* host, unsigned short port, int protocol) {
+int AddrLookup::lookup(const char* host, unsigned short port, int protocol)
+{
 	clear();
 
 	//(I hate GAI. It's cumbersome and using it feels nasty.
@@ -43,10 +43,13 @@ int AddrLookup::lookup(const char* host, unsigned short port, int protocol) {
 	return retval;
 }
 
-sockaddr* AddrLookup::getNext() {
-	if (node == NULL) { return NULL; }
+sockaddr *AddrLookup::getNext()
+{
+	if (!node) {
+		return NULL;
+	}
 
-	sockaddr* retval = node->ai_addr;
+	sockaddr *retval = node->ai_addr;
 
 	node = node->ai_next;
 

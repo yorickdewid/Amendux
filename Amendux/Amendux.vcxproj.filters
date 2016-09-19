@@ -136,6 +136,9 @@
     <ClInclude Include="Screen.h">
       <Filter>Header Files\Module</Filter>
     </ClInclude>
+    <ClInclude Include="FTPClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -223,6 +226,12 @@
       <Filter>Source Files\Module</Filter>
     </ClCompile>
     <ClCompile Include="XTEA.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FTPClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

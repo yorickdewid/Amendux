@@ -4,21 +4,24 @@
 
 using namespace SimpleSocksPrivateNS;
 
-WSASystemMgr::WSASystemMgr() :
-	running(false)
+WSASystemMgr::WSASystemMgr() : running(false)
 {
 	//NOP
 }
 
-int WSASystemMgr::start() {
+int WSASystemMgr::start()
+{
 	WSAData wsadata;
 	int retval = WSAStartup(MAKEWORD(2, 2), &wsadata);
-	if (retval) { return -1; }
+	if (retval) {
+		return -1;
+	}
 	running = true;
 	return retval;
 }
 
-void WSASystemMgr::stop() {
+void WSASystemMgr::stop()
+{
 	//Only stop ws if we're the one that started it.
 	if (running) {
 		WSACleanup();
@@ -26,6 +29,7 @@ void WSASystemMgr::stop() {
 	}
 }
 
-WSASystemMgr::~WSASystemMgr() {
+WSASystemMgr::~WSASystemMgr()
+{
 	stop();
 }

@@ -2,21 +2,23 @@
 #include "SelectSet.h"
 #include <WinSock2.h>
 
-SimpleSocks::SelectSet::SelectSet() :
-	pimpl(NULL)
+SimpleSocks::SelectSet::SelectSet() : pimpl(NULL)
 {
 	//NOP
 }
 
-SimpleSocks::SelectSet::~SelectSet() {
+SimpleSocks::SelectSet::~SelectSet()
+{
 	//NOP
 }
 
-int SimpleSocks::SelectSet::copyFrom(SimpleSocks::SelectSet& src) {
+int SimpleSocks::SelectSet::copyFrom(SimpleSocks::SelectSet& src)
+{
 	return copyFrom(&src);
 }
 
-int SimpleSocks::SelectSet::copyFrom(SimpleSocks::SelectSet* src) {
+int SimpleSocks::SelectSet::copyFrom(SimpleSocks::SelectSet* src)
+{
 	if (src->pimpl.get() == NULL) {
 		pimpl.reset(NULL);
 		return 0;
@@ -29,7 +31,8 @@ int SimpleSocks::SelectSet::copyFrom(SimpleSocks::SelectSet* src) {
 	return 0;
 }
 
-int SimpleSocks::SelectSet::getCount() const {
+int SimpleSocks::SelectSet::getCount() const
+{
 	if (pimpl.get() == NULL) { return 0; }
 	return (int)(pimpl->tcps.size() + pimpl->srvs.size() + pimpl->udps.size());
 }

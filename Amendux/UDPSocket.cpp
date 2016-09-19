@@ -9,8 +9,7 @@
 using namespace SimpleSocks;
 using namespace SimpleSocksPrivateNS;
 
-UDPSocket::UDPSocket() :
-	pimpl(NULL)
+UDPSocket::UDPSocket() : pimpl(NULL)
 {
 	//NOP
 }

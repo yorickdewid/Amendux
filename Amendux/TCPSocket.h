@@ -4,9 +4,12 @@
 #include <winsock2.h>
 
 namespace SimpleSocks {
-	class TCPSocket {
+
+	class TCPSocket
+	{
 		friend class TCPServer;
 		friend class SelectSet;
+
 	public:
 		TCPSocket();
 		~TCPSocket();
@@ -18,6 +21,7 @@ namespace SimpleSocks {
 		bool getBlocking() const;
 		int  setBlocking(bool block);
 		bool isConnected() const;
+
 	private:
 		TCPSocket(TCPSocket&);
 		// void operator=(TCPSocket&);
@@ -28,4 +32,5 @@ namespace SimpleSocks {
 		};
 		std::auto_ptr<impl> pimpl;
 	};
+
 };
