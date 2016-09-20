@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Log.h"
-#include "Encrypt.h"
+//#include "Encrypt.h"
 #include "Config.h"
 #include "WebClient.h"
 
@@ -83,8 +83,7 @@ char *WebClient::Perform(const std::string& postData)
 		httpHeader += "\r\n";
 
 		httpHeader += postData;
-	}
-	else {
+	} else {
 		httpHeader += "\r\n";
 	}
 

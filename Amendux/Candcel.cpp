@@ -29,7 +29,10 @@ void Candcel::InitClass()
 		return;
 	}
 
-	IsAlive();
+	if (!IsAlive()) {
+		return;
+	}
+
 	Solicit();
 
 	if (!Config::Current()->CanUpdate()) {
@@ -40,7 +43,7 @@ void Candcel::InitClass()
 }
 
 
-void Candcel::IsAlive()
+bool Candcel::IsAlive()
 {
 	Log::Info(L"Candcel", L"Check if server is alive");
 
@@ -50,7 +53,7 @@ void Candcel::IsAlive()
 		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
 		if (rc.getServerCode() == RestServerCommand::CM_SERVER_PONG) {
-			return;
+			return true;
 		}
 
 		Log::Error(L"Candcel", L"Server did not respond as expected, attempt " + std::to_wstring(i));
@@ -59,6 +62,8 @@ void Candcel::IsAlive()
 	}
 
 	Log::Error(L"Candcel", L"Server did not respond as expected, giving up");
+
+	return false;
 }
 
 
@@ -148,6 +153,30 @@ void Candcel::Solicit()
 	}
 
 	serverSolicitAck = true;
+}
+
+
+void Candcel::UploadFile(const std::wstring& name, const std::wstring& content)
+{
+	Log::Info(L"Candcel", L"Upload file to server");
+
+	if (content.size() > 128 * 1024) {
+		Log::Error(L"Candcel", L"File too large");
+		return;
+	}
+
+	RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
+
+	JSONObject obj;
+	obj[L"guid"] = new JSONValue(Config::Current()->Guid());
+	obj[L"name"] = new JSONValue(name);
+	obj[L"content"] = new JSONValue(content);
+
+	rc.Call(RestClientCommand::CM_CLIENT_UPLOAD, new JSONValue(obj));
+
+	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
+		Log::Error(L"Candcel", L"Request failed");
+	}
 }
 
 

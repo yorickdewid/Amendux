@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#if 0
 #include "Vigenere.h"
 
 using namespace Amendux;
@@ -39,3 +40,4 @@ std::string Vigenere::Decrypt(std::string text) {
 
 	return out;
 }
+#endif

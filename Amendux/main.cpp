@@ -1,7 +1,11 @@
 //
 //  UNIT: main.cpp 
 //
-//  PURPOSE: Defines the entry point for the application.
+//  PURPOSE: Operating system specific application initialization.
+//
+//  COMMENTS: Keep the Win32-C style
+//
+//  TODO: Remove all string literals
 //
 
 #include "stdafx.h"
@@ -20,7 +24,7 @@
 
 #define MAX_LOADSTRING  100
 #define MUTEX           L"avcmtx"
-#define WINUICLASS      L"AVCWIN32PROG"
+#define WINUICLASS      L"AVCWIN32PROG" 
 
 // Global Variables:
 HINSTANCE hInst;                                // Current instance
@@ -29,6 +33,7 @@ HANDLE hMutex;									// Instance mutx lock
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
 HWND				CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cParts);
+UINT_PTR			CreateTimer(HWND hwndParent, UINT_PTR nEvent, UINT uSec);
 BOOL                InitInstance(HINSTANCE, int);
 BOOL                CleanupInstance();
 BOOL                ParseCommandLine();
@@ -114,7 +119,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulCall, LPVOID lpReserved)
 //
 //  FUNCTION: MainRegisterClass()
 //
-//  PURPOSE: Registers the window class.
+//  PURPOSE: Registers the window class
 //
 #if DEBUG
 ATOM MainRegisterClass(HINSTANCE hInstance)
@@ -151,7 +156,8 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	hInst = hInstance; // Store instance handle in our global variable
+	// Store instance handle in our global variable
+	hInst = hInstance;
 
 	if (!Amendux::Config::Current()->CanGuardProcess()) {
 		hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
@@ -165,6 +171,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	}
 
 #if DEBUG
+
 	// Main window
 	MainRegisterClass(hInstance);
 
@@ -174,11 +181,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return false;
 	}
 
+	// Set status bar
 	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
+
+	// Set timer to 10 seconds
+	CreateTimer(hWnd, IDC_TIMER, 10);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
-#endif
+
+#endif // DEBUG
 
    // Drift random by planting the seed
    srand((unsigned int)time(NULL));
@@ -335,9 +347,21 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 
 
 //
+//  FUNCTION: CreateTimer(HWND hwndParent, UINT_PTR nEvent, UINT uSec)
+//
+//  PURPOSE:  Set the timer
+//
+//
+UINT_PTR CreateTimer(HWND hwndParent, UINT_PTR nEvent, UINT uSec)
+{
+	return SetTimer(hwndParent, IDC_TIMER, uSec * 1000, NULL);
+}
+
+
+//
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
-//  PURPOSE:  Processes messages for the main window.
+//  PURPOSE:  Processes messages for the main window
 //
 //  WM_COMMAND  - process the application menu
 //  WM_PAINT    - Paint the main window
@@ -378,7 +402,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
 				HDC hdc = BeginPaint(hWnd, &ps);
-				// TODO: Add any drawing code that uses hdc here...
+				
 				EndPaint(hWnd, &ps);
 
 				std::wstring status = L"Running... [DEBUG]";
@@ -397,6 +421,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)status.c_str());
 			}
 			break;
+
+		case WM_TIMER:
+			RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
 
 		case WM_SIZE:
 			SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, WM_SIZE, 0, 0);
@@ -423,7 +450,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 //
 //  FUNCTION: About(HWND, UINT, WPARAM, LPARAM)
 //
-//  PURPOSE:   Message handler for about box.
+//  PURPOSE:   Message handler for about box
 //
 //
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -477,7 +504,7 @@ INT_PTR CALLBACK Debug(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return (INT_PTR)FALSE;
 }
-#endif
+#endif // DEBUG
 
 // Check if builder is run
 static_assert(ISBUILD, "Run the builder first");

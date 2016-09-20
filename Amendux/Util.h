@@ -96,6 +96,10 @@ namespace Amendux {
 			return wcslen(wstr) * sizeof(wchar_t);
 		}
 
+		static int randBetween(const int min = 0, const int max = 1000) {
+			return rand() % (max - min + 1) + min;
+		}
+
 		static void generateString(wchar_t *s, const int len = 8) {
 			constexpr wchar_t alphanum[] = L"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
