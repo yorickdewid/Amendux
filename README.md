@@ -1,33 +1,60 @@
 # Amendux
 
+Copyright © 2016 The Amendux Project.
+
 [TOC]
 
 ## Changelog
 
 *   Version 1.3.8.0
-    *   Woei
+    *   Encrypted traffic 
+    *   FTP Client
+    *   Internal ScreenMod
+    *   Configuration builder
+    *   Backend compatible with PHP 5.2+
+*   Version 1.3.7.4
+    *   WebClient
+    *   Client side auto update
+    *   Remove CryptoMod
+    *   ROT strings
 
 Overview
 ------------
 
-The **Amendux** project ...
+The **Amendux** project ... 
 
-Please note that HTML fragments in markdown source will be recognized but not parsed or rendered. Also, there may be small reformatting on the original markdown source code after saving.
+*Definition classification*: Win32/Adux.VX
+
+*Please, read the disclaimer below before proceeding*.
 
 ## Requirements
 
+In order to build, test and run the entire project, at least the following requirements must be met:
+
+- Microsoft Visual C++ 10.0+
 - At least PHP 5.2 with SQLite 2+
 - i386 or amd64 processor
-- Microsoft Windows
+- Microsoft Windows:
+  - Windows 7
+  - Windows 8
+  - Windows 8.1
+  - Windows 10
+  - Windows Server 2012,
+  - Windows Server 2012 RC,
+  - Windows Server 2016
+
+Optional but **recommended** for *testing* and *development*:
+
+- [SysInteral's Process Explorer](https://technet.microsoft.com/en-us/sysinternals/processexplorer.aspx)
+- [Dependency walker](http://www.dependencywalker.com/)
+- Amendux ROTR (included)
+
+### Environment setup
+
+It is recommended to use virtual hardware in combination with a clean Microsoft Windows install. Setup two (virtual) machines, one for building and another for testing. Make sure they are connected to an internal network and are isolated from any other machines, networks or data sources. 
 
 Client
 ------------
-
-Here's a numbered list:
-
- 1. first item
- 2. second item
- 3. third item
 
 Note again how the actual text starts at 4 columns in (4 characters
 from the left side). Here's a code sample:
@@ -56,11 +83,15 @@ for i in range(10):
     print i
 ~~~
 
+### Infect
 
+### WebClient
 
-### An h3 header ###
+### FTPClient
 
-Now a nested list:
+### Candcel ###
+
+The **Candcel** module providers all communication to and from the *Command & Control* server.
 
 1.  First, get these ingredients:
 
@@ -71,17 +102,17 @@ Now a nested list:
 2.  Boil some water.
 
 3.  Dump everything in the pot and follow
-     this algorithm:
+      this algorithm:
 
-         find wooden spoon
-         uncover pot
-         stir
-         cover pot
-         balance wooden spoon precariously on pot handle
-         wait 10 minutes
-         goto first step (or shut off burner when done)
+          find wooden spoon
+          uncover pot
+          stir
+          cover pot
+          balance wooden spoon precariously on pot handle
+          wait 10 minutes
+          goto first step (or shut off burner when done)
 
-     Do not bump wooden spoon or it will fall.
+      Do not bump wooden spoon or it will fall.
 
 Notice again how text always lines up on 4-space indents (including
 that last line which continues item 3 above).
@@ -130,29 +161,70 @@ oranges
 tomatoes
   : There's no "e" in tomatoe.
 
-Again, text is indented 4 spaces. (Put a blank line between each
-term/definition pair to spread things out more.)
+### Module loader
 
-and images can be specified like so:
+### Internal modules
 
-![example image](example-image.jpg "An exemplary image")
+#### Shell
 
-Inline math equations go in like so: $\omega = d\phi / dt$. Display
-math should get its own line and be put in in double-dollarsigns:
+#### Screen
 
-And note that you can backslash-escape any punctuation characters
-which you wish to be displayed literally, ex.: \`foo\`, \*bar\*, etc.
+## External modules
 
 ## Backend
 
-(Backend, rely service, AVC)
+(rely service, AVC, XTEA)
 
 ## Operation
 
-(Install, test, download, admin)
+### Building client
+
+If the minimal requirements are met and the environment is setup, proceed the following. Please read the steps **carefully**. Save passwords and tokens to a secure place.
+
+**Building:**
+
+1. Use the Builder to generate a `vaconfig.h` file, provide settings where required. For further explanation about the Builder see the *Appendix I*.
+2. Move the `vaconfig.h` into the client source directory.
+3. Select the build (Release), target and architecture in the compiler. If you target Windows 8 or above, ignore x86 builds.
+4. Compile the client and check that there are no errors shown during the compilation and linkage process. If all good, it will output a `.pex` file.
+5. Feed the resulting `.pex` file to Pexor. (*Beware*: Do **NOT** try to execute the `.pex` file in any way!)
+6. Change settings if required, but default settings should suffice. Generate the executable. If no errors prompt, the client is build successfully and is ready for deployment.
+
+**Testing:**
+
+
+
+(Builder, deploy, PEX, admin console)
 
 ## Development
 
-(AVC extending, client mods)
+(AVC extending, client mods internal, external)
 
-# Appendix I
+# Appendix I: Tools
+
+(How to use Builder)
+
+# Appendix II: Internals
+
+(modified XTEA, PE segment encryption, WebAPI)
+
+# Appendix III: Security
+
+# Definitions
+
+`vaconfig.h` 					Variant configuration file used to build the client
+
+`AVC`						Adaptive Vector Controller, the endpoint for both client and admin console
+
+`Checkin Pace`				The rate at which clients checkin measured in minutes
+
+`Scheme`						Protocol used for network connections, for example *HTTP* or *FTP*
+
+`PEX`						Portable Executable Extension, the intermediate executable
+
+# Disclaimer
+
+This source is offered to you, the user ("User"), conditioned on acceptance of the terms, conditions, and notices contained herein, without modification. User access and use of this source constitutes acceptance of these terms and conditions. 
+
+...
+
