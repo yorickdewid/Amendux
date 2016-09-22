@@ -1,11 +1,19 @@
+//  Copyright (C) 2016 Amendux
+//  All Rights Reserved.
 //
 //  UNIT: main.cpp 
 //
-//  PURPOSE: Operating system specific application initialization.
+//  PURPOSE: Operating system specific application initialization
 //
-//  COMMENTS: Keep the Win32-C style
+//  COMMENTS:
 //
-//  TODO: Remove all string literals
+//        Default to Win32-VC style
+//        Use native Win32 datatypes
+//
+//  TODO: 
+//
+//        Remove all string literals
+//        Help with CLI commands
 //
 
 #include "stdafx.h"
@@ -240,6 +248,21 @@ BOOL ParseCommandLine()
 	for (int i = 1; i < argCount; i++) {
 		WCHAR *szCmd = szArgList[i];
 
+#if DEBUG
+		// Help info
+		if (!wcscmp(szCmd, L"/?")) {
+			LPCWSTR pszStr = L"Amendux [OPTION]\n\n"
+				"/Nu <PID>\tRun update process\n"
+				"/Sg <PID> \tSpawn guard process\n"
+				"/EL\t\tEliminate instance\n"
+				"/?\t\tHelp info\n"
+				"\nMost options are only valid as child process\n";
+
+			MessageBox(NULL, pszStr, L"Helper", MB_ICONINFORMATION);
+			return false;
+		}
+#endif
+
 		// Run update mode
 		if ((!wcscmp(szCmd, L"/nu") || !wcscmp(szCmd, L"/NU") || !wcscmp(szCmd, L"/Nu") || !wcscmp(szCmd, L"/nU")) && argCount > 2) {
 			unsigned int guardPid = Amendux::Config::Current()->GuardProcess();
@@ -261,8 +284,7 @@ BOOL ParseCommandLine()
 
 			// Give the main module some time to release mutex
 			Sleep(10 * 1000);
-
-			return true;
+			goto done;
 		}
 
 		// Spawn a guard
@@ -274,17 +296,18 @@ BOOL ParseCommandLine()
 
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::GUARD);
 			Amendux::Config::Current()->SetGuardProcessId(pid);
-			return true;
+			goto done;
 		}
 
 		// Run elimination mode
 		if (!wcscmp(szCmd, L"/el") || !wcscmp(szCmd, L"/EL") || !wcscmp(szCmd, L"/El") || !wcscmp(szCmd, L"/eL")) {
 			Amendux::Config::Current()->SetMode(Amendux::OperationMode::ELIMINATE);
-			return true;
+			goto done;
 		}
 
 	}
 
+done:
 	LocalFree(szArgList);
 
 	return true;

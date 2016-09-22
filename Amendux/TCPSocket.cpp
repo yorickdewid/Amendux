@@ -29,8 +29,7 @@ int TCPSocket::connect(const char *host, unsigned short port)
 	std::auto_ptr<impl> timpl(NULL);
 	try {
 		timpl.reset(new impl);
-	}
-	catch (std::bad_alloc) {
+	} catch (std::bad_alloc) {
 		return -5;
 	}
 
@@ -82,19 +81,28 @@ void TCPSocket::close()
 
 int TCPSocket::send(const char* buffer, int length)
 {
-	if (isConnected() == false) { return -1; }
+	if (!isConnected()) {
+		return -1;
+	}
+
 	return ::send(pimpl->sock, buffer, length, 0);
 }
 
 int TCPSocket::recv(char* buffer, int length)
 {
-	if (isConnected() == false) { return -1; }
+	if (!isConnected()) {
+		return -1;
+	}
+
 	return pimpl->coreRecv(buffer, length, 0);
 }
 
 int TCPSocket::peek(char* buffer, int length)
 {
-	if (isConnected() == false) { return -1; }
+	if (isConnected() == false) {
+		return -1;
+	}
+
 	//In my experience people usually don't use MSG_PEEK.
 	//Instead they just over-read the data and then do
 	//buffer ops like memcpy, etc to make up for it.
@@ -106,22 +114,32 @@ int TCPSocket::peek(char* buffer, int length)
 
 bool TCPSocket::getBlocking() const
 {
-	if (isConnected() == false) { return false; }
+	if (isConnected() == false) {
+		return false;
+	}
+
 	//If noblock is false then block is true.
 	return (pimpl->noblock == 0);
 }
 
 int TCPSocket::setBlocking(bool block)
 {
-	if (isConnected() == false) { return -1; }
+	if (isConnected() == false) {
+		return -1;
+	}
+
 	//Avoid gratuitous ioctl.
-	if (block == getBlocking()) { return 0; }
+	if (block == getBlocking()) {
+		return 0;
+	}
 
 	unsigned long noblock = block ? 0 : 1;
 
 	int result;
 	//Hehehehe...
-	if (result = ioctlsocket(pimpl->sock, FIONBIO, &noblock)) { return -1; }
+	if (result = ioctlsocket(pimpl->sock, FIONBIO, &noblock)) {
+		return -1;
+	}
 
 	pimpl->noblock = noblock;
 
