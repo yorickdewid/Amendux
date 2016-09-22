@@ -47,7 +47,9 @@ Optional but **recommended** for *testing* and *development*:
 
 - [SysInteral's Process Explorer](https://technet.microsoft.com/en-us/sysinternals/processexplorer.aspx)
 - [Dependency walker](http://www.dependencywalker.com/)
+- A resource editor
 - Amendux ROTR (included)
+- Amendux YTEA (included)
 
 ### Environment setup
 
