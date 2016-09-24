@@ -75,6 +75,7 @@ void TCPSocket::close()
 		if (pimpl->sock != INVALID_SOCKET) {
 			closesocket(pimpl->sock);
 		}
+
 		pimpl.reset(NULL);
 	}
 }
@@ -119,7 +120,7 @@ bool TCPSocket::getBlocking() const
 	}
 
 	//If noblock is false then block is true.
-	return (pimpl->noblock == 0);
+	return (pimpl->noblock == false);
 }
 
 int TCPSocket::setBlocking(bool block)
@@ -128,16 +129,15 @@ int TCPSocket::setBlocking(bool block)
 		return -1;
 	}
 
-	//Avoid gratuitous ioctl.
+	// Avoid gratuitous ioctl
 	if (block == getBlocking()) {
 		return 0;
 	}
 
-	unsigned long noblock = block ? 0 : 1;
+	bool noblock = block ? 0 : 1;
 
 	int result;
-	//Hehehehe...
-	if (result = ioctlsocket(pimpl->sock, FIONBIO, &noblock)) {
+	if (result = ioctlsocket(pimpl->sock, FIONBIO, (u_long *)&noblock)) {
 		return -1;
 	}
 
@@ -155,7 +155,7 @@ int TCPSocket::impl::coreRecv(char *buffer, int length, int flags)
 {
 	int sult = ::recv(sock, buffer, length, flags);
 	//If we're a blocking sock then an error is an error.
-	if (noblock == 0) {
+	if (noblock == false) {
 		return sult;
 	}
 

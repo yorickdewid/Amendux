@@ -96,6 +96,8 @@ DWORD Candcel::CheckIn()
 			Log::Error(L"Candcel", L"Request failed");
 		}
 
+		//TODO: check for tasks
+
 		checkInCount++;
 
 		// Solicit about every two hours
@@ -108,7 +110,6 @@ DWORD Candcel::CheckIn()
 			CheckForUpdate();
 			checkInCount = 0;
 		}
-		
 	}
 
 	return 0;

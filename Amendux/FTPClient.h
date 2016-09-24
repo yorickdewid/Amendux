@@ -1,6 +1,5 @@
 #pragma once
 
-#include <winsock2.h>
 #include <time.h>
 #include "SimpleSocksNS.h"
 #include "TCPSocket.h"

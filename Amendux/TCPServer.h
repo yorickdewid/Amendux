@@ -23,7 +23,7 @@ namespace SimpleSocks {
 		// void operator=(TCPServer&);
 		struct impl {
 			SOCKET serv;
-			unsigned long noblock;
+			bool noblock;
 		};
 		std::auto_ptr<impl> pimpl;
 	};

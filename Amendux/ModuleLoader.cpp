@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "Shell.h"
 #include "Screen.h"
+#include "IRCClient.h"
 #include "Thread.h"
 #include "ModuleLoader.h"
 
@@ -46,5 +47,9 @@ void ModuleLoader::InitClass()
 
 #ifdef MODSCREEN_ENABLED
 	RegisterModule(L"screen", new Screen(this));
+#endif
+
+#ifdef MODIRC_ENABLED
+	//RegisterModule(L"ircclient", new IRCClient(this));
 #endif
 }

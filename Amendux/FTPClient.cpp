@@ -11,8 +11,6 @@
 #include "Config.h"
 #include "FTPClient.h"
 
-#include <winsock.h>
-
 #include <errno.h>
 #include <ctype.h>
 #include <sys/types.h>

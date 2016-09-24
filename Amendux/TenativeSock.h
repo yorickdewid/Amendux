@@ -26,6 +26,7 @@ namespace SimpleSocksPrivateNS {
 		//and returns 'sock'.
 		SOCKET validate();
 	private:
+
 		SOCKET sock;
 		bool valid;
 	};

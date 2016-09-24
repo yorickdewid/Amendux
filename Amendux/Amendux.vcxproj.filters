@@ -145,6 +145,9 @@
     <ClInclude Include="URLEncode.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IRCClient.h">
+      <Filter>Header Files\Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -242,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="URLEncode.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IRCClient.cpp">
+      <Filter>Source Files\Module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

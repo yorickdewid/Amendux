@@ -48,11 +48,12 @@ BOOL                ParseCommandLine();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
-
+#include "IRCClient.h"
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-
+	Amendux::IRCClient x;
+	x.Run();
 	// Parse commandline arguments
 	if (!ParseCommandLine()) {
 		return false;

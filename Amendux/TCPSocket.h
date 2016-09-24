@@ -13,23 +13,24 @@ namespace SimpleSocks {
 	public:
 		TCPSocket();
 		~TCPSocket();
-		int  connect(const char* host, unsigned short port);
+		int connect(const char* host, unsigned short port);
 		void close();
-		int  send(const char* buffer, int length);
-		int  recv(char* buffer, int length);
-		int  peek(char* buffer, int length);
+		int send(const char* buffer, int length);
+		int recv(char* buffer, int length);
+		int peek(char* buffer, int length);
 		bool getBlocking() const;
-		int  setBlocking(bool block);
+		int setBlocking(bool block);
 		bool isConnected() const;
 
 	private:
 		TCPSocket(TCPSocket&);
-		// void operator=(TCPSocket&);
+
 		struct impl {
 			int coreRecv(char* buffer, int length, int flags);
 			SOCKET sock;
-			unsigned long noblock;
+			bool noblock;
 		};
+
 		std::auto_ptr<impl> pimpl;
 	};
 

@@ -134,21 +134,25 @@ bool TCPServer::isRunning() const {
 bool TCPServer::getBlocking() const {
 	if (isRunning() == false) { return 0; }
 	//If noblock is false then block is true.
-	return (pimpl->noblock == 0);
+	return (pimpl->noblock == false);
 }
 
 int TCPServer::setBlocking(bool block) {
-	if (isRunning() == false) { return -1; }
-	//Avoid gratuitous ioctl.
-	if (block == getBlocking()) { return 0; }
+	if (isRunning() == false) {
+		return -1;
+	}
 
-	unsigned long noblock = block ? 0 : 1;
+	// Avoid gratuitous ioctl
+	if (block == getBlocking()) {
+		return 0;
+	}
+
+	bool noblock = block ? 0 : 1;
 
 	int result;
-	//FIONBIO is the funniest const name ever.
-	//Hahahahahahaha....
-	//FIONBIO....
-	if (result = ioctlsocket(pimpl->serv, FIONBIO, &noblock)) { return -1; }
+	if (result = ioctlsocket(pimpl->serv, FIONBIO, (u_long *)&noblock)) {
+		return -1;
+	}
 
 	pimpl->noblock = noblock;
 

@@ -251,6 +251,7 @@
     <ClInclude Include="CoreInterface.h" />
     <ClInclude Include="FTPClient.h" />
     <ClInclude Include="Infect.h" />
+    <ClInclude Include="IRCClient.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Json.h" />
     <ClInclude Include="JsonValue.h" />
@@ -288,6 +289,7 @@
     <ClCompile Include="FTPClient.cpp" />
     <ClCompile Include="Infect.cpp" />
     <ClCompile Include="init.cpp" />
+    <ClCompile Include="IRCClient.cpp" />
     <ClCompile Include="Json.cpp" />
     <ClCompile Include="JsonValue.cpp" />
     <ClCompile Include="Log.cpp" />
