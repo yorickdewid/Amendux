@@ -137,6 +137,10 @@ void CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 
 DWORD Screen::Run()
 {
+	SYSTEMTIME lt;
+
+	GetLocalTime(&lt);
+
 	// get the device context of the screen
 	HDC hScreenDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
 	// and a device context to put it in
@@ -159,12 +163,13 @@ DWORD Screen::Run()
 
 	PBITMAPINFO pbmi = CreateBitmapInfoStruct(hBitmap);
 
-	// TODO: retrieve filename from parameters
-	CreateBMPFile(L"screen.bmp", pbmi, hBitmap, hScreenDC);
+	std::wstring screenName = Config::Current()->DataDirectory() + L"\\screen" + std::to_wstring(lt.wSecond + lt.wMilliseconds) + L".bmp";
+
+	CreateBMPFile((LPTSTR)screenName.c_str(), pbmi, hBitmap, hScreenDC);
 
 	// clean up
 	DeleteDC(hMemoryDC);
 	DeleteDC(hScreenDC);
 
-	return 42;
+	return MOD_OK;
 }

@@ -13,5 +13,5 @@ DWORD Shell::Run()
 		// Do something
 	}
 
-	return 42;
+	return MOD_OK;
 }

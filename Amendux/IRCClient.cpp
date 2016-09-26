@@ -465,6 +465,6 @@ DWORD IRCClient::Run()
 
 	free((void *)serverIdent);
 
-	return 42;
+	return MOD_OK;
 }
 #endif

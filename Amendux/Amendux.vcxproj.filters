@@ -145,10 +145,10 @@
     <ClInclude Include="IRCClient.h">
       <Filter>Header Files\Module</Filter>
     </ClInclude>
-    <ClInclude Include="VaConfig.h">
+    <ClInclude Include="TaskQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TaskQueue.h">
+    <ClInclude Include="vaconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

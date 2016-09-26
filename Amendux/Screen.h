@@ -6,8 +6,6 @@ namespace Amendux {
 
 	class Screen : Module
 	{
-		//
-
 	public:
 		Screen(ModuleLoader *loader) : Module(L"screen", loader) {}
 

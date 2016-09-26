@@ -11,17 +11,17 @@ namespace Amendux {
 
 	struct Task
 	{
-		std::string name;
+		std::wstring name;
 		std::map<std::wstring, std::wstring> params;
 
 		Task(std::string n) {
-			name = n;
+			std::wstring wn(n.begin(), n.end());
+			name = wn;
 			tid = taskcount++;
 		}
 
 		Task(std::wstring wn) {
-			std::string n(wn.begin(), wn.end());
-			name = n;
+			name = wn;
 			tid = taskcount++;
 		}
 
@@ -58,9 +58,9 @@ namespace Amendux {
 		}
 
 		static void SpawnTaskWorker() {
-			//if (!Config::Current()->CanConnect()) {
-			//	return;
-			//}
+			if (!Config::Current()->CanRunWorker()) {
+				return;
+			}
 
 			Thread<TaskQueue> *thread = new Thread<TaskQueue>(TaskQueue::Current(), &TaskQueue::Worker);
 			if (!thread->Start()) {

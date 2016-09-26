@@ -14,7 +14,7 @@ namespace Amendux {
 		ModuleLoader();
 		~ModuleLoader();
 
-		void RunModule(const std::wstring& modName);
+		bool RunModule(const std::wstring& modName, std::map<std::wstring, std::wstring> params);
 
 		void RegisterModule(const std::wstring& modName, void *pMod) {
 			moduleList[modName] = pMod;

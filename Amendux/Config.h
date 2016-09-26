@@ -2,7 +2,7 @@
 
 #include <sstream>
 #include "CoreInterface.h"
-#include "VaConfig.h"
+#include "vaconfig.h"
 
 namespace Amendux {
 
@@ -173,6 +173,19 @@ namespace Amendux {
 				return false;
 			default:
 				break;
+			}
+
+			return true;
+		}
+
+		inline bool CanRunWorker() const {
+			switch (currentMode) {
+				case OperationMode::UPDATE:
+				case OperationMode::ELIMINATE:
+				case OperationMode::GUARD:
+					return false;
+				default:
+					break;
 			}
 
 			return true;

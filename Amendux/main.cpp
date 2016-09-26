@@ -405,8 +405,6 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 	// Tell the status bar to create the window parts
 	SendMessage(hWndStatus, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
 	SendMessage(hWndStatus, SB_SETTEXT, 0, (LPARAM)L"Initializing...");
-	//SendMessage(hWndStatus, SB_SETTEXT, 1, (LPARAM)L"Not connected");
-	SendMessage(hWndStatus, SB_SETTEXT, 2, (LPARAM)L"Not connected");
 	
 	// Free the array, and return
 	LocalUnlock(hloc);
@@ -488,8 +486,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 3, (LPARAM)checkin.c_str());
 				}
 
-				if (!Amendux::Config::Current()->CanGuardProcess()) {
-					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 4, (LPARAM)L"Guarded");
+				if (Amendux::Config::Current()->CanRunWorker()) {
+					std::wstring tasks = L"Queue: " + std::to_wstring(Amendux::TaskQueue::Current()->Size()) + L" tasks";
+					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 4, (LPARAM)tasks.c_str());
 				}
 
 				EndPaint(hWnd, &ps);
@@ -498,6 +497,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_TIMER: {
 				SetDlgItemText(hWnd, IDC_MAIN_EDIT, Amendux::Log::Readback().c_str());
+
+				// Scroll down to bottom
+				SendDlgItemMessage(hWnd, IDC_MAIN_EDIT, EM_SETSEL, 0, -1);
+				SendDlgItemMessage(hWnd, IDC_MAIN_EDIT, EM_SETSEL, -1, -1);
+				SendDlgItemMessage(hWnd, IDC_MAIN_EDIT, EM_SCROLLCARET, 0, 0);
 
 				RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
 			}

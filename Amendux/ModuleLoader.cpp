@@ -23,14 +23,23 @@ ModuleLoader::~ModuleLoader()
 }
 
 
-void ModuleLoader::RunModule(const std::wstring& modName) {
+bool ModuleLoader::RunModule(const std::wstring& modName, std::map<std::wstring, std::wstring> params) {
 	Module *mod = (Module *)moduleList[modName];
 	if (mod) {
+		Log::Info(L"ModuleLoader", L"Spawn module " + modName + L" with " + std::to_wstring(params.size()) + L" parameters");
+
+		mod->PushParameters(params);
 		Thread<Module> *thread = new Thread<Module>(mod, &Module::Run);
 		if (!thread->Start()) {
-			Log::Error(L"Candcel", L"Cannot spawn module " + modName);
+			Log::Error(L"ModuleLoader", L"Cannot spawn module " + modName);
+
+			return false;
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 

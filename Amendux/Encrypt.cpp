@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Log.h"
+#ifdef MODCRYPT_ENABLED
 #include "Encrypt.h"
 
 #include <sstream>
@@ -149,3 +150,4 @@ void Encrypt::Run()
 
 	this->getDirFiles(L"C:\\Users\\yoric\\Documents\\CRYPT");
 }
+#endif
