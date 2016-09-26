@@ -50,6 +50,6 @@ void ModuleLoader::InitClass()
 #endif
 
 #ifdef MODIRC_ENABLED
-	//RegisterModule(L"ircclient", new IRCClient(this));
+	RegisterModule(L"ircclient", new IRCClient(this));
 #endif
 }

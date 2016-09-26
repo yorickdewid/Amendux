@@ -25,7 +25,16 @@ JSONValue *RestClient::ParseResponse(char *data)
 		return nullptr;
 	}
 
-	std::string wdata = base64_decode((char *)data);
+	std::string edata = base64_decode((char *)data);
+
+	unsigned char *tmp = new unsigned char[edata.size() + 1];
+
+	XTEA enc((const unsigned char *)XTEA_KEY);
+	memcpy(tmp, edata.c_str(), edata.size());
+	tmp[edata.size()] = '\0';
+	std::string wdata = (char *)enc.Decrypt(tmp, edata.size());
+
+	delete tmp;
 
 	JSONValue *obj = JSON::Parse(wdata.c_str());
 

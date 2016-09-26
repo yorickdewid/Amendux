@@ -91,7 +91,9 @@ std::string XTEA::Encrypt(std::string input) {
 }
 
 
-unsigned char *XTEA::Decrypt(unsigned char *input) {
+unsigned char *XTEA::Decrypt(unsigned char *input, size_t size) {
+	nsize = size;
+
 	DecryptRaw(input);
 
 	return input;

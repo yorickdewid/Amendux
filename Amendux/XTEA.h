@@ -21,7 +21,7 @@ namespace Amendux {
 		XTEA(const unsigned char k[]);
 
 		unsigned char *Encrypt(const unsigned char *input);
-		unsigned char *Decrypt(unsigned char *input);
+		unsigned char *Decrypt(unsigned char *input, size_t size);
 
 		std::wstring Encrypt(std::wstring input);
 		std::string Encrypt(std::string input);

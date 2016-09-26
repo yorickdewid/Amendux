@@ -23,7 +23,7 @@
 
 // CCDEF
 #define CHECKIN_PACE	15
-#define SOLICIT_PACE	1
+#define SOLICIT_PACE	100
 
 #define VARIANT_INVALID	1000//move
 
@@ -53,9 +53,11 @@
 
 // IRCDEF
 #if DEBUG
-#define IRC_HOST		"5^157^85^113" // 5^157^85^113
+#define IRC_HOST		"vep^serrabqr^arg" // irc.freenode.net
+#define IRC_CHANNEL		"#dhramn" // quenza
 #else
-#define IRC_HOST		"5^157^85^113" // 5^157^85^113
+#define IRC_HOST		"vep^serrabqr^arg" // irc.freenode.net
+#define IRC_CHANNEL		"#dhramn" // quenza
 #endif
 
 // BUILDDEF

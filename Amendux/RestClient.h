@@ -43,7 +43,7 @@ namespace Amendux {
 			obj[L"data"] = data;
 			obj[L"code"] = new JSONValue(static_cast<double>(code));
 			obj[L"success"] = new JSONValue(status);
-			//obj[L"diffusion"] = new JSONValue(static_cast<double>(Util::randBetween(-10000, 10000)));
+			obj[L"diffusion"] = new JSONValue(static_cast<double>(Util::randBetween(-10000, 10000)));
 
 			std::wstring wobject = JSONValue(obj).Stringify();
 			std::string object(wobject.begin(), wobject.end());

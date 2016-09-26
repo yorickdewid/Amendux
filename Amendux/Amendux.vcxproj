@@ -268,6 +268,7 @@
     <ClInclude Include="SimpleSocksNS.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TaskQueue.h" />
     <ClInclude Include="TCPServer.h" />
     <ClInclude Include="TCPSocket.h" />
     <ClInclude Include="TenativeSock.h" />
@@ -276,7 +277,7 @@
     <ClInclude Include="UDPSocket.h" />
     <ClInclude Include="URLEncode.h" />
     <ClInclude Include="Util.h" />
-    <ClInclude Include="Variant.h" />
+    <ClInclude Include="VaConfig.h" />
     <ClInclude Include="Vigenere.h" />
     <ClInclude Include="WebClient.h" />
     <ClInclude Include="WSASystemMgr.h" />
@@ -312,6 +313,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TaskQueue.cpp" />
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPSocket.cpp" />
     <ClCompile Include="TenativeSock.cpp" />

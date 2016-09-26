@@ -2,11 +2,11 @@
 
 #include <sstream>
 #include "CoreInterface.h"
-#include "Variant.h"
+#include "VaConfig.h"
 
 namespace Amendux {
 
-	constexpr unsigned int clientVersion = 137;
+	constexpr unsigned int clientVersion = 138;
 
 	enum class OperationMode {
 		BASE = 1,
