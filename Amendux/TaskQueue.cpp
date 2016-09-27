@@ -10,13 +10,13 @@ TaskQueue *TaskQueue::s_TaskQueue = nullptr;
 
 TaskQueue::TaskQueue()
 {
-	Log::Info(L"TaskQueue", L"Initialize module task queue class");
+	LogInfo(L"TaskQueue", L"Initialize module task queue class");
 }
 
 
 TaskQueue::~TaskQueue()
 {
-	Log::Info(L"TaskQueue", L"Terminate module task queue class");
+	LogInfo(L"TaskQueue", L"Terminate module task queue class");
 }
 
 
@@ -40,7 +40,7 @@ void TaskQueue::Add(Task& task)
 {
 	mainqueue.push(task);
 
-	Log::Info(L"TaskQueue", L"Enqueued new task " + std::to_wstring(task.GetId()));
+	LogInfo(L"TaskQueue", L"Enqueued new task " + std::to_wstring(task.GetId()));
 }
 
 
@@ -55,10 +55,10 @@ DWORD TaskQueue::Worker() {
 
 		Task task = mainqueue.front();
 
-		Log::Info(L"TaskQueue", L"Pop task " + std::to_wstring(task.GetId()) + L" from queue");
+		LogInfo(L"TaskQueue", L"Pop task " + std::to_wstring(task.GetId()) + L" from queue");
 
 		if (!ModuleLoader::Current()->RunModule(task.name, task.params)) {
-			Log::Warn(L"TaskQueue", L"Task is not an internal module");
+			LogWarn(L"TaskQueue", L"Task is not an internal module");
 		}
 
 		mainqueue.pop();

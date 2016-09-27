@@ -18,7 +18,6 @@
 
 #include "stdafx.h"
 #include "Log.h"
-#include "Encrypt.h"
 #include "Config.h"
 #include "Process.h"
 #include "Candcel.h"
@@ -27,8 +26,7 @@
 #include "TaskQueue.h"
 #include "Resource.h"
 
-#define MAX_LOADSTRING  100
-#define MUTEX           L"avcmtx"
+#define WINUINAME       L"Amendux"
 #define WINUICLASS      L"AVCWIN32PROG" 
 
 // Global Variables:
@@ -187,7 +185,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// Ensure that the common control DLL is loaded
 	InitCommonControls();
 
-	HWND hWnd = CreateWindow(WINUICLASS, L"Amendux", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindow(WINUICLASS, WINUINAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 	if (!hWnd) {
 		ReleaseMutex(hMutex);
 		return false;
@@ -253,12 +251,12 @@ BOOL ParseCommandLine()
 	}
 
 	for (int i = 1; i < argCount; i++) {
-		WCHAR *szCmd = szArgList[i];
+		LPWSTR szCmd = szArgList[i];
 
 #if DEBUG
 		// Help info
 		if (!wcscmp(szCmd, L"/?")) {
-			LPCWSTR pszStr = L"Amendux [OPTION]\n\n"
+			LPCWSTR pszStr = WINUINAME L" [OPTION]\n\n"
 				"/Nu <PID>\tRun update process\n"
 				"/Sg <PID> \tSpawn guard process\n"
 				"/EL\t\tEliminate instance\n"
@@ -473,7 +471,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				BeginPaint(hWnd, &ps);
 				
 				SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 0, (LPARAM)L"Running");
-				std::wstring title = L"Amendux (" + Amendux::Config::Current()->DisplayName() + L")";
+				std::wstring title = WINUINAME L" (" + Amendux::Config::Current()->DisplayName() + L")";
 
 				title += L"[" + Amendux::Config::Current()->ModeName() + L"]";
 				SetWindowText(hWnd, title.c_str());
@@ -567,7 +565,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 		case WM_INITDIALOG:
-			SetDlgItemText(hDlg, IDC_STATIC_VERSION, (L"Amendux, Version " + Amendux::Config::getVersion()).c_str());
+			SetDlgItemText(hDlg, IDC_STATIC_VERSION, (WINUINAME L", Version " + Amendux::Config::getVersion()).c_str());
 
 			return (INT_PTR)TRUE;
 

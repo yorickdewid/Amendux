@@ -151,6 +151,9 @@
     <ClInclude Include="vaconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>Header Files\Module</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -254,6 +257,9 @@
     </ClCompile>
     <ClCompile Include="TaskQueue.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>Source Files\Module</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

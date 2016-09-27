@@ -168,7 +168,7 @@ LPWSTR Process::Execute(LPWSTR command) {
 
 DWORD Process::GuardObject()
 {
-	Log::Info(L"Process", L"Start guarding main module");
+	LogInfo(L"Process", L"Start guarding main module");
 
 	DWORD value = MAX_PATH;
 	WCHAR buffer[MAX_PATH];
@@ -176,21 +176,21 @@ DWORD Process::GuardObject()
 	unsigned int pid = Config::Current()->GuardProcess();
 	HANDLE hProc = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
 	if (!hProc) {
-		Log::Error(L"Process", L"Cannot find process");
+		LogError(L"Process", L"Cannot find process");
 
 		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
 		return 0;
 	}
 
 	if (!QueryFullProcessImageName(hProc, 0, buffer, &value)) {
-		Log::Error(L"Process", L"Cannot find process image");
+		LogError(L"Process", L"Cannot find process image");
 
 		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
 		return 0;
 	}
 
 	if (WaitForSingleObject(hProc, INFINITE) == WAIT_OBJECT_0) {
-		Log::Warn(L"Process", L"Main module terminated");
+		LogWarn(L"Process", L"Main module terminated");
 
 		Sleep(1000);
 
@@ -201,7 +201,7 @@ DWORD Process::GuardObject()
 
 		if (::CreateProcess(buffer, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
 			hProc = processInfo.hProcess;
-			Log::Info(L"Process", L"Main module restarted");
+			LogInfo(L"Process", L"Main module restarted");
 		}
 
 		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
@@ -221,7 +221,7 @@ void Process::Guard()
 
 	Thread<Process> *thread = new Thread<Process>(new Process, &Process::GuardObject);
 	if (!thread->Start()) {
-		Log::Error(L"Process", L"Cannot spawn waiting process");
+		LogError(L"Process", L"Cannot spawn waiting process");
 	}
 }
 
@@ -234,14 +234,14 @@ void Process::SpawnGuardProcess()
 
 	PROCESS_INFORMATION processInfo;
 	STARTUPINFO startupInfo;
-	::ZeroMemory(&startupInfo, sizeof(startupInfo));
+	std::ZeroMemory(&startupInfo, sizeof(startupInfo));
 	startupInfo.cb = sizeof(startupInfo);
 
 	std::wstring curPath = Util::currentModule();
 	std::wstring updateExe = L" /Sg " + std::to_wstring(Util::currentProcessId()) + L" 0x1f00";
 
 	if (::CreateProcess(curPath.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-		Log::Info(L"Process", L"Starting guard");
+		LogInfo(L"Process", L"Starting guard");
 
 		Config::Current()->SetGuardProcessId(processInfo.dwProcessId);
 	}

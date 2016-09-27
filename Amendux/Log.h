@@ -2,8 +2,22 @@
 
 #include "CoreInterface.h"
 
+#if DEBUG
+#define LogInfo(m,e) Log::Info(m,e)
+#define LogWarn(m,e) Log::Warn(m,e)
+#define LogError(m,e) Log::Error(m,e)
+#else
+#define LogInfo(m,e)
+#define LogWarn(m,e)
+#define LogError(m,e)
+#endif
+
+// LOGDIR
+//#define LOGDIR			L"."
+
 namespace Amendux {
 
+#ifdef DEBUG
 	class Log : CoreInterface
 	{
 	private:
@@ -31,7 +45,7 @@ namespace Amendux {
 		void _write(const std::wstring& mod, const std::wstring& ws, LogType type = _INFO) {
 			switch (type) {
 				case Amendux::Log::_WARN:
-					_log << getTimestamp() << " [" << mod << "] " << L"Warn: " << ws << std::endl;
+					_log << getTimestamp() << " [" << mod << "] " << L"Warning: " << ws << std::endl;
 					break;
 				case Amendux::Log::_ERROR:
 					_log << getTimestamp() << " [" << mod << "] " << L"Error: " << ws << std::endl;
@@ -52,116 +66,108 @@ namespace Amendux {
 
 	public:
 		Log() {
-#ifdef DEBUG
-			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 			DWORD pid = Util::currentProcessId();
+#ifdef LOGDIR
+			_log.open((LOGDIR L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
+#else
+			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
 			_log.open((loc + L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
-			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
 #endif
+			_log << getTimestamp() << " [Log] Initialize logger class" << std::endl;
 		}
 
 		~Log() {
-#ifdef DEBUG
 			_log << getTimestamp() << " [Log] Terminate logger class" << std::endl;
 			_log.close();
-#endif
 		}
 
 		static void Init() {
-#ifdef DEBUG
 			if (!s_Log) {
 				s_Log = new Log;
 			}
 
 			s_Log->InitClass();
-#endif
 		}
 
 		static void Info(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s);
-#endif
 		}
 
 		static void Info(const std::wstring& mod, const std::string& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s);
-#endif
 		}
 
 		static void Warn(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s, LogType::_WARN);
-#endif
 		}
 
 		static void Warn(const std::wstring& mod, const std::string& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s, LogType::_WARN);
-#endif
 		}
 
 		static void Error(const std::wstring& mod, const std::wstring& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s, LogType::_ERROR);
-#endif
 		}
 
 		static void Error(const std::wstring& mod, const std::string& s) {
-#ifdef DEBUG
 			if (!s_Log) {
 				return;
 			}
 
 			return s_Log->_write(mod, s, LogType::_ERROR);
-#endif
 		}
 
 		static std::wstring Readback() {
-#ifdef DEBUG
 			DWORD pid = Util::currentProcessId();
+#ifdef LOGDIR
+			std::wifstream file((LOGDIR L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
+#else
 			std::wstring loc = Util::getDirectory(Util::Directory::USER_DOCUMENTS);
-			std::wstring line;
-			std::wstring text;
 			std::wifstream file((loc + L"\\amendux_" + std::to_wstring(pid) + L".log").c_str());
+#endif
+			std::wstring line, text;
 			while (std::getline(file, line)) {
 				line += L"\r\n";
 				text += line;
 			}
 
 			return text;
-#endif
 		}
 
 		static void Terminate() {
-#ifdef DEBUG
 			if (s_Log) {
 				delete s_Log;
 				s_Log = nullptr;
 			}
-#endif
 		}
 
 	};
+#else
+namespace Log
+{
+	static void Init() {}
+	static void Terminate() {}
+};
+#endif
 
 }

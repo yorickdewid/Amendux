@@ -64,7 +64,7 @@ namespace Amendux {
 
 			Thread<TaskQueue> *thread = new Thread<TaskQueue>(TaskQueue::Current(), &TaskQueue::Worker);
 			if (!thread->Start()) {
-				Log::Error(L"TaskQueue", L"Cannot spawn worker process");
+				LogError(L"TaskQueue", L"Cannot spawn worker process");
 			}
 		}
 

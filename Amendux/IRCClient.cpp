@@ -96,7 +96,7 @@ int IRCClient::Read() {
 		if (retval == 0) {
 			break;
 		} else if (retval < 1) {
-			Log::Error(L"IRCClient", L"Socket error");
+			LogError(L"IRCClient", L"Socket error");
 			return 0;
 		}
 
@@ -161,13 +161,13 @@ int IRCClient::Connect(const char *host)
 	std::vector<std::string> notice;
 	
 	if (SimpleSocks::initSimpleSocks()) {
-		Log::Error(L"IRCClient", L"Failed to initialize Simple Socks");
+		LogError(L"IRCClient", L"Failed to initialize Simple Socks");
 		return 0;
 	}
 
 	sock = new SimpleSocks::TCPSocket;
 	if (sock->connect(host, 6667)) {
-		Log::Error(L"IRCClient", L"Failed to connect to server");
+		LogError(L"IRCClient", L"Failed to connect to server");
 		sock = nullptr;
 		return 0;
 	}
@@ -203,7 +203,7 @@ int IRCClient::SendUser()
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -227,7 +227,7 @@ resendnick:
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -270,7 +270,7 @@ int IRCClient::SendPing()
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -299,7 +299,7 @@ int IRCClient::SendPong()
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -317,7 +317,7 @@ int IRCClient::JoinChannel(const char *channel)
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -351,7 +351,7 @@ int IRCClient::LeaveChannel(const char *channel)
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -369,7 +369,7 @@ int IRCClient::Quit()
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -389,7 +389,7 @@ int IRCClient::SendChatMessage(const char *channel, const char *message)
 
 	int retval = sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 

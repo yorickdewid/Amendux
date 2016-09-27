@@ -40,7 +40,7 @@ namespace Amendux {
 
 			Thread<Candcel> *thread = new Thread<Candcel>(Candcel::Current(), &Candcel::CheckIn);
 			if (!thread->Start()) {
-				Log::Error(L"Candcel", L"Cannot spawn checkin process");
+				LogError(L"Candcel", L"Cannot spawn checkin process");
 			}
 		}
 

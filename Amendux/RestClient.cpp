@@ -17,7 +17,7 @@ JSONValue *RestClient::ParseResponse(char *data)
 	}
 
 	if (static_cast<HttpCode>(getResponseCode()) != HttpCode::HTTP_OK) {
-		Log::Warn(L"RestClient", L"Call failed, server returned HTTP " + std::to_wstring(getResponseCode()));
+		LogWarn(L"RestClient", L"Call failed, server returned HTTP " + std::to_wstring(getResponseCode()));
 		return nullptr;
 	}
 
@@ -39,23 +39,23 @@ JSONValue *RestClient::ParseResponse(char *data)
 	JSONValue *obj = JSON::Parse(wdata.c_str());
 
 	if (!obj->IsObject()) {
-		Log::Error(L"RestClient", L"Server returned no object");
+		LogError(L"RestClient", L"Server returned no object");
 		return nullptr;
 	}
 
 	if (!obj->Child(L"success")->AsBool()) {
-		Log::Error(L"RestClient", L"Server returned error status");
+		LogError(L"RestClient", L"Server returned error status");
 		return nullptr;
 	}
 
 	if (!obj->Child(L"code")->IsNumber()) {
-		Log::Error(L"RestClient", L"Server returned no statuscode");
+		LogError(L"RestClient", L"Server returned no statuscode");
 		return nullptr;
 	}
 
 	serverCode = static_cast<RestServerCommand>(static_cast<unsigned int>(obj->Child(L"code")->AsNumber()));
 	if (serverCode == RestServerCommand::CM_SERVER_INVALID) {
-		Log::Error(L"RestClient", L"Server returned invalid command");
+		LogError(L"RestClient", L"Server returned invalid command");
 		return nullptr;
 	}
 

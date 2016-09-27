@@ -15,31 +15,13 @@ Config *Config::s_Config = nullptr;
 
 Config::Config()
 {
-	Log::Info(L"Config", L"Initialize config class");
-
-	// Encrypt module settings
-	{
-		// HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, L"SOFTWARE\\Amendux\\Crypt");
-		// LPBYTE dRsPubkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", crypto_box_PUBLICKEYBYTES);
-		// LPBYTE dRsPrivkey = RegDB::getValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", crypto_box_SECRETKEYBYTES);
-		// if (!dRsPubkey || !dRsPrivkey) {
-		// encrypt.genLocalKeypair();
-
-		// RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPubkey", encrypt.clientPublickey(), crypto_box_PUBLICKEYBYTES);
-		// RegDB::setValue<LPBYTE>(hRoot, REG_BINARY, L"clientPrivkey", encrypt.clientPrivatekey(), crypto_box_SECRETKEYBYTES);
-
-		// Log::Info(L"Config", L"Client keys generated and set");
-		// }
-		// else {
-		// encrypt.setLocalKeypair(dRsPubkey, dRsPrivkey);
-		// }
-	}
+	LogInfo(L"Config", L"Initialize config class");
 }
 
 
 Config::~Config()
 {
-	Log::Info(L"Config", L"Terminate config class");
+	LogInfo(L"Config", L"Terminate config class");
 }
 
 
@@ -105,7 +87,7 @@ void Config::LogEnvironment()
 void Config::SetupDataDir()
 {
 	if (!Util::createDirectory(DataDirectory())) {
-		Log::Error(L"Config", L"Cannot create data directory");
+		LogError(L"Config", L"Cannot create data directory");
 
 		bSuccess = false;
 	}
@@ -239,7 +221,7 @@ void Config::ApplyUpdate() // TOTEST
 		return;
 	}
 	
-	Log::Info(L"Config", L"Applying update");
+	LogInfo(L"Config", L"Applying update");
 
 	HKEY hRoot = RegDB::createKey(HKEY_CURRENT_USER, Variant::getRegister(variant));
 

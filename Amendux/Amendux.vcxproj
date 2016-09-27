@@ -248,6 +248,7 @@
     <ClInclude Include="Base64.h" />
     <ClInclude Include="Candcel.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="System.h" />
     <ClInclude Include="CoreInterface.h" />
     <ClInclude Include="FTPClient.h" />
     <ClInclude Include="Infect.h" />
@@ -313,6 +314,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="System.cpp" />
     <ClCompile Include="TaskQueue.cpp" />
     <ClCompile Include="TCPServer.cpp" />
     <ClCompile Include="TCPSocket.cpp" />

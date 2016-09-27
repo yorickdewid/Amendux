@@ -19,6 +19,14 @@ namespace Amendux {
 			this->parameters = params;
 		}
 		
+		std::wstring GetParameter(const std::wstring key) const {
+			if (parameters.find(key) == parameters.end()) {
+				return L"";
+			}
+
+			return parameters.find(key)->second;
+		}
+
 		virtual DWORD Run() = 0;
 	};
 

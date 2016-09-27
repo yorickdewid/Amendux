@@ -12,7 +12,7 @@ std::wstring TransferClient::ParseResponse(char *data)
 	}
 
 	if (static_cast<HttpCode>(getResponseCode()) != HttpCode::HTTP_OK) {
-		Log::Warn(L"TransferClient", L"Cannot get file, server returned HTTP " + std::to_wstring(getResponseCode()));
+		LogWarn(L"TransferClient", L"Cannot get file, server returned HTTP " + std::to_wstring(getResponseCode()));
 		return L"";
 	}
 

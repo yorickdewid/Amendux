@@ -2,6 +2,8 @@
 
 #include <sstream>
 #include "CoreInterface.h"
+
+/* Included once and only here */
 #include "vaconfig.h"
 
 namespace Amendux {

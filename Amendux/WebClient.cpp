@@ -10,14 +10,14 @@ using namespace Amendux;
 
 void WebClient::Init(const std::string& host, const std::string& uri) {
 	if (SimpleSocks::initSimpleSocks()) {
-		Log::Error(L"WebClient", L"Failed to initialize Simple Socks");
+		LogError(L"WebClient", L"Failed to initialize Simple Socks");
 		return;
 	}
 
 	sock = new SimpleSocks::TCPSocket;
 
 	if (sock->connect(host.c_str(), 80)) {
-		Log::Error(L"WebClient", L"Failed to connect to server");
+		LogError(L"WebClient", L"Failed to connect to server");
 		sock = nullptr;
 	}
 
@@ -90,7 +90,7 @@ char *WebClient::Perform(const std::string& postData)
 	// We send it through the socket
 	int retval = sock->send(httpHeader.c_str(), static_cast<int>(httpHeader.length()));
 	if (retval < 1) {
-		Log::Error(L"WebClient", L"Connection was lost");
+		LogError(L"WebClient", L"Connection was lost");
 		sock = nullptr;
 		return nullptr;
 	}
@@ -99,14 +99,14 @@ char *WebClient::Perform(const std::string& postData)
 	memset(buffer, 0, 1024);
 	retval = sock->peek(buffer, 1023);
 	if (retval < 1) {
-		Log::Error(L"WebClient", L"Socket error");
+		LogError(L"WebClient", L"Socket error");
 		return nullptr;
 	}
 
 	// The response header will end with "\r\n\r\n", so let's look for that.
 	char *endHeaderPtr = strstr(buffer, "\r\n\r\n");
 	if (!endHeaderPtr) {
-		Log::Error(L"WebClient", L"Could not find end of HTTP header");
+		LogError(L"WebClient", L"Could not find end of HTTP header");
 		return nullptr;
 	}
 
@@ -116,7 +116,7 @@ char *WebClient::Perform(const std::string& postData)
 
 	retval = sock->recv(buffer, static_cast<int>(headLen));
 	if (retval < 1) {
-		Log::Error(L"WebClient", L"Socket error");
+		LogError(L"WebClient", L"Socket error");
 		return nullptr;
 	}
 
@@ -162,7 +162,7 @@ char *WebClient::Perform(const std::string& postData)
 		if (retval == 0) {
 			break;
 		} else if (retval < 1) {
-			Log::Error(L"WebClient", L"Socket error");
+			LogError(L"WebClient", L"Socket error");
 			return nullptr;
 		}
 		got += retval;

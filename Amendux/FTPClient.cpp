@@ -32,14 +32,14 @@ FTPClient::FTPClient()
 {
 	mp_ftphandle = new FTPHandle;
 	if (!mp_ftphandle) {
-		Log::Error(L"FTPClient", L"Allocation error");
+		LogError(L"FTPClient", L"Allocation error");
 	}
 
 	::memset(mp_ftphandle, '\0', sizeof(FTPHandle));
 
 	mp_ftphandle->buf = new char[DEFAULT_BUFSIZ];
 	if (!mp_ftphandle->buf) {
-		Log::Error(L"FTPClient", L"Allocation error");
+		LogError(L"FTPClient", L"Allocation error");
 		delete mp_ftphandle;
 	}
 
@@ -90,7 +90,7 @@ read_retry:
 				break;
 			}
 
-			Log::Error(L"FTPClient", L"Socket error");
+			LogError(L"FTPClient", L"Socket error");
 			return 0;
 		}
 		got += retval;
@@ -108,7 +108,6 @@ read_retry:
 int FTPClient::readresp(char c, FTPHandle *nControl)
 {
 	if (readline(nControl->response, 512, nControl) == -1) {
-		perror("Control socket read failed");
 		return 0;
 	}
 
@@ -138,13 +137,13 @@ char *FTPClient::LastResponse()
 int FTPClient::Connect(const char *host) // std:string
 {
 	if (SimpleSocks::initSimpleSocks()) {
-		Log::Error(L"FTPClient", L"Failed to initialize Simple Socks");
+		LogError(L"FTPClient", L"Failed to initialize Simple Socks");
 		return 0;
 	}
 
 	mp_ftphandle->sock = new SimpleSocks::TCPSocket;
 	if (mp_ftphandle->sock->connect(host, 21)) {
-		Log::Error(L"FTPClient", L"Failed to connect to server");
+		LogError(L"FTPClient", L"Failed to connect to server");
 		mp_ftphandle->sock = nullptr;
 	}
 
@@ -179,7 +178,7 @@ int FTPClient::FtpSendCmd(const char *cmd, char expresp, FTPHandle *nControl)
 
 	int retval = nControl->sock->send(buf, (int)strlen(buf));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -332,7 +331,7 @@ int FTPClient::FtpOpenPasv(FTPHandle *nControl, FTPHandle **nData, transfermode 
 
 	ctrl->sock = new SimpleSocks::TCPSocket;
 	if (ctrl->sock->connect(address, port)) {
-		Log::Error(L"FTPClient", L"Failed to connect to server");
+		LogError(L"FTPClient", L"Failed to connect to server");
 		ctrl->sock = nullptr;
 	}
 
@@ -348,7 +347,7 @@ int FTPClient::FtpOpenPasv(FTPHandle *nControl, FTPHandle **nData, transfermode 
 
 	int retval = nControl->sock->send(cmd, (int)strlen(cmd));
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -357,7 +356,7 @@ int FTPClient::FtpOpenPasv(FTPHandle *nControl, FTPHandle **nData, transfermode 
 	}
 
 	if ((mode == 'A') && ((ctrl->buf = new char[DEFAULT_BUFSIZ]) == NULL)) {
-		Log::Error(L"FTPClient", L"Allocation error");
+		LogError(L"FTPClient", L"Allocation error");
 		delete ctrl;
 		return -1;
 	}
@@ -383,7 +382,7 @@ int FTPClient::FtpDataClose(FTPHandle *nData)
 		if (nData->buf) {
 			int retval = nData->sock->send(nData->buf, (int)strlen(nData->buf));
 			if (retval < 1) {
-				Log::Error(L"FTPClient", L"Connection was lost");
+				LogError(L"FTPClient", L"Connection was lost");
 				return 0;
 			}
 		}
@@ -416,7 +415,7 @@ int FTPClient::FtpDataRead(void *buf, int max, FTPHandle *nData)
 
 	int retval = readline(static_cast<char*>(buf), max, nData);
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
@@ -435,7 +434,7 @@ int FTPClient::FtpDataWrite(void *buf, int len, FTPHandle *nData)
 
 	int retval = nData->sock->send((char *)buf, len);
 	if (retval < 1) {
-		Log::Error(L"FTPClient", L"Connection was lost");
+		LogError(L"FTPClient", L"Connection was lost");
 		return 0;
 	}
 
