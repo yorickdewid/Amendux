@@ -15,7 +15,6 @@ void WebClient::Init(const std::string& host, const std::string& uri) {
 	}
 
 	sock = new SimpleSocks::TCPSocket;
-
 	if (sock->connect(host.c_str(), 80)) {
 		LogError(L"WebClient", L"Failed to connect to server");
 		sock = nullptr;

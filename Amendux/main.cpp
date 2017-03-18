@@ -169,6 +169,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	if (!Amendux::Config::Current()->CanGuardProcess()) {
 		hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, MUTEX);
 
+		// If mutex is set, return false
 		if (hMutex) {
 			return false;
 		}
@@ -185,7 +186,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	// Ensure that the common control DLL is loaded
 	InitCommonControls();
 
-	HWND hWnd = CreateWindow(WINUICLASS, WINUINAME, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+	HWND hWnd = CreateWindow(
+		WINUICLASS,					// Class name
+		WINUINAME,					// Window name
+		WS_OVERLAPPEDWINDOW,		// Window style
+		CW_USEDEFAULT,				// Position X
+		0,							// Position Y
+		CW_USEDEFAULT,				// Window width
+		0,							// Window height
+		NULL,						// Handler parent
+		NULL,						// Resource to menu
+		hInstance,					// Global instance handler
+		NULL						// Additional parameters
+	);
 	if (!hWnd) {
 		ReleaseMutex(hMutex);
 		return false;
@@ -320,7 +333,7 @@ done:
 
 
 //
-//  PURPOSE: This section is mainly for debugging in UI mode
+//  SECTION: This section is mainly devoted to UI debugging
 //
 
 
@@ -487,6 +500,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					
 					std::wstring checkin = L"Checkins: " + std::to_wstring(Amendux::Candcel::Current()->CheckinCounter());
 					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 3, (LPARAM)checkin.c_str());
+				}
+				else {
+					SendDlgItemMessage(hWnd, IDC_MAIN_STATUS, SB_SETTEXT, 2, (LPARAM)L"Not Connected");
 				}
 
 				if (Amendux::Config::Current()->CanRunWorker()) {
