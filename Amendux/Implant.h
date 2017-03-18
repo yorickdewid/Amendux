@@ -4,21 +4,21 @@
 
 namespace Amendux {
 
-	class Infect : CoreInterface
+	class Implant : CoreInterface
 	{
-		static Infect *s_Infect;
+		static Implant *s_Infect;
 		void SetupHomeDirectory();
 		void SetupRegisterHook();
 		void SetupStartupFolder();
 		void InitClass();
 
 	public:
-		Infect();
-		~Infect();
+		Implant();
+		~Implant();
 
-		static Infect *Current() {
+		static Implant *Current() {
 			if (!s_Infect) {
-				s_Infect = new Infect;
+				s_Infect = new Implant;
 			}
 
 			return s_Infect;
@@ -26,7 +26,7 @@ namespace Amendux {
 
 		static void Init() {
 			if (!s_Infect) {
-				s_Infect = new Infect;
+				s_Infect = new Implant;
 			}
 
 			s_Infect->InitClass();

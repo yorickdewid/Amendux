@@ -12,8 +12,8 @@ namespace Amendux {
 		HANDLE  hThread;      // unique handle to the thread
 
 	private:
-		DWORD threadID;     // thread id - 0 until started
-		T *object;      // the object which owns the method
+		DWORD threadID;      // thread id - 0 until started
+		T *object;			 // the object which owns the method
 		Method method;       // the method of the object
 		HANDLE hInterrupt;   // mutex to signal an interrupt via ReleaseSemaphore()
 		HANDLE hSingleStart; // only one thread allowed to call start() mutex
@@ -44,19 +44,22 @@ namespace Amendux {
 		}
 
 		~Thread() {
-			if (hInterrupt)
+			if (hInterrupt) {
 				CloseHandle(hInterrupt);
+			}
 
-			if (hThread)
+			if (hThread) {
 				CloseHandle(hThread);
+			}
 		}
 
 		/* Starts executing the objects method in a concurrent thread. True if the
 		thread was started successfully; otherwise false. */
 		bool Start() {
 			__try {
-				if (WaitForSingleObject(hSingleStart, 0) != WAIT_OBJECT_0)
+				if (WaitForSingleObject(hSingleStart, 0) != WAIT_OBJECT_0) {
 					return false;
+				}
 
 				if (hThread) {
 					if (WaitForSingleObject(hThread, 0) == WAIT_TIMEOUT) {   // if thread's still running deny new start

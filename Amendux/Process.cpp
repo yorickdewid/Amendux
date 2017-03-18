@@ -3,6 +3,8 @@
 #include "Config.h"
 #include "Process.h"
 
+#include <memory>
+
 using namespace Amendux;
 
 bool Process::RunUpdateInstance(const std::wstring& file)
@@ -166,12 +168,49 @@ LPWSTR Process::Execute(LPWSTR command) {
 }
 
 
+DWORD Process::StartGuardProcess()
+{
+	STARTUPINFO startupInfo;
+	std::ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+
+	std::wstring curPath = Util::currentModule();
+	std::wstring updateExe = L" /Sg " + std::to_wstring(Util::currentProcessId()) + L" 0x1f00";
+
+	PROCESS_INFORMATION processInfo;
+	if (!::CreateProcess(curPath.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
+		LogError(L"Process", L"Cannot spawn guard process");
+		return 0;
+	}
+
+	return processInfo.dwProcessId;
+}
+
+
+DWORD Process::StartCoreProcess()
+{
+	STARTUPINFO startupInfo;
+	std::ZeroMemory(&startupInfo, sizeof(startupInfo));
+	startupInfo.cb = sizeof(startupInfo);
+
+	std::wstring curPath = Util::currentModule();
+
+	PROCESS_INFORMATION processInfo;
+	if (!::CreateProcess(curPath.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
+		LogError(L"Process", L"Cannot spawn guard process");
+		return 0;
+	}
+
+	return processInfo.dwProcessId;
+}
+
+
 DWORD Process::GuardObject()
 {
 	LogInfo(L"Process", L"Start guarding main module");
 
-	DWORD value = MAX_PATH;
-	WCHAR buffer[MAX_PATH];
+	//DWORD value = MAX_PATH;
+	//WCHAR buffer[MAX_PATH];
 
 	unsigned int pid = Config::Current()->GuardProcess();
 	HANDLE hProc = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_INFORMATION, FALSE, pid);
@@ -182,27 +221,17 @@ DWORD Process::GuardObject()
 		return 0;
 	}
 
-	if (!QueryFullProcessImageName(hProc, 0, buffer, &value)) {
-		LogError(L"Process", L"Cannot find process image");
-
-		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
-		return 0;
-	}
-
 	if (WaitForSingleObject(hProc, INFINITE) == WAIT_OBJECT_0) {
 		LogWarn(L"Process", L"Main module terminated");
 
 		Sleep(1000);
 
-		PROCESS_INFORMATION processInfo;
-		STARTUPINFO startupInfo;
-		::ZeroMemory(&startupInfo, sizeof(startupInfo));
-		startupInfo.cb = sizeof(startupInfo);
-
-		if (::CreateProcess(buffer, NULL, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-			hProc = processInfo.hProcess;
-			LogInfo(L"Process", L"Main module restarted");
+		if (!Process::StartCoreProcess()) {
+			LogError(L"Process", L"Cannot spawn main process");
+			return 0;
 		}
+
+		LogInfo(L"Process", L"Main module restarted");
 
 		PostThreadMessage(Config::Current()->MainThread(), WM_QUIT, 0, 0);
 	}
@@ -218,8 +247,8 @@ void Process::Guard()
 	if (!Config::Current()->CanGuardProcess()) {
 		return;
 	}
-
-	Thread<Process> *thread = new Thread<Process>(new Process, &Process::GuardObject);
+	
+	auto thread = new Thread<Process>(new Process, &Process::GuardObject);
 	if (!thread->Start()) {
 		LogError(L"Process", L"Cannot spawn waiting process");
 	}
@@ -232,17 +261,16 @@ void Process::SpawnGuardProcess()
 		return;
 	}
 
-	PROCESS_INFORMATION processInfo;
-	STARTUPINFO startupInfo;
-	std::ZeroMemory(&startupInfo, sizeof(startupInfo));
-	startupInfo.cb = sizeof(startupInfo);
-
-	std::wstring curPath = Util::currentModule();
-	std::wstring updateExe = L" /Sg " + std::to_wstring(Util::currentProcessId()) + L" 0x1f00";
-
-	if (::CreateProcess(curPath.c_str(), (LPTSTR)updateExe.c_str(), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-		LogInfo(L"Process", L"Starting guard");
-
-		Config::Current()->SetGuardProcessId(processInfo.dwProcessId);
+	DWORD pid = Process::StartGuardProcess();
+	if (!pid) {
+		LogError(L"Process", L"Cannot spawn guard process");
 	}
+
+	Config::Current()->SetGuardProcessId(pid);
+	LogInfo(L"Process", L"Starting guard wid PID: " + std::to_wstring(pid));
+
+	/*auto thread = new Thread<Process>(new Process, &Process::GuardObject);
+	if (!thread->Start()) {
+		LogError(L"Process", L"Cannot spawn waiting process");
+	}*/
 }

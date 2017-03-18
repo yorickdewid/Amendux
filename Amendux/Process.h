@@ -6,11 +6,13 @@ namespace Amendux {
 
 	class Process
 	{
-
-	public:
 		Process() {}
 		~Process() {}
 
+		static DWORD StartGuardProcess();
+		static DWORD StartCoreProcess();
+
+	public:
 		DWORD GuardObject();
 
 		static bool RunUpdateInstance(const std::wstring& file);

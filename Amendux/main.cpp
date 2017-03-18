@@ -21,7 +21,7 @@
 #include "Config.h"
 #include "Process.h"
 #include "Candcel.h"
-#include "Infect.h"
+#include "Implant.h"
 #include "ModuleLoader.h"
 #include "TaskQueue.h"
 #include "Resource.h"
@@ -69,7 +69,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	}
 
 	// Run core classes
-	Amendux::Infect::Init();
+	Amendux::Implant::Init();
 	Amendux::Candcel::Init();
 	Amendux::TaskQueue::Init();
 	Amendux::ModuleLoader::Init();
@@ -91,7 +91,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 	Amendux::ModuleLoader::Terminate();
 	Amendux::TaskQueue::Terminate();
 	Amendux::Candcel::Terminate();
-	Amendux::Infect::Terminate();
+	Amendux::Implant::Terminate();
 	Amendux::Config::Terminate();
 	Amendux::Log::Terminate();
 

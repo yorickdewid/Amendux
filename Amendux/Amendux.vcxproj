@@ -253,7 +253,7 @@
     <ClInclude Include="System.h" />
     <ClInclude Include="CoreInterface.h" />
     <ClInclude Include="FTPClient.h" />
-    <ClInclude Include="Infect.h" />
+    <ClInclude Include="Implant.h" />
     <ClInclude Include="IRCClient.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Json.h" />
@@ -291,7 +291,7 @@
     <ClCompile Include="Candcel.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="FTPClient.cpp" />
-    <ClCompile Include="Infect.cpp" />
+    <ClCompile Include="Implant.cpp" />
     <ClCompile Include="init.cpp" />
     <ClCompile Include="IRCClient.cpp" />
     <ClCompile Include="Json.cpp" />

