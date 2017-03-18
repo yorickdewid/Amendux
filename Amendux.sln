@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Amendux", "Amendux\Amendux.vcxproj", "{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}"
 EndProject
@@ -52,6 +52,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x64.ActiveCfg = Debug|x64
 		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x64.Build.0 = Debug|x64
+		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x64.Deploy.0 = Debug|x64
 		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x86.ActiveCfg = Debug|Win32
 		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.Debug|x86.Build.0 = Debug|Win32
 		{FDB2FF81-E69A-4E3A-8281-8B1099B38D14}.DebugDLL|x64.ActiveCfg = Debug|x64
