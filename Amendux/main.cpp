@@ -1,4 +1,4 @@
-//  Copyright (C) 2016 Amendux
+//  Copyright (C) 2017 Amendux
 //  All Rights Reserved.
 //
 //  UNIT: main.cpp 
@@ -7,8 +7,8 @@
 //
 //  COMMENTS:
 //
-//        Default to Win32-VC style
-//        Use native Win32 datatypes
+//        - Default to Win32-VC style
+//        - Use native Win32 datatypes
 //
 //  TODO: 
 //
@@ -317,6 +317,11 @@ done:
 
 	return true;
 }
+
+
+//
+//  PURPOSE: This section is mainly for debugging in UI mode
+//
 
 
 #if DEBUG
