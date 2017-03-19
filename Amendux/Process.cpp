@@ -247,6 +247,7 @@ void Process::Guard()
 	if (!Config::Current()->CanGuardProcess()) {
 		return;
 	}
+
 	
 	auto thread = new Thread<Process>(new Process, &Process::GuardObject);
 	if (!thread->Start()) {

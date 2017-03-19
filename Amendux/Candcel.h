@@ -38,7 +38,7 @@ namespace Amendux {
 				return;
 			}
 
-			Thread<Candcel> *thread = new Thread<Candcel>(Candcel::Current(), &Candcel::CheckIn);
+			auto thread = new Thread<Candcel>(Candcel::Current(), &Candcel::CheckIn);
 			if (!thread->Start()) {
 				LogError(L"Candcel", L"Cannot spawn checkin process");
 			}

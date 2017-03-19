@@ -191,9 +191,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		WINUINAME,					// Window name
 		WS_OVERLAPPEDWINDOW,		// Window style
 		CW_USEDEFAULT,				// Position X
-		0,							// Position Y
-		CW_USEDEFAULT,				// Window width
-		0,							// Window height
+		CW_USEDEFAULT,				// Position Y
+		750,						// Window width
+		450,						// Window height
 		NULL,						// Handler parent
 		NULL,						// Resource to menu
 		hInstance,					// Global instance handler

